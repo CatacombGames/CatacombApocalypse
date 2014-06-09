@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,6 +17,7 @@
  */
 
 // C3_MAIN.C
+
 #define CATALOG
 
 
@@ -27,13 +28,6 @@
 #include "GELIB.H"
 #pragma hdrstop
 #include <dir.h>
-
-/*
-=============================================================================
-
-
-=============================================================================
-*/
 
 /*
 =============================================================================
@@ -52,7 +46,7 @@
 =============================================================================
 */
 
-textinfo MainHelpText;
+PresenterInfo MainHelpText;
 
 GameDiff restartgame;
 boolean loadedgame,abortgame,ingame;
@@ -66,10 +60,14 @@ gametype	gamestate;
 exittype	playstate;
 char	SlowMode = 0;
 int starting_level;
-boolean EASYMODEON;
+
+//extern unsigned scolor,gcolor;					//NPM
 
 short NumGames=0;
 unsigned Flags=0;
+
+boolean LoadShapes = true;
+boolean EASYMODEON = false;
 
 void DisplayIntroText(void);
 
@@ -142,11 +140,10 @@ void NewGame (void)
 		gamestate.body = MAXBODY;
 	}
 
-	BGFLAGS = 0;
+	BGFLAGS = BGF_NOT_LIGHTNING;
 	Flags &= FL_CLEAR;
 
 	boltsleft = bolttimer = 0;
-	FreezeTime = 0;
 
 //	memset (gamestate.levels,-1,sizeof(gamestate.levels));
 }
@@ -168,6 +165,12 @@ boolean	SaveTheGame(int file)
 	word	i,compressed,expanded;
 	objtype	*o;
 	memptr	bigbuffer;
+
+	// save the sky and ground colors
+	if (!CA_FarWrite(file,(void far *)&skycolor,sizeof(skycolor)))
+		return(false);
+	if (!CA_FarWrite(file,(void far *)&groundcolor,sizeof(groundcolor)))
+		return(false);
 
 	if (!CA_FarWrite(file,(void far *)&FreezeTime,sizeof(FreezeTime)))
 		return(false);
@@ -212,6 +215,7 @@ boolean	SaveTheGame(int file)
 
 //===========================================================================
 
+
 /*
 ==================
 =
@@ -232,6 +236,12 @@ boolean	LoadTheGame(int file)
 	FreeUpMemory();
 
 	playstate = ex_loadedgame;
+	// load the sky and ground colors
+	if (!CA_FarRead(file,(void far *)&skycolor,sizeof(skycolor)))
+		return(false);
+	if (!CA_FarRead(file,(void far *)&groundcolor,sizeof(groundcolor)))
+		return(false);
+
 	if (!CA_FarRead(file,(void far *)&FreezeTime,sizeof(FreezeTime)))
 		return(false);
 
@@ -281,7 +291,8 @@ boolean	LoadTheGame(int file)
 			tile = *map++;
 			if (tile<NUMFLOORS)
 			{
-				tilemap[x][y] = tile;
+				if (tile != INVISIBLEWALL)
+					tilemap[x][y] = tile;
 				if (tile>0)
 					(unsigned)actorat[x][y] = tile;
 			}
@@ -489,14 +500,15 @@ void Quit (char *error, ...)
 
 	va_start(ap,error);
 
+#ifndef CATALOG
 	if (!error)
 	{
 		CA_SetAllPurge ();
-#ifndef CATALOG
 		CA_CacheGrChunk (PIRACY);
 		finscreen = (unsigned)grsegs[PIRACY];
-#endif
 	}
+#endif
+
 	ShutdownId ();
 
 	if (error && *error)
@@ -504,18 +516,11 @@ void Quit (char *error, ...)
 		vprintf(error,ap);
 		exit_code = 1;
 	}
-
 #ifndef CATALOG
 	else
+	if (!NoWait)
 	{
 		movedata (finscreen,0,0xb800,0,4000);
-
-		if (kbhit())
-		{
-			while (kbhit())
-				bioskey(0);
-		}
-
 		bioskey (0);
 	}
 #endif
@@ -560,6 +565,31 @@ void	TEDDeath(void)
 //===========================================================================
 
 /*
+====================
+=
+= DisplayDepartment
+=
+====================
+*/
+void DisplayDepartment(char *text)
+{
+	short temp;
+
+//	bufferofs = 0;
+	PrintY = 1;
+	WindowX = 0;
+	WindowW = 320;
+
+	VW_Bar(WindowX,PrintY+1,WindowW,7,7);
+	temp = fontcolor;
+	fontcolor = 2;
+	US_CPrintLine (text);
+	fontcolor = temp;
+}
+
+
+
+/*
 =====================
 =
 = DemoLoop
@@ -569,13 +599,20 @@ void	TEDDeath(void)
 
 void	DemoLoop (void)
 {
+
 /////////////////////////////////////////////////////////////////////////////
 // main game cycle
 /////////////////////////////////////////////////////////////////////////////
 
-//	displayofs = bufferofs = 0;
-//	VW_Bar (0,0,320,200,0);
-//	VW_SetScreen(0,0);
+	displayofs = bufferofs = 0;
+	VW_Bar (0,0,320,200,0);
+	VW_SetScreen(0,0);
+
+//
+// Read in all the graphic images needed for the title sequence
+//
+		VW_WaitVBL(1);
+		IN_ReadControl(0,&control);
 
 //	set EASYMODE
 //
@@ -610,31 +647,57 @@ void	DemoLoop (void)
 		GameLoop();
 }
 
+
 //-------------------------------------------------------------------------
 // DisplayIntroText()
 //-------------------------------------------------------------------------
 void DisplayIntroText()
 {
-	char *toptext = "You stand before the gate leading into the Towne "
-						 "Cemetery. Night is falling as mournful wails mingle "
-						 "with the sound of your pounding heart.";
+	PresenterInfo pi;
 
-	char *bottomtext = "Equipped with your wits and the Secret Knowledge of "
-							 "Magick, you venture forth on your quest to upset "
-							 "the dark schemes of Nemesis, your arch rival.";
+#ifdef TEXT_PRESENTER
+	char *toptext = "You stand before the gate leading into the Towne "
+						 "of Morbidity.... "
+						 "^XX";
+
+	char *bottomtext = "Enter now boldly to defeat the evil Nemesis "
+							 "deep inside the catacombs."
+							 "
+							 "^XX";
+#endif
 
 	char oldfontcolor=fontcolor;
 
 	fontcolor = 14;
-	WindowX=WindowY=0;
-	PPT_RightEdge=319;
-	PPT_LeftEdge=0;
 
+
+#ifdef TEXT_PRESENTER
+	pi.xl = 0;
+	pi.yl = 0;
+	pi.xh = 319;
+	pi.yh = 1;
+	pi.bgcolor = 0;
+	pi.script[0] = (char far *)toptext;
+	Presenter(&pi);
+
+	pi.yl = 160;
+	pi.yh = 161;
+	pi.script[0] = (char far *)bottomtext;
+	Presenter(&pi);
+
+#else
 	PrintY = 1;
-	PrintPropText(toptext);
+	PrintX = 0;
+	WindowX = 0;
+	WindowW = 320;
+	US_Print ("         You stand before the gate leading into\n");
+	US_Print ("                 the Towne of Morbidity...\n");
 
-	PrintY = 160;
-	PrintPropText(bottomtext);
+	PrintY = 180;
+	US_Print ("    Enter now boldly to defeat the evil Nemesis\n");
+	US_Print ("              deep inside the catacombs.\n");
+
+#endif
 
 	fontcolor = oldfontcolor;
 }
@@ -820,8 +883,7 @@ void	CheckMemory(void)
 ==========================
 */
 
-char			*MainParmStrings[] = {"q","l","ver","nomemcheck",nil};
-boolean		LaunchedFromShell = false;
+char			*MainParmStrings[] = {"q","l","ver","nomemcheck","helptest",nil};
 
 void main (void)
 {
@@ -844,30 +906,44 @@ void main (void)
 			break;
 
 			case 2:
-				printf("%s  %s  rev %s\n",GAMENAME,VERSION,REVISION);
+				printf("%s\n", GAMENAME);
+				printf("Copyright 1992-93 Softdisk Publishing\n");
+				printf("%s %s\n",VERSION,REVISION);
+				printf("\n");
 				exit(0);
 			break;
 
 			case 3:
 				Flags |= FL_NOMEMCHECK;
 			break;
+
+			case 4:
+				Flags |= (FL_HELPTEST|FL_QUICK);
+			break;
 		}
 	}
 
-	if (!stricmp(_argv[1], "^(a@&r`"))
-			LaunchedFromShell = true;
+	if (stricmp(_argv[1], "^(a@&r`"))
+		Quit("You must type CATARM to run CATACOMB ARMAGEDDON 3-D\n");
 
-	if (!LaunchedFromShell)
-	{
-		clrscr();
-		puts("You must type CATABYSS at the DOS prompt to run CATACOMB ABYSS 3-D.");
-		exit(0);
-	}
+	MainHelpText.xl = 0;
+	MainHelpText.yl = 0;
+	MainHelpText.xh = 639;
+	MainHelpText.yh = 199;
+	MainHelpText.bgcolor = 7;
+	MainHelpText.ltcolor = 15;
+	MainHelpText.dkcolor = 8;
+
+//	jabhack();
 
 	randomize();
 
 	InitGame ();
+//	CheckMemory ();
 	LoadLatchMem ();
+
+//	if (!LoadTextFile("MAINHELP."EXT,&MainHelpText))
+//		Quit("Can't load MAINHELP."EXT);
 
 #ifdef PROFILE
 	NewGame ();
@@ -876,4 +952,101 @@ void main (void)
 
 	DemoLoop();
 	Quit(NULL);
+}
+
+//-------------------------------------------------------------------------
+// Display640()
+//-------------------------------------------------------------------------
+void Display640()
+{
+// Can you believe it takes all this just to change to 640 mode!!???!
+//
+	VW_ScreenToScreen(0,FREESTART-STATUSLEN,40,80);
+	VW_SetLineWidth(80);
+	MoveScreen(0,0);
+	VW_Bar (0,0,640,200,0);
+	VW_SetScreenMode(EGA640GR);
+	VW_SetLineWidth(80);
+	BlackPalette();
+}
+
+//-------------------------------------------------------------------------
+// Display320()
+//-------------------------------------------------------------------------
+void Display320()
+{
+// Can you believe it takes all this just to change to 320 mode!!???!
+//
+	VW_ColorBorder(0);
+	VW_FadeOut();
+	VW_SetLineWidth(40);
+	MoveScreen(0,0);
+	VW_Bar (0,0,320,200,0);
+	VW_SetScreenMode(EGA320GR);
+	BlackPalette();
+	VW_ScreenToScreen(FREESTART-STATUSLEN,0,40,80);
+}
+
+void PrintHelp(void)
+{
+	char oldfontcolor = fontcolor;
+	PrintY = 1;
+	WindowX = 135;
+	WindowW = 640;
+
+	VW_FadeOut();
+	bufferofs = displayofs = screenloc[0];
+	VW_Bar(0,0,320,200,0);
+
+	Display640();
+
+	VW_Bar(0, 0, 640, 200, 7);
+
+	fontcolor = (7 ^ 1);
+	US_Print ("\n\n                    SUMMARY OF GAME CONTROLS\n\n");
+
+	fontcolor = (7 ^ 4);
+	US_Print ("         ACTION\n\n");
+
+	US_Print ("Arrow keys, joystick, or mouse\n");
+	US_Print ("TAB or V while turning\n");
+	US_Print ("ALT or Button 2 while turning\n");
+	US_Print ("CTRL or Button 1\n");
+	US_Print ("Z\n");
+	US_Print ("X or Enter\n");
+	US_Print ("F1\n");
+	US_Print ("F2\n");
+	US_Print ("F3\n");
+	US_Print ("F4\n");
+	US_Print ("F5\n");
+	US_Print ("ESC\n\n");
+#ifndef CATALOG
+	fontcolor = (7 ^ 0);
+	US_Print ("          (See complete Instructions for more info)\n");
+#endif
+
+	fontcolor = (7 ^ 8);
+	PrintX = 400;
+	PrintY = 37;
+	WindowX = 400;
+	US_Print ("   REACTION\n\n");
+	US_Print ("Move and turn\n");
+	US_Print ("Turn quickly (Quick Turn)\n");
+	US_Print ("Move sideways\n");
+	US_Print ("Shoot a Missile\n");
+	US_Print ("Shoot a Zapper\n");
+	US_Print ("Shoot an Xterminator\n");
+	US_Print ("Help (this screen)\n");
+	US_Print ("Sound control\n");
+	US_Print ("Save game position\n");
+	US_Print ("Restore a saved game\n");
+	US_Print ("Joystick control\n");
+	US_Print ("System options\n\n\n");
+
+	VW_UpdateScreen();
+	VW_FadeIn();
+	VW_ColorBorder(8 | 56);
+	IN_Ack();
+	Display320();
+	fontcolor = oldfontcolor;
 }

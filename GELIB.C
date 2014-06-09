@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,8 @@
 
 #include "DEF.H"
 #include "gelib.h"
+#include "sl_file.h"
+
 
 #define MAX_GAMELIST_NAMES 20
 #define FNAME_LEN				9
@@ -44,6 +46,11 @@ short NumGames;
 short PPT_LeftEdge=0,PPT_RightEdge=320;
 boolean LeaveDriveOn=false,ge_textmode=true;
 char Filename[FILENAME_LEN+1], ID[sizeof(GAMENAME)], VER[sizeof(SAVEVER_DATA)];
+short wall_anim_delay,wall_anim_time = 7;
+BufferedIO lzwBIO;
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -205,200 +212,6 @@ void DoPiracy()
 #endif
 #endif
 
-
-//--------------------------------------------------------------------------
-// PrintPropText()
-//--------------------------------------------------------------------------
-
-// THE FOLLOWING MUST BE INITIALIZED BEFORE CALLING THIS ROUTINE:
-//
-
-// WindowX, WindowW, PrintY - These are ID global variables and are
-// automatically initialized when using their window routines.
-//
-// WindowX is the left edge of the window.
-// WindowW is the width of the window.
-// PrintY is the top edge of the window area.
-//
-// All values are represented in unshifted pixels.
-
-// PPT_LeftEdge, PPT_RightEdge - These are globals used by PrintPropText().
-// They define the left and right edge of the text area in pixels.
-
-void PrintPropText(char far *text)
-{
-	#define RETURN_CHAR '\n'
-
-	char pb[200];
-
-	fontstruct _seg *font = (fontstruct _seg *)grsegs[STARTFONT];
-	char savech;
-	short	length,maxend,maxx,loop,curx;
-	boolean centerit,lastcharcr;
-
-	while (*text)
-	{
-		if (*text == '^')
-			centerit=true,text++;
-		else
-			centerit=false;
-
-		/* Search forward for the last possible character in the line. This
-		** character is:  1) RETURN (end of line)  2) ZERO (end of buffer)
-		** and  3) the character at "WP->vWidth" bytes from the start of the line.
-		*/
-		curx=PPT_LeftEdge;
-		length=0;
-		while ((curx+font->width[text[length+1]] < PPT_RightEdge) &&
-				(text[length]) &&
-				(text[length] != RETURN_CHAR))
-						curx+=font->width[text[length++]];
-
-		/* Search backward from the point we just found for a SPACE (for word
-		** wrapping).
-		*/
-		if ((text[length]) && (text[length] != RETURN_CHAR))
-		{
-			maxx = curx;
-			maxend = length;
-			while ((length) && (text[length] != ' '))
-				curx-=font->width[text[length--]];
-
-			/* Were there any SPACES on this line? If not, take the MAX!
-			*/
-			if (!length)
-				length=maxend,curx=maxx;
-		}
-
-		/* If we can, lets keep the SPACE or RETURN that follows a line at
-		** the end of that line.
-		*/
-		if (((text[length] == ' ') || (text[length] == RETURN_CHAR)) && (length < PPT_RightEdge))
-			length++;
-
-		// All of this is kludged to work with ID _Print routines...
-		//
-		savech=text[length];
-		text[length]=0;
-		if (text[length-1] == RETURN_CHAR)
-		{
-			lastcharcr=true;
-			text[length-1]=0;
-		}
-		else
-			lastcharcr=false;
-		_fmemcpy(pb,text,length+1);
-		if (centerit)
-		{
-			US_CPrintLine(pb);
-		}
-		else
-		{
-			PrintX = PPT_LeftEdge;
-			US_Print(pb);
-			US_Print("\n");
-		}
-		if (lastcharcr)
-			text[length-1]=RETURN_CHAR;
-		text[length]=savech;
-		//
-		// end of ID _Print kludge...
-
-		text += length;
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////
-//
-// DisplayText()
-//
-void DisplayText(textinfo *textinfo)
-{
-	#define PAGE_WIDTH 	78
-
-	int loop, PageNum, LastNum,num;
-	boolean InHelp = true,faded_in = false;
-	unsigned holddisp,holdpan,holdbuffer,holdaddress;
-
-// Can you believe it takes all this just to change to 640 mode!!???!
-//
-	VW_ScreenToScreen(0,FREESTART-STATUSLEN,40,80);
-	VW_SetLineWidth(80);
-	MoveScreen(0,0);
-	VW_Bar (0,0,640,200,0);
-	VW_SetScreenMode(EGA640GR);
-	VW_SetLineWidth(80);
-	BlackPalette();
-
-// Now, let's display some text...
-//
-	PPT_RightEdge=PAGE_WIDTH*8;
-	PPT_LeftEdge=16;
-	PrintY= 30;
-	WindowX=WindowY=0;
-
-	LastNum = -1;
-	PageNum = 1;
-	while (InHelp)
-	{
-		// Display new page of text.
-		//
-		if (PageNum != LastNum)
-		{
-			US_DrawWindow(1,1,PAGE_WIDTH,23);
-			PrintPropText(textinfo->pages[PageNum-1]);
-			LastNum = PageNum;
-		}
-
-		VW_UpdateScreen();
-		if (!faded_in)
-		{
-			VW_FadeIn();
-			faded_in = true;
-		}
-
-		// Scroll through text / exit.
-		//
-		IN_ReadControl(0,&control);
-		if (control.button1 || Keyboard[1])
-			InHelp=false;
-		else
-		{
-			if (ControlTypeUsed != ctrl_Keyboard)
-				control.dir = dir_None;
-
-			if (((control.dir == dir_North) || (control.dir == dir_West)) && (PageNum > 1))
-			{
-				PageNum--;
-				while ((control.dir == dir_North) || (control.dir == dir_West))
-					IN_ReadControl(0,&control);
-			}
-			else
-				if (((control.dir == dir_South) || (control.dir == dir_East)) && (PageNum < textinfo->totalpages))
-				{
-					PageNum++;
-					while ((control.dir == dir_South) || (control.dir == dir_East))
-						IN_ReadControl(0,&control);
-				}
-		}
-	}
-
-	// Wait for 'exit key' to be released.
-	//
-	while (control.button1 || Keyboard[1])
-		IN_ReadControl(0,&control);
-
-// Can you believe it takes all this just to change to 320 mode!!???!
-//
-	VW_FadeOut();
-	VW_SetLineWidth(40);
-	MoveScreen(0,0);
-	VW_Bar (0,0,320,200,0);
-	VW_SetScreenMode(EGA320GR);
-	BlackPalette();
-	VW_ScreenToScreen(FREESTART-STATUSLEN,0,40,80);
-}
-
 //--------------------------------------------------------------------------
 // BlackPalette()
 //--------------------------------------------------------------------------
@@ -454,8 +267,7 @@ long Verify(char *filename)
 void GE_SaveGame()
 {
 	boolean GettingFilename=true;
-	char drive;
-//	char Filename[FILENAME_LEN+1],drive; //, ID[sizeof(GAMENAME)], VER[sizeof(SAVEVER_DATA)];
+//	char Filename[FILENAME_LEN+1]; //, ID[sizeof(GAMENAME)], VER[sizeof(SAVEVER_DATA)];
 	int handle;
 	struct dfree dfree;
 	long davail;
@@ -475,22 +287,14 @@ void GE_SaveGame()
 			goto EXIT_FUNC;
 		if (!strlen(Filename))
 			goto EXIT_FUNC;
-
-		drive = getdisk();
-		getdfree(drive+1,&dfree);
+		getdfree(getdisk()+1,&dfree);
 		davail = (long)dfree.df_avail*(long)dfree.df_bsec*(long)dfree.df_sclus;
-
-		if (davail < 10000l)
+		if (davail < 10000)
 		{
-			char status[40] = "\nDrive:     Free: ";
-
-			US_CenterWindow(30,6);
+			US_CenterWindow(22,4);
 			US_Print("\n");
 			US_CPrintLine("Disk Full: Can't save game.");
 			US_CPrintLine("Try inserting another disk.");
-			status[8] = drive+'A';
-			itoa(davail,&status[18],10);
-			US_CPrint(status);
 			VW_UpdateScreen();
 
 			IN_Ack();
@@ -926,241 +730,6 @@ void RefreshBOBList(objtype *obj)
 
 
 
-
-
-
-
-
-
-
-//==========================================================================
-// JAMPAK routines
-//==========================================================================
-#define N		4096
-#define F		18
-
-// THRESHOLD : encode string into position and length if match_length is
-// greater than this
-
-#define THRESHOLD				2
-
-// index for root of binary search trees
-//
-
-#define NIL       			N
-#define COMP					"COMP"
-
-unsigned long 	textsize = 0,  		// text size counter
-					codesize = 0,			// code size counter
-					printcount = 0;     	// counter for reporting progress every 1K bytes
-
-unsigned char far text_buf[N + F - 1];
-
-memptr segptr;
-
-BufferedIO lzwBIO;
-
-//--------------------------------------------------------------------------
-// BLoad()
-//--------------------------------------------------------------------------
-unsigned long BLoad(char *SourceFile, memptr *DstPtr)
-{
-	int handle;
-
-	memptr SrcPtr;
-	longword i, j, k, r, c;
-	word flags;
-	byte Buffer[8];
-	longword DstLen, SrcLen;
-	boolean comp;
-
-	if ((handle = open(SourceFile, O_RDONLY|O_BINARY)) == -1)
-		return(0);
-
-	// Look for 'COMP' header
-	//
-	read(handle,Buffer,4);
-	comp = !strncmp(Buffer,COMP,4);
-
-	// Get source and destination length.
-	//
-	if (comp)
-	{
-		SrcLen = Verify(SourceFile);
-		read(handle,(void *)&DstLen,4);
-		MM_GetPtr(DstPtr,DstLen);
-		if (!*DstPtr)
-			return(0);
-	}
-	else
-		DstLen = Verify(SourceFile);
-
-	// LZW decompress OR simply load the file.
-	//
-	if (comp)
-	{
-
-		if (MM_TotalFree() < SrcLen)
-		{
-			if (!InitBufferedIO(handle,&lzwBIO))
-				TrashProg("No memory for buffered I/O.");
-			lzwDecompressFromFile(&lzwBIO,MK_FP(*DstPtr,0),SrcLen+8);
-			FreeBufferedIO(&lzwBIO);
-		}
-		else
-		{
-			CA_LoadFile(SourceFile,&SrcPtr);
-			lzwDecompressFromRAM(MK_FP(SrcPtr,8),MK_FP(*DstPtr,0),SrcLen+8);
-			MM_FreePtr(&SrcPtr);
-		}
-	}
-	else
-		CA_LoadFile(SourceFile,DstPtr);
-
-	close(handle);
-	return(DstLen);
-}
-
-//--------------------------------------------------------------------------
-// lzwDecompressFromRAM()
-//
-// SrcPtr - pointer to first byte of compressed data.
-// DstPtr - pointer to decompress memory area.
-// SrcLen - length of compressed data.
-//
-//--------------------------------------------------------------------------
-
-#undef nextch()
-#define nextch(ptr)	*ptr++
-
-void lzwDecompressFromRAM(byte far *SrcPtr, byte far *DstPtr, longword SrcLen)
-{
-	longword i, j, k, r, c;
-	word flags;
-	byte ch;
-
-
-	for (i = 0; i < N - F; i++)
-		text_buf[i] = ' ';
-
-	 r = N - F;
-	 flags = 0;
-
-	 for ( ; ; )
-	 {
-			if (((flags >>= 1) & 256) == 0)
-			{
-				if (!(--SrcLen))
-					break;
-				c=nextch(SrcPtr);
-
-				flags = c | 0xff00;      /* uses higher byte cleverly */
-			}                                  /* to count eight */
-
-			if (flags & 1)
-			{
-				if (!(--SrcLen))
-					break;
-				c=nextch(SrcPtr);
-
-				*DstPtr++ = c;
-				text_buf[r++] = c;
-				r &= (N - 1);
-			}
-			else
-			{
-				if (!(--SrcLen))
-					break;
-				i=nextch(SrcPtr);
-
-				if (!(--SrcLen))
-					break;
-				j=nextch(SrcPtr);
-
-				i |= ((j & 0xf0) << 4);
-				j = (j & 0x0f) + THRESHOLD;
-
-				for (k = 0; k <= j; k++)
-				{
-						 c = text_buf[(i + k) & (N - 1)];
-						 *DstPtr++ = c;
-						 text_buf[r++] = c;
-						 r &= (N - 1);
-				}
-			}
-	 }
-}
-
-//--------------------------------------------------------------------------
-// lzwDecompressFromHandle()
-//
-// SrcPtr - pointer to first byte of compressed data.
-// DstPtr - pointer to decompress memory area.
-// SrcLen - length of compressed data.
-//
-//--------------------------------------------------------------------------
-
-#undef nextch()
-#define nextch(handle)	bio_readch(&lzwBIO)
-
-void lzwDecompressFromFile(BufferedIO *SrcPtr, byte far *DstPtr, longword SrcLen)
-{
-	longword i, j, k, r, c;
-	word flags;
-	byte ch;
-
-
-	for (i = 0; i < N - F; i++)
-		text_buf[i] = ' ';
-
-	 r = N - F;
-	 flags = 0;
-
-	 for ( ; ; )
-	 {
-			if (((flags >>= 1) & 256) == 0)
-			{
-				if (!(--SrcLen))
-					break;
-				c=nextch(SrcPtr);
-
-				flags = c | 0xff00;      /* uses higher byte cleverly */
-			}                                  /* to count eight */
-
-			if (flags & 1)
-			{
-				if (!(--SrcLen))
-					break;
-				c=nextch(SrcPtr);
-
-				*DstPtr++ = c;
-				text_buf[r++] = c;
-				r &= (N - 1);
-			}
-			else
-			{
-				if (!(--SrcLen))
-					break;
-				i=nextch(SrcPtr);
-
-				if (!(--SrcLen))
-					break;
-				j=nextch(SrcPtr);
-
-				i |= ((j & 0xf0) << 4);
-				j = (j & 0x0f) + THRESHOLD;
-
-				for (k = 0; k <= j; k++)
-				{
-						 c = text_buf[(i + k) & (N - 1)];
-						 *DstPtr++ = c;
-						 text_buf[r++] = c;
-						 r &= (N - 1);
-				}
-			}
-	 }
-}
-
 //--------------------------------------------------------------------------
 // InitBufferedIO()
 //--------------------------------------------------------------------------
@@ -1262,6 +831,9 @@ void SwapWord(unsigned int far *Var)
 	asm		xchg	ah,al
 	asm		mov	[es:bx],ax
 }
+
+
+#if 0
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -1366,6 +938,7 @@ EXIT_FUNC:;
 	return (RT_CODE);
 }
 
+#endif
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -1838,67 +1411,6 @@ void ReadGameList()
 	NumGames++;
 }
 
-////////////////////////////////////////////////////////////////////////////
-//
-// LoadTextFile()
-//
-long LoadTextFile(char *filename,textinfo *textinfo)
-{
-#pragma warn -pia
-	long size;
-
-	if (!(size=BLoad(filename,&textinfo->textptr)))
-		return(0);
-	InitTextFile(textinfo);
-
-	return(size);
-#pragma warn +pia
-}
-
-//-------------------------------------------------------------------------
-// FreeTextFile()
-//-------------------------------------------------------------------------
-void FreeTextFile(textinfo *textinfo)
-{
-	if (textinfo->textptr)
-		MM_FreePtr(&textinfo->textptr);
-}
-
-////////////////////////////////////////////////////////////////////////////
-//
-// InitTextFile()
-//
-void InitTextFile(textinfo *textinfo)
-{
-	#define END_PAGE  '@'
-
-	char far *text = MK_FP(textinfo->textptr,0);
-
-	textinfo->totalpages = 0;
-	while (*text != END_PAGE)
-	{
-		if (textinfo->totalpages < MAX_TEXT_PAGES)
-			textinfo->pages[textinfo->totalpages++] = text;
-		else
-			TrashProg("GE ERROR: Too many text pages. --> %d",textinfo->totalpages);
-
-		while (*text != END_PAGE)
-		{
-			if ((*text == '\r') && (*(text+1) == '\n'))
-			{
-				*text = 32;
-				*(text+1) = '\n';
-				text+=2;
-			}
-			else
-				text++;
-		}
-		*text = 0;
-		text += 3;
-	}
-	*text = 0;
-}
-
 #if 0
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -1924,6 +1436,7 @@ void CenterObj(objtype *obj, unsigned x, unsigned y)
 }
 #endif
 
+#if 0
 //-------------------------------------------------------------------------
 // cacheout()
 //-------------------------------------------------------------------------
@@ -1954,6 +1467,7 @@ void cachein(short s,short e)
 			MM_SetPurge(&grsegs[i],0);
 	}
 }
+#endif
 
 #if 0
 ////////////////////////////////////////////////////////////////////////////
@@ -2067,7 +1581,7 @@ boolean visible_off(objtype *obj)
 ===================
 */
 
-#define PIXPERFRAME     10000	//1600
+#define PIXPERFRAME     10000
 
 void FizzleFade (unsigned source, unsigned dest,
 	unsigned width,unsigned height, boolean abortable)
@@ -2206,9 +1720,9 @@ noxor:
 			if (rndval == 1)                // entire sequence has been completed
 				goto exitfunc;
 		}
-		frame++;
-//		while (TimeCount<frame)         // don't go too fast
-//		;
+//		frame++;
+//		while (TimeCount<frame);         // don't go too fast
+
 	} while (1);
 
 exitfunc:;
@@ -2217,6 +1731,7 @@ exitfunc:;
 	return;
 }
 
+#if 0
 //-------------------------------------------------------------------------
 // mprintf()
 //-------------------------------------------------------------------------
@@ -2264,6 +1779,7 @@ void mprintf(char *msg, ...)
 
 	va_end(ap);
 }
+#endif
 
 #if 0
 
@@ -2502,65 +2018,859 @@ void CacheAV(char *title)
 		current_disk = VIDEO_DISK;
 	}
 }
-
 #endif
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-
-/////////////////////////////////////////////////////////////////////////////
+#ifdef TEXT_PRESENTER
+//--------------------------------------------------------------------------
 //
-//  GE_DecompressToRAM() -- This Decompression routine uses normal memory
-//									 allocation conventions..
+//                         TEXT PRESENTER CODE
 //
-unsigned char huge *GE_DecompressToRAM(char *SourceFile, unsigned long *DataSize)  /* Just the reverse of Encode(). */
+//--------------------------------------------------------------------------
+
+typedef enum pi_stype {pis_pic2x,pis_latch_pic} pi_stype;
+
+
+typedef struct {						// 4 bytes
+	unsigned shapenum;
+	pi_stype shape_type;
+} pi_shape_info;
+
+#define pia_active	0x01
+
+typedef struct {						// 10 bytes
+	char baseshape;
+	char frame;
+	char maxframes;
+	short delay;
+	short maxdelay;
+	short x,y;
+} pi_anim_info;
+
+	#define PI_CASE_SENSITIVE
+
+	#define PI_RETURN_CHAR			'\n'
+	#define PI_CONTROL_CHAR			'^'
+
+	#define PI_CNVT_CODE(c1,c2)	((c1)|(c2<<8))
+
+// shape table provides a way for the presenter to access and
+// display any shape.
+//
+pi_shape_info far pi_shape_table[] = {
+
+											{BOLTOBJPIC,pis_pic2x},				// 0
+											{NUKEOBJPIC,pis_pic2x},
+											{SKELETON_1PIC,pis_pic2x},
+											{EYE_WALK1PIC,pis_pic2x},
+											{ZOMB_WALK1PIC,pis_pic2x},
+
+											{TIMEOBJ1PIC,pis_pic2x},			// 5
+											{POTIONOBJPIC,pis_pic2x},
+											{RKEYOBJPIC,pis_pic2x},
+											{YKEYOBJPIC,pis_pic2x},
+											{GKEYOBJPIC,pis_pic2x},
+
+											{BKEYOBJPIC,pis_pic2x},				// 10
+											{RGEM1PIC,pis_pic2x},
+											{GGEM1PIC,pis_pic2x},
+											{BGEM1PIC,pis_pic2x},
+											{YGEM1PIC,pis_pic2x},
+
+											{PGEM1PIC,pis_pic2x},				// 15
+											{CHESTOBJPIC,pis_pic2x},
+											{PSHOT1PIC,pis_pic2x},
+											{RED_DEMON1PIC,pis_pic2x},
+											{MAGE1PIC,pis_pic2x},
+
+											{BAT1PIC,pis_pic2x},					// 20
+											{GREL1PIC,pis_pic2x},
+											{GODESS_WALK1PIC,pis_pic2x},
+											{ANT_WALK1PIC,pis_pic2x},
+											{FATDEMON_WALK1PIC,pis_pic2x},
+
+											{SUCCUBUS_WALK1PIC,pis_pic2x},	//25
+											{TREE_WALK1PIC,pis_pic2x},
+											{DRAGON_WALK1PIC,pis_pic2x},
+											{BUNNY_LEFT1PIC,pis_pic2x},
+
+};
+
+// anim table holds info about each different animation.
+//
+pi_anim_info far pi_anim_table[] = {{0,0,3,0,10},		// 0		BOLT
+												{1,0,3,0,10},     //       NUKE
+												{2,0,4,0,10},     //       SKELETON
+												{3,0,3,0,10},     //       EYE
+												{4,0,3,0,10},     //       ZOMBIE
+
+												{5,0,2,0,10},     // 5     FREEZE TIME
+												{11,0,2,0,10},    //			RED GEM
+												{12,0,2,0,10},    //       GREEN GEM
+												{13,0,2,0,10},    //       BLUE GEM
+												{14,0,2,0,10},    //       YELLOW GEM
+
+												{15,0,2,0,10},    // 10    PURPLE GEM
+												{17,0,2,0,10},    //       PLAYER'S SHOT
+												{18,0,3,0,10},    //       RED DEMON
+												{19,0,2,0,10},    //       MAGE
+												{20,0,4,0,10},    //       BAT
+
+												{21,0,2,0,10},    // 15    GRELMINAR
+												{22,0,3,0,10},    //       GODESS
+												{23,0,3,0,10},    //       ANT
+												{24,0,4,0,10},    //       FAT DEMON
+												{25,0,4,0,10},    //       SUCCUBUS
+
+												{26,0,2,0,10},    // 20    TREE
+												{27,0,3,0,10},    //       DRAGON
+												{28,0,2,0,10},    //       BUNNY
+};
+
+// anim list is created on the fly from the anim table...
+// this allows a single animation to be display in more than
+// one place...
+//
+pi_anim_info far pi_anim_list[PI_MAX_ANIMS];
+boolean pi_recursing=false;
+
+//--------------------------------------------------------------------------
+// Presenter() - DANGEROUS DAVE "Presenter()" is more up-to-date than this.
+//
+//
+// Active control codes:
+//
+//  ^CE				- center text between 'left margin' and 'right margin'
+//  ^FCn				- set font color
+//  ^LMnnn			- set left margin (if 'nnn' == "fff" uses current x)
+//  ^RMnnn			- set right margin (if 'nnn' == "fff" uses current x)
+//  ^EP				- end of page (waits for up/down arrow)
+//  ^PXnnn			- move x to coordinate 'n'
+//  ^PYnnn			- move y to coordinate 'n'
+//  ^XX				- exit presenter
+//  ^LJ				- left justify  --\ ^RJ doesn't handle imbedded control
+//  ^RJ				- right justify --/ codes properly. Use with caution.
+//  ^BGn	 			- set background color
+//  ^ANnn			- define animation
+//  ^SHnnn			- display shape 'n' at current x,y
+//
+//
+// Future control codes:
+//
+//  ^OBnnn			- activate object 'n'
+//  ^FL				- flush to edges (whatever it's called)
+//
+//
+// Other info:
+//
+// All 'n' values are hex numbers (0 - f), case insensitive.
+// The number of N's listed is the number of digits REQUIRED by that control
+// code. (IE: ^LMnnn MUST have 3 values! --> 003, 1a2, 01f, etc...)
+//
+// If a line consists only of control codes, the cursor is NOT advanced
+// to the next line (the ending <CR><LF> is skipped). If just ONE non-control
+// code is added, the number "8" for example, then the "8" is displayed
+// and the cursor is advanced to the next line.
+//
+// ^CE must be on the same line as the text it should center!
+//
+//--------------------------------------------------------------------------
+void Presenter(PresenterInfo *pi)
 {
-	FILE *infile;  /* input & output files */
+#ifdef AMIGA
+	XBitMap **font = pi->font;
 
-	unsigned long i, j, k, r, c;
-	unsigned char huge *DataPtr;
-	unsigned char huge *CurPtr;
-	unsigned char Buffer[8];
-	unsigned long DstLen;
+	#define ch_width(ch) font[ch]->pad
+	char font_height = font[0]->Rows;
+#else
+	fontstruct _seg *font = (fontstruct _seg *)grsegs[STARTFONT];
 
-	if (!(infile = fopen(SourceFile, "rb")))
-		return(0);
+	#define MAX_PB 150
+	#define ch_width(ch) font->width[ch]
+	char font_height = font->height-1;		// "-1" squeezes font vertically
+	char pb[MAX_PB];
+	short length;
+#endif
 
-	// Read Header....
+	enum {jm_left,jm_right,jm_flush};
+	char justify_mode = jm_left;
+	boolean centering=false;
 
-	fread(Buffer,1,4,infile);
+	short bgcolor = pi->bgcolor;
+	short xl=pi->xl,yl=pi->yl,xh=pi->xh,yh=pi->yh;
+	short cur_x = xl, cur_y = yl;
+	char far *first_ch = pi->script[0];
 
-	if (strncmp(Buffer,COMP,4))
+	char far *scan_ch,temp;
+	short scan_x,PageNum=0,numanims=0;
+	boolean up_released=true,dn_released=true;
+	boolean presenting=true,start_of_line=true;
+
+// if set background is first thing in file, make sure initial screen
+// clear uses this color.
+//
+	if (!_fstrncmp(first_ch,"^BG",3))
+		bgcolor = PI_VALUE(first_ch+3,1);
+
+	if (!pi_recursing)
 	{
-		fclose(infile);
-		printf("NOT a JAM Compressed FILE!\n");
-		return(0);
+		PurgeAllGfx();
+		CachePage(first_ch);
 	}
+	VW_Bar(xl,yl,xh-xl+1,yh-yl+1,bgcolor);
 
-	fread((void *)&DstLen,1,4,infile);
+	while (presenting)
+	{
+//
+// HANDLE WORD-WRAPPING TEXT
+//
+		if (*first_ch != PI_CONTROL_CHAR)
+		{
+			start_of_line = false;
 
-	if (!(DataPtr = farmalloc(DstLen)))
-		 return(0);
+	// Parse script until one of the following:
+	//
+	// 1) text extends beyond right margin
+	// 2) NULL termination is reached
+	// 3) PI_RETURN_CHAR is reached
+	// 4) PI_CONTROL_CHAR is reached
+	//
+			scan_x = cur_x;
+			scan_ch = first_ch;
+			while ((scan_x+ch_width(*scan_ch) <= xh) && (*scan_ch) &&
+					 (*scan_ch != PI_RETURN_CHAR) && (*scan_ch != PI_CONTROL_CHAR))
+				scan_x += ch_width(*scan_ch++);
 
-	 fclose(infile);
+	// if 'text extends beyond right margin', scan backwards for
+	// a SPACE
+	//
+			if (scan_x+ch_width(*scan_ch) > xh)
+			{
+				short last_x = scan_x;
+				char far *last_ch = scan_ch;
 
-	*DataSize = DstLen;
+				while ((scan_ch != first_ch) && (*scan_ch != ' ') && (*scan_ch != PI_RETURN_CHAR))
+					scan_x -= ch_width(*scan_ch--);
 
-	DecompressToRAMLocation(SourceFile,(unsigned char far *)DataPtr);
+				if (scan_ch == first_ch)
+					scan_ch = last_ch, scan_x = last_x;
+			}
 
-	return(DataPtr);
+	// print current line
+	//
+#ifdef AMIGA
+			while (first_ch < scan_ch)
+			{
+				qBlit(font[*first_ch++],pi->dst,cur_x,cur_y);
+//				qBlit(font[*first_ch],pi->dst,cur_x,cur_y);
+//				cur_x += ch_width(*first_ch++);
+			}
+#else
+			temp = *scan_ch;
+			*scan_ch = 0;
+
+			if ((justify_mode == jm_right)&&(!centering))
+			{
+				unsigned width,height;
+
+				VWL_MeasureString(first_ch,&width,&height,font);
+				cur_x = xh-width;
+				if (cur_x < xl)
+					cur_x = xl;
+			}
+
+			px = cur_x;
+			py = cur_y;
+
+			length = scan_ch-first_ch+1;		// USL_DrawString only works with
+			if (length > MAX_PB)
+				Quit("Presenter(): Print buffer string too long!");
+			_fmemcpy(pb,first_ch,length);    // near pointers...
+
+			if (*first_ch != '\n')
+				USL_DrawString(pb);
+
+			*scan_ch = temp;
+			first_ch = scan_ch;
+#endif
+			cur_x = scan_x;
+			centering = false;
+
+	// skip SPACES / RETURNS at end of line
+	//
+			if ((*first_ch==' ') || (*first_ch==PI_RETURN_CHAR))
+				first_ch++;
+
+	// PI_CONTROL_CHARs don't advance to next character line
+	//
+			if (*scan_ch != PI_CONTROL_CHAR)
+			{
+				cur_x = xl;
+				cur_y += font_height;
+			}
+		}
+		else
+//
+// HANDLE CONTROL CODES
+//
+		{
+			PresenterInfo endmsg;
+			pi_anim_info far *anim;
+			pi_shape_info far *shape_info;
+			unsigned shapenum;
+			short length;
+			char far *s;
+
+			if (first_ch[-1] == '\n')
+				start_of_line = true;
+
+			first_ch++;
+#ifndef PI_CASE_SENSITIVE
+			*first_ch=toupper(*first_ch);
+			*(first_ch+1)=toupper(*(first_ch+1));
+#endif
+			switch (*((unsigned far *)first_ch)++)
+			{
+		// CENTER TEXT ------------------------------------------------------
+		//
+				case PI_CNVT_CODE('C','E'):
+					length = 0;
+					s = first_ch;
+					while (*s && (*s != PI_RETURN_CHAR))
+					{
+						switch (*s)
+						{
+							case PI_CONTROL_CHAR:
+								s++;
+								switch (*((unsigned *)s)++)
+								{
+#ifndef AMIGA
+									case PI_CNVT_CODE('F','C'):
+									case PI_CNVT_CODE('B','G'):
+										s++;
+									break;
+#endif
+
+									case PI_CNVT_CODE('L','M'):
+									case PI_CNVT_CODE('R','M'):
+									case PI_CNVT_CODE('S','H'):
+									case PI_CNVT_CODE('P','X'):
+									case PI_CNVT_CODE('P','Y'):
+										s += 3;
+									break;
+
+									case PI_CNVT_CODE('L','J'):
+									case PI_CNVT_CODE('R','J'):
+										// No parameters to pass over!
+									break;
+								}
+							break;
+
+							default:
+								length += ch_width(*s++);
+							break;
+						}
+					}
+					cur_x = ((xh-xl+1)-length)/2;
+					centering = true;
+				break;
+
+		// DRAW SHAPE -------------------------------------------------------
+		//
+				case PI_CNVT_CODE('S','H'):
+					shapenum = PI_VALUE(first_ch,3);
+					first_ch += 3;
+					shape_info = &pi_shape_table[shapenum];
+					switch (shape_info->shape_type)
+					{
+						short width;
+
+						case pis_pic2x:
+							cur_x = ((cur_x+2) + 7) & 0xFFF8;
+							width=BoxAroundPic(cur_x-2,cur_y-1,shape_info->shapenum,pi);
+							VW_DrawPic2x(cur_x>>3,cur_y,shape_info->shapenum);
+							cur_x += width;
+						break;
+					}
+				break;
+
+		// INIT ANIMATION ---------------------------------------------------
+		//
+				case PI_CNVT_CODE('A','N'):
+					shapenum = PI_VALUE(first_ch,2);
+					first_ch += 2;
+					_fmemcpy(&pi_anim_list[numanims],&pi_anim_table[shapenum],sizeof(pi_anim_info));
+					anim = &pi_anim_list[numanims++];
+					shape_info = &pi_shape_table[anim->baseshape+anim->frame];
+					switch (shape_info->shape_type)
+					{
+						short width;
+
+						case pis_pic2x:
+							cur_x = ((cur_x+2) + 7) & 0xFFF8;
+							width=BoxAroundPic(cur_x-2,cur_y-1,shape_info->shapenum,pi);
+							VW_DrawPic2x(cur_x>>3,cur_y,shape_info->shapenum);
+							anim->x = cur_x>>3;
+							anim->y = cur_y;
+							cur_x += width;
+						break;
+					}
+				break;
+
+#ifndef AMIGA
+		// FONT COLOR -------------------------------------------------------
+		//
+				case PI_CNVT_CODE('F','C'):
+					fontcolor = bgcolor ^ PI_VALUE(first_ch++,1);
+				break;
+#endif
+
+		// BACKGROUND COLOR -------------------------------------------------
+		//
+				case PI_CNVT_CODE('B','G'):
+					bgcolor = PI_VALUE(first_ch++,1);
+				break;
+
+		// LEFT MARGIN ------------------------------------------------------
+		//
+				case PI_CNVT_CODE('L','M'):
+					shapenum = PI_VALUE(first_ch,3);
+					first_ch += 3;
+					if (shapenum == 0xfff)
+						xl = cur_x;
+					else
+						xl = shapenum;
+				break;
+
+		// RIGHT MARGIN -----------------------------------------------------
+		//
+				case PI_CNVT_CODE('R','M'):
+					shapenum = PI_VALUE(first_ch,3);
+					first_ch += 3;
+					if (shapenum == 0xfff)
+						xh = cur_x;
+					else
+						xh = shapenum;
+				break;
+
+		// SET X COORDINATE -------------------------------------------------
+		//
+				case PI_CNVT_CODE('P','X'):
+					cur_x = PI_VALUE(first_ch,3);
+					first_ch += 3;
+				break;
+
+		// SET Y COORDINATE -------------------------------------------------
+		//
+				case PI_CNVT_CODE('P','Y'):
+					cur_y = PI_VALUE(first_ch,3);
+					first_ch += 3;
+				break;
+
+		// LEFT JUSTIFY -----------------------------------------------------
+		//
+				case PI_CNVT_CODE('L','J'):
+					justify_mode = jm_left;
+				break;
+
+		// RIGHT JUSTIFY ----------------------------------------------------
+		//
+				case PI_CNVT_CODE('R','J'):
+					justify_mode = jm_right;
+				break;
+
+		// END OF PAGE ------------------------------------------------------
+		//
+				case PI_CNVT_CODE('E','P'):
+					if (pi_recursing)
+						Quit("Presenter(): Can't use ^EP when recursing!");
+
+					endmsg.xl = cur_x;
+					endmsg.yl = yh-(font_height+2);
+					endmsg.xh = xh;
+					endmsg.yh = yh;
+					endmsg.bgcolor = bgcolor;
+					endmsg.ltcolor = pi->ltcolor;
+					endmsg.dkcolor = pi->dkcolor;
+					endmsg.script[0] = (char far *)"^CE^FC8-  ^FC0ESC ^FC8to return to play, or ^FC0ARROW KEYS ^FC8to page through more Help  -^XX";
+
+					pi_recursing = true;
+					Presenter(&endmsg);
+					pi_recursing = false;
+
+#ifndef AMIGA
+					if (screenfaded)
+						VW_FadeIn();
+					VW_ColorBorder(8 | 56);
+#endif
+
+					while (1)
+					{
+#ifndef AMIGA
+						long newtime;
+
+						VW_WaitVBL(1);
+						newtime = TimeCount;
+						realtics = tics = newtime-lasttimecount;
+						lasttimecount = newtime;
+#else
+						WaitVBL(1);
+						CALC_TICS;
+#endif
+						AnimatePage(numanims);
+						IN_ReadControl(0,&control);
+
+						if (control.button1 || Keyboard[1])
+						{
+							presenting=false;
+							break;
+						}
+						else
+						{
+							if (ControlTypeUsed != ctrl_Keyboard)
+								control.dir = dir_None;
+
+							if (((control.dir == dir_North) || (control.dir == dir_West)) && (PageNum))
+							{
+								if (up_released)
+								{
+									PageNum--;
+									up_released = false;
+									break;
+								}
+							}
+							else
+							{
+								up_released = true;
+								if (((control.dir == dir_South) || (control.dir == dir_East)) && (PageNum < pi->numpages-1))
+								{
+									if (dn_released)
+									{
+										PageNum++;
+										dn_released = false;
+										break;
+									}
+								}
+								else
+									dn_released = true;
+							}
+						}
+					}
+
+					cur_x = xl;
+					cur_y = yl;
+					if (cur_y+font_height > yh)
+						cur_y = yh-font_height;
+					first_ch = pi->script[PageNum];
+
+					numanims = 0;
+					PurgeAllGfx();
+					CachePage(first_ch);
+
+					VW_Bar(xl,yl,xh-xl+1,yh-yl+1,bgcolor);
+				break;
+
+		// EXIT PRESENTER ---------------------------------------------------
+		//
+				case PI_CNVT_CODE('X','X'):
+					presenting=false;
+				break;
+			}
+
+			if ((first_ch[0] == ' ') && (first_ch[1] == '\n') && start_of_line)
+				first_ch += 2;
+		}
+	}
 }
 
+//--------------------------------------------------------------------------
+// ResetAnims()
+//--------------------------------------------------------------------------
+void ResetAnims()
+{
+	pi_anim_list[0].baseshape = -1;
+}
+
+//--------------------------------------------------------------------------
+// AnimatePage()
+//--------------------------------------------------------------------------
+void AnimatePage(short numanims)
+{
+	pi_anim_info far *anim=pi_anim_list;
+	pi_shape_info far *shape_info;
+
+	while (numanims--)
+	{
+		anim->delay += tics;
+		if (anim->delay >= anim->maxdelay)
+		{
+			anim->delay = 0;
+			anim->frame++;
+			if (anim->frame == anim->maxframes)
+				anim->frame = 0;
+
+#if ANIM_USES_SHAPETABLE
+			shape_info = &pi_shape_table[anim->baseshape+anim->frame];
+#else
+			shape_info = &pi_shape_table[anim->baseshape];
 #endif
+			switch (shape_info->shape_type)
+			{
+				case pis_pic2x:
+#if ANIM_USES_SHAPETABLE
+					VW_DrawPic2x(anim->x,anim->y,shape_info->shapenum);
+#else
+					VW_DrawPic2x(anim->x,anim->y,shape_info->shapenum+anim->frame);
+#endif
+				break;
+			}
+		}
+		anim++;
+	}
+}
+
+//--------------------------------------------------------------------------
+// BoxAroundPic()
+//--------------------------------------------------------------------------
+short BoxAroundPic(short x1, short y1, unsigned picnum, PresenterInfo *pi)
+{
+	short x2,y2;
+
+	x2 = x1+(pictable[picnum-STARTPICS].width<<4)+2;
+	y2 = y1+(pictable[picnum-STARTPICS].height)+1;
+	VWB_Hlin(x1,x2,y1,pi->ltcolor);
+	VWB_Hlin(x1,x2,y2,pi->dkcolor);
+	VWB_Vlin(y1,y2,x1,pi->ltcolor);
+	VWB_Vlin(y1,y2,x1+1,pi->ltcolor);
+	VWB_Vlin(y1,y2,x2,pi->dkcolor);
+	VWB_Vlin(y1,y2,x2+1,pi->dkcolor);
+
+	return(x2-x1+1);
+}
+
+//--------------------------------------------------------------------------
+// PurgeAllGfx()
+//--------------------------------------------------------------------------
+void PurgeAllGfx()
+{
+	ResetAnims();
+	FreeUpMemory();
+}
+
+//--------------------------------------------------------------------------
+// CachePage()
+//--------------------------------------------------------------------------
+void CachePage(char far *script)
+{
+	pi_anim_info far *anim;
+	short loop;
+	unsigned shapenum;
+	boolean end_of_page=false;
+	short numanims=0;
+
+	while (!end_of_page)
+	{
+		switch (*script++)
+		{
+			case PI_CONTROL_CHAR:
+#ifndef PI_CASE_SENSITIVE
+				*script=toupper(*script);
+				*(script+1)=toupper(*(script+1));
+#endif
+				switch (*((unsigned far *)script)++)
+				{
+					case PI_CNVT_CODE('S','H'):
+						shapenum = PI_VALUE(script,3);
+						script += 3;
+						CA_MarkGrChunk(pi_shape_table[shapenum].shapenum);
+					break;
+
+					case PI_CNVT_CODE('A','N'):
+						shapenum = PI_VALUE(script,2);
+						script += 2;
+
+						if (numanims++ == PI_MAX_ANIMS)
+							Quit("CachePage(): Too many anims on one page.");
+
+						anim = &pi_anim_table[shapenum];
+#if ANIM_USES_SHAPETABLE
+						for (loop=anim->baseshape;loop < anim->baseshape+anim->maxframes; loop++)
+							CA_MarkGrChunk(pi_shape_table[loop].shapenum);
+#else
+						shapenum = pi_shape_table[anim->baseshape].shapenum;
+						for (loop=0; loop<anim->maxframes; loop++)
+							CA_MarkGrChunk(shapenum+loop);
+#endif
+					break;
+
+					case PI_CNVT_CODE('X','X'):
+					case PI_CNVT_CODE('E','P'):
+						end_of_page = true;
+					break;
+				}
+			break;
+		}
+	}
+
+	CA_CacheMarks(NULL);
+}
+
+//--------------------------------------------------------------------------
+// PI_VALUE()
+//--------------------------------------------------------------------------
+unsigned PI_VALUE(char far *ptr,char num_nybbles)
+{
+	char ch,nybble,shift;
+	unsigned value=0;
+
+	for (nybble=0; nybble<num_nybbles; nybble++)
+	{
+		shift = 4*(num_nybbles-nybble-1);
+
+		ch = *ptr++;
+		if (isxdigit(ch))
+			if (isalpha(ch))
+				value |= (toupper(ch)-'A'+10)<<shift;
+			else
+				value |= (ch-'0')<<shift;
+	}
+
+	return(value);
+}
+
+//--------------------------------------------------------------------------
+// LoadPresenterScript()
+//--------------------------------------------------------------------------
+long LoadPresenterScript(char *filename,PresenterInfo *pi)
+{
+#pragma warn -pia
+	long size;
+
+	if (!(size=BLoad(filename,&pi->scriptstart)))
+		return(0);
+	pi->script[0] = MK_FP(pi->scriptstart,0);
+	pi->script[0][size-1] = 0;		 			// Last byte is trashed!
+	InitPresenterScript(pi);
+
+	return(size);
+#pragma warn +pia
+}
+
+//-------------------------------------------------------------------------
+// FreePresenterScript()
+//-------------------------------------------------------------------------
+void FreePresenterScript(PresenterInfo *pi)
+{
+	if (pi->script)
+		MM_FreePtr(&pi->scriptstart);
+}
+
+//-------------------------------------------------------------------------
+// InitPresenterScript()
+//-------------------------------------------------------------------------
+void InitPresenterScript(PresenterInfo *pi)
+{
+	char far *script = pi->script[0];
+
+	pi->numpages = 1;		// Assume at least 1 page
+	while (*script)
+	{
+		switch (*script++)
+		{
+			case PI_CONTROL_CHAR:
+#ifndef PI_CASE_SENSITIVE
+				*script=toupper(*script);
+				*(script+1)=toupper(*(script+1));
+#endif
+				switch (*((unsigned far *)script)++)
+				{
+					case PI_CNVT_CODE('E','P'):
+						if (pi->numpages < PI_MAX_PAGES)
+							pi->script[pi->numpages++] = script;
+						else
+							TrashProg("GE ERROR: Too many Presenter() pages. --> %d",pi->numpages);
+					break;
+				}
+			break;
+
+			case '\r':
+				if (*script == '\n')
+				{
+					*(script-1) = ' ';
+					script++;
+				}
+			break;
+		}
+	}
+
+	pi->numpages--;	// Last page defined is not a real page.
+}
+#endif
+
+
+//-------------------------------------------------------------------------
+// AnimateWallList()
+//-------------------------------------------------------------------------
+void AnimateWallList(void)
+{
+	walltype *wall, *check;
+	unsigned i;
+	int tile,org_tile;
+
+	if (wall_anim_delay>0)
+	{
+		wall_anim_delay-=realtics;
+		return;
+	}
+
+	//
+	// Re-Init our counter...
+	//
+
+	wall_anim_delay = wall_anim_time;
+
+	//
+	// Clear all previous flags marking animation being DONE.
+	//
+
+	for (i=0;i<NUMFLOORS;i++)
+		TILE_FLAGS(i) &= ~tf_MARKED;
+
+
+	//
+	// Run though wall list updating only then needed animations
+	//
+
+	for (wall=&walls[1];wall<rightwall;wall++)
+	{
+		org_tile = tile = wall->color + wall_anim_pos[wall->color];
+
+		if (ANIM_FLAGS(tile))
+		{
+			do
+			{
+				if (!(TILE_FLAGS(tile) & tf_MARKED))
+				{
+					//
+					// update our offset table (0-NUMANIMS)
+					//
+
+					wall_anim_pos[tile] += (char signed)ANIM_FLAGS(tile+(char signed)wall_anim_pos[tile]);
+
+					//
+					// Mark tile as being already updated..
+					//
+
+					TILE_FLAGS(tile) |= tf_MARKED;
+				}
+
+				//
+				// Check rest of tiles in this animation string...
+				//
+
+				tile += (char signed)ANIM_FLAGS(tile);
+
+			} while (tile != org_tile);
+		}
+	}
+}
+

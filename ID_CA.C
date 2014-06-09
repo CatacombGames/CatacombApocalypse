@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1021,7 +1021,7 @@ void CA_Startup (void)
 
 // MDM begin - (GAMERS EDGE)
 //
-	if (!FindFile("GAMEMAPS."EXT,NULL,2))
+	if (!FindFile("GAMEMAPS."EXT,NULL,1))
 		Quit("CA_Startup(): Can't find level files.");
 //
 // MDM end
@@ -1220,13 +1220,15 @@ cachein:
 */
 
 unsigned	static	sheight,swidth;
+boolean static dothemask;
 
 void CAL_ShiftSprite (unsigned segment,unsigned source,unsigned dest,
-	unsigned width, unsigned height, unsigned pixshift)
+	unsigned width, unsigned height, unsigned pixshift, boolean domask)
 {
 
 	sheight = height;		// because we are going to reassign bp
 	swidth = width;
+	dothemask = domask;
 
 asm	mov	ax,[segment]
 asm	mov	ds,ax		// source and dest are in same segment, and all local
@@ -1237,6 +1239,9 @@ asm	mov	di,[dest]
 asm	mov	bp,[pixshift]
 asm	shl	bp,1
 asm	mov	bp,WORD PTR [shifttabletable+bp]	// bp holds pointer to shift table
+
+asm	cmp	[ss:dothemask],0
+asm	je		skipmask
 
 //
 // table shift the mask
@@ -1267,6 +1272,8 @@ asm	loop	domaskbyte
 asm	inc	di					// the last shifted byte has 1s in it
 asm	dec	dx
 asm	jnz	domaskrow
+
+skipmask:
 
 //
 // table shift the data
@@ -1405,7 +1412,7 @@ void CAL_CacheSprite (int chunk, byte far *compressed)
 			dest->width[i] = spr->width+1;
 		}
 		CAL_ShiftSprite ((unsigned)grsegs[chunk],dest->sourceoffset[0],
-			dest->sourceoffset[2],spr->width,spr->height,4);
+			dest->sourceoffset[2],spr->width,spr->height,4,true);
 		break;
 
 	case	4:
@@ -1417,19 +1424,19 @@ void CAL_CacheSprite (int chunk, byte far *compressed)
 		dest->planesize[1] = bigplane;
 		dest->width[1] = spr->width+1;
 		CAL_ShiftSprite ((unsigned)grsegs[chunk],dest->sourceoffset[0],
-			dest->sourceoffset[1],spr->width,spr->height,2);
+			dest->sourceoffset[1],spr->width,spr->height,2,true);
 
 		dest->sourceoffset[2] = shiftstarts[2];
 		dest->planesize[2] = bigplane;
 		dest->width[2] = spr->width+1;
 		CAL_ShiftSprite ((unsigned)grsegs[chunk],dest->sourceoffset[0],
-			dest->sourceoffset[2],spr->width,spr->height,4);
+			dest->sourceoffset[2],spr->width,spr->height,4,true);
 
 		dest->sourceoffset[3] = shiftstarts[3];
 		dest->planesize[3] = bigplane;
 		dest->width[3] = spr->width+1;
 		CAL_ShiftSprite ((unsigned)grsegs[chunk],dest->sourceoffset[0],
-			dest->sourceoffset[3],spr->width,spr->height,6);
+			dest->sourceoffset[3],spr->width,spr->height,6,true);
 
 		break;
 
@@ -1659,7 +1666,7 @@ void CA_CacheMap (int mapnum)
 
 // MDM begin - (GAMERS EDGE)
 //
-	if (!FindFile("GAMEMAPS."EXT,NULL,2))
+	if (!FindFile("GAMEMAPS."EXT,NULL,1))
 		Quit("CA_CacheMap(): Can't find level files.");
 //
 // MDM end

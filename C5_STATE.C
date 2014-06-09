@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,7 +64,7 @@ dirtype opposite[9] =
 =
 ===================
 */
-void Internal_SpawnNewObj (unsigned x, unsigned y, statetype *state, unsigned size,boolean UseDummy)
+void Internal_SpawnNewObj (unsigned x, unsigned y, statetype *state, unsigned size, boolean UseDummy, boolean PutInActorat)
 {
 	extern objtype dummyobj;
 
@@ -81,7 +81,7 @@ void Internal_SpawnNewObj (unsigned x, unsigned y, statetype *state, unsigned si
 	new->dir = nodir;
 	new->active = noalways;
 
-	if (new != &dummyobj)
+	if (new != &dummyobj && PutInActorat)
 		actorat[new->tilex][new->tiley] = new;
 }
 
@@ -151,18 +151,15 @@ void T_DoDamage (objtype *ob)
 
 		switch (ob->obclass)
 		{
-		case orcobj:
-			points = 4;
-			break;
 		case zombieobj:
-		case trollobj:
+		case fatdemonobj:
 			points = 8;
 			break;
 		case reddemonobj:
-		case demonobj:
+		case godessobj:
 			points = 15;
 			break;
-		case spookobj:
+		case antobj:
 			points = 2;
 			break;
 		case skeletonobj:
@@ -172,10 +169,14 @@ void T_DoDamage (objtype *ob)
 		case wetobj:
 			points = 7;
 			break;
-
+		case treeobj:
+			points = 7;
+			break;
+		case bunnyobj:
+			points = 4;
+			break;
 		}
-		TakeDamage (EasyDoDamage(points));
-
+		TakeDamage (points);
 		ob->flags |= of_damagedone;
 	}
 }
@@ -500,6 +501,7 @@ boolean Chase (objtype *ob, boolean diagonal)
 void ShootActor (objtype *ob, unsigned damage)
 {
 	ob->hitpoints -= damage;
+
 	if (ob->hitpoints<=0)
 	{
 		switch (ob->obclass)
@@ -507,20 +509,23 @@ void ShootActor (objtype *ob, unsigned damage)
 		case reddemonobj:
 			ob->state = &s_red_demondie1;
 			break;
-		case orcobj:
-			ob->state = &s_orcdie1;
+		case succubusobj:
+			ob->state = &s_succubus_death1;
 			break;
-		case trollobj:
-			ob->state = &s_trolldie1;
+		case fatdemonobj:
+			ob->state = &s_fatdemon_blowup1;
 			break;
-		case demonobj:
-			ob->state = &s_demondie1;
+		case godessobj:
+			ob->state = &s_godessdie1;
 			break;
 		case mageobj:
 			ob->state = &s_magedie1;
 			break;
 		case batobj:
 			ob->state = &s_batdie1;
+#if USE_INERT_LIST
+			ob->obclass = solidobj;		// don't add this obj to inert list
+#endif
 			break;
 		case grelmobj:
 			ob->state = &s_greldie1;
@@ -534,21 +539,40 @@ void ShootActor (objtype *ob, unsigned damage)
 			ob->state = &s_skel_die1;
 		break;
 
-		case spookobj:
-			ob->state = &s_spookdie;
+		case antobj:
+			ob->state = &s_ant_die1;
 		break;
 
 		case wetobj:
 			ob->state = &s_wet_die1;
+#if USE_INERT_LIST
+			ob->obclass = solidobj;		// don't add this obj to inert list
+#endif
 		break;
 
 		case eyeobj:
 			ob->state = &s_eye_die1;
 		break;
 
+		case sshotobj:
 		case eshotobj:
 		case mshotobj:
 			ob->state = &s_bonus_die;
+#if USE_INERT_LIST
+			ob->obclass = solidobj;		// don't add these objs to inert list
+#endif
+		break;
+
+		case treeobj:
+			ob->state = &s_tree_death1;
+			ob->obclass = solidobj;
+			ob->temp1 = 3;
+			ob->flags &= ~of_damagedone;
+			CalcBounds(ob);
+		break;
+
+		case bunnyobj:
+			ob->state = &s_bunny_death1;
 		break;
 
 		case bonusobj:
@@ -571,15 +595,29 @@ void ShootActor (objtype *ob, unsigned damage)
 					status_delay = 80;
 				break;
 			}
+#if USE_INERT_LIST
+			ob->obclass = solidobj;		// don't add this obj to inert list
+#endif
 		break;
 
 		}
 
-		if (ob->obclass != solidobj)
+		if (ob->obclass != solidobj && ob->obclass != realsolidobj)
 		{
 			ob->obclass = inertobj;
 			ob->flags &= ~of_shootable;
 			actorat[ob->tilex][ob->tiley] = NULL;
+#if USE_INERT_LIST
+			MoveObjToInert(ob);
+#endif
+		}
+		else
+		{
+			if (ob->flags & of_forcefield)
+			{
+				ob->state = &s_force_field_die;
+				ob->flags &= ~of_shootable;
+			}
 		}
 	}
 	else
@@ -587,16 +625,19 @@ void ShootActor (objtype *ob, unsigned damage)
 		switch (ob->obclass)
 		{
 		case reddemonobj:
-			ob->state = &s_red_demonouch;
+			if (!(random(8)))
+				ob->state = &s_red_demonouch;
+			else
+				return;
 			break;
-		case orcobj:
-			ob->state = &s_orcouch;
+		case succubusobj:
+			ob->state = &s_succubus_ouch;
 			break;
-		case trollobj:
-			ob->state = &s_trollouch;
+		case fatdemonobj:
+			ob->state = &s_fatdemon_ouch;
 			break;
-		case demonobj:
-			ob->state = &s_demonouch;
+		case godessobj:
+			ob->state = &s_godessouch;
 			break;
 		case mageobj:
 			ob->state = &s_mageouch;
@@ -610,8 +651,8 @@ void ShootActor (objtype *ob, unsigned damage)
 			ob->state = &s_zombie_ouch;
 		break;
 
-		case spookobj:
-			ob->state = &s_spookouch;
+		case antobj:
+			ob->state = &s_ant_ouch;
 			break;
 
 		case skeletonobj:
@@ -626,8 +667,16 @@ void ShootActor (objtype *ob, unsigned damage)
 			ob->state = &s_eye_ouch;
 		break;
 
+		case treeobj:
+			ob->state = &s_tree_ouch;
+		break;
+
+		case bunnyobj:
+			ob->state = &s_bunny_ouch;
+		break;
 		}
 	}
 	ob->ticcount = ob->state->tictime;
 }
+
 

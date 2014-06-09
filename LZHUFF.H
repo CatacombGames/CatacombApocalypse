@@ -16,38 +16,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-///////////////////////////////////////
-//
-// TED5 Map Header for ARM
-//
-///////////////////////////////////////
+extern void (*LZH_CompressDisplayVector)();
+extern void (*LZH_DecompressDisplayVector)();
 
-//
-// Map Names
-//
-typedef enum {
-		TOWN_MORBIDITY_MAP,      // 0
-		DARK_FOREST_MAP,         // 1
-		GARDEN_OF_SOULS_MAP,     // 2
-		LOST_CITY_DAMND_MAP,     // 3
-		TEMPLE_OF_VIPER_MAP,     // 4
-		TORTURE_CHAMBER_MAP,     // 5
-		DEMONS_HOLD_MAP,         // 6
-		COLONY_FIRE_ANT_MAP,     // 7
-		HALL_WRETCH_POX_MAP,     // 8
-		LAIR_OF_SUCUBUS_MAP,     // 9
-		BLOOD_CHAMB_EYE_MAP,     // 10
-		FLAMING_INFERNO_MAP,     // 11
-		SUBTERR_RIVER_MAP,       // 12
-		CRYSTAL_MAZE_MG_MAP,     // 13
-		RAMPARTS_OF_NEM_MAP,     // 14
-		FORTRESS_OF_NEM_MAP,     // 15
-		PASSAGE_TO_SURF_MAP,     // 16
-		LASTMAP
-	     } mapnames;
 
+
+//===========================================================================
 //
-// TILEINFO offsets
+//											PROTOTYPES
 //
-#define ANIM		402
-#define FLAGS		(ANIM+NUMTILE16)
+//===========================================================================
+
+
+long lzhCompress(void far *infile, void far *outfile,unsigned long DataLength,unsigned PtrTypes);
+long lzhDecompress(void far *infile, void far *outfile, unsigned long OrginalLength, unsigned long CompressLength, unsigned PtrTypes);
+
+
+

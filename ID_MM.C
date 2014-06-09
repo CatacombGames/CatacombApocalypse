@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -49,13 +49,17 @@ EMS / XMS unmanaged routines
 #pragma warn -use
 
 
-//#define OUT_OF_MEM_MSG	"MM_GetPtr: Out of memory!"
+#if 0		// 1 == Debug/Dev  ;  0 == Production/final
 
-#define OUT_OF_MEM_MSG "\n"                                                                          \
-							  "You need more free memory to run CATACOMB ABYSS.  Type START [ENTER]\n"  \
-							  "and read the \"INFORMATION YOU SHOULD KNOW BEFORE PLAYING\" section\n"       \
-							  "for more information about this.\n"
+#define OUT_OF_MEM_MSG	"MM_GetPtr: Out of memory!\nYou were short :%ld bytes"
 
+#else
+
+
+#define OUT_OF_MEM_MSG	"\n"                                                                          \
+								"You need more memory to run CATACOMB ARMAGEDDON.  Read the INSTRUCTION\n"   \
+								"section of the START program for tips on getting more memory.\n"
+#endif
 
 
 /*
@@ -769,7 +773,7 @@ void MM_GetPtr (memptr *baseptr,unsigned long size)
 	}
 
 	if (bombonerror)
-		Quit (OUT_OF_MEM_MSG);
+		Quit (OUT_OF_MEM_MSG,(size-mminfo.nearheap));
 	else
 		mmerror = true;
 }

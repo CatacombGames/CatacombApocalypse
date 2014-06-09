@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -505,6 +505,33 @@ void VW_DrawPic(unsigned x, unsigned y, unsigned chunknum)
 	VW_MemToScreen(source,dest,width,height);
 }
 
+
+// MDM (GAMERS EDGE) begin
+/*
+====================
+=
+= VW_DrawPic2x - Same as VW_DrawPic, but doubles pixels horizontally
+=                (Great for drawing 320 graphics on 640 screen!)
+=
+= X in bytes, y in pixels, chunknum is the #defined picnum
+=
+====================
+*/
+
+void VW_DrawPic2x(unsigned x, unsigned y, unsigned chunknum)
+{
+	int	picnum = chunknum - STARTPICS;
+	memptr source;
+	unsigned dest,width,height;
+
+	source = grsegs[chunknum];
+	dest = ylookup[y]+x+bufferofs;
+	width = pictable[picnum].width;
+	height = pictable[picnum].height;
+
+	VW_MemToScreen2x(source,dest,width,height);
+}
+// MDM (GAMERS EDGE) end
 
 #endif
 
@@ -1277,6 +1304,8 @@ void VW_QuitDoubleBuffer (void)
 
 int VW_MarkUpdateBlock (int x1, int y1, int x2, int y2)
 {
+// MDM (GAMERS EDGE) begin - NOT NEEDED FOR 3D ENGINE
+#if 0
 	int	x,y,xt1,yt1,xt2,yt2,nextline;
 	byte *mark;
 
@@ -1316,6 +1345,8 @@ int VW_MarkUpdateBlock (int x1, int y1, int x2, int y2)
 
 		mark += nextline;
 	}
+#endif
+// MDM (GAMERS EDGE) end
 
 	return 1;
 }

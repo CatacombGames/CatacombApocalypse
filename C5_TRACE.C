@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -393,9 +393,8 @@ int BackTrace (int finish)
     // rotate the X value to see if it is behind the view plane
     //
     if (TransformX (((long)tile.x<<16)+point1x[wall],
-			 ((long)tile.y<<16)+point1y[wall]) < FOCALLENGTH)
-//			 ((long)tile.y<<16)+point1y[wall]) < ((long)FOCALLENGTH+30000l))
-	 {
+		    ((long)tile.y<<16)+point1y[wall]) < FOCALLENGTH)
+    {
       tile.x = otx;
       tile.y = oty;
       return 0;

@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,50 +37,72 @@
 =============================================================================
 */
 
-#define NUMLUMPS        36
+#define NUMLUMPS        61
 
-#define ORCLUMP         		0
-#define TROLLLUMP       		1
-#define BOLTLUMP        		2
-#define NUKELUMP        		3
-#define POTIONLUMP      		4
+#define SUCCUBUSLUMP	0
+#define FATDEMONLUMP	1
+#define BOLTLUMP	2
+#define NUKELUMP	3
+#define POTIONLUMP	4
 #define RKEYLUMP        5
 #define YKEYLUMP        6
 #define GKEYLUMP        7
 #define BKEYLUMP        8
-#define SCROLLLUMP      9
+//#define SCROLLLUMP	9
 #define CHESTLUMP       10
 #define PLAYERLUMP      11
 #define WALL1LUMP       12
 #define WALL2LUMP       13
 #define BDOORLUMP       14
-#define DEMONLUMP               15
-#define MAGELUMP                16
-#define BATLUMP                 17
-#define GRELLUMP                18
-#define TOMBSTONESLUMP			  19
-#define ZOMBIELUMP				  20
-#define SPOOKLUMP					  21
-#define SKELETONLUMP				  22
-#define RGEMLUMP					  23
-#define GGEMLUMP					  24
-#define BGEMLUMP					  25
-#define YGEMLUMP					  26
-#define PGEMLUMP					  27
-#define RKEY2LUMP					  28
-#define WETMANLUMP				  29
-#define OBJ_WARPLUMP				  30
-#define EYELUMP					  31
-#define REDDEMONLUMP            32
-#define PITLUMP					  33
-#define FTIMELUMP					  34
-#define WATERCHESTLUMP			  35
-
-
+#define GODESSLUMP	15
+#define MAGELUMP	16
+#define BATLUMP		17
+#define GRELLUMP	18
+#define TOMBSTONESLUMP	19
+#define ZOMBIELUMP	20
+#define ANTLUMP		21
+#define SKELETONLUMP	22
+#define RGEMLUMP	23
+#define GGEMLUMP	24
+#define BGEMLUMP	25
+#define YGEMLUMP	26
+#define PGEMLUMP	27
+//#define RKEY2LUMP	28
+#define DRAGONLUMP	29
+#define OBJ_WARPLUMP	30
+#define EYELUMP		31
+#define REDDEMONLUMP	32
+//#define PITLUMP	33
+#define FTIMELUMP	34
+#define WATERCHESTLUMP	35
+#define TREELUMP        36
+#define ARCH1LUMP       37
+#define BUNNYLUMP       38
+#define ANTHILLLUMP     39
+#define COLUMNLUMP      40
+#define SULPHURGASLUMP  41
+#define FIREPOTLUMP     42
+//#define WHIRLPOOLLUMP	43
+#define FOUNTAINLUMP    44
+#define FORCEFIELDLUMP  45
+#define ARCH2LUMP       46
+#define ARCH3LUMP       47
+#define ARCH4LUMP       48
+#define ARCH5LUMP       49
+#define ARCH6LUMP       50
+#define SKELHANGLUMP    51
+//#define SKELPILELUMP	52
+#define ARCH7LUMP       53
+#define ARCH8LUMP       54
+#define ARCH9LUMP       55
+#define ARCH10LUMP      56
+#define ARCH11LUMP      57
+#define ARCH12LUMP	58
+#define ARCH13LUMP	59
 
 int     lumpstart[NUMLUMPS] = {
-ORC_LUMP_START,
-TROLL_LUMP_START,
+SUCCUBUS_LUMP_START,
+FATDEMON_LUMP_START,
 BOLT_LUMP_START,
 NUKE_LUMP_START,
 POTION_LUMP_START,
@@ -88,40 +110,65 @@ RKEY_LUMP_START,
 YKEY_LUMP_START,
 GKEY_LUMP_START,
 BKEY_LUMP_START,
-SCROLL_LUMP_START,
+0,
+//SCROLL_LUMP_START,
 CHEST_LUMP_START,
 PLAYER_LUMP_START,
 //WALL1_LUMP_START,
 //WALL2_LUMP_START,
 //BDOOR_LUMP_START,
 0,0,0,
-DEMON_LUMP_START,
+GODESS_LUMP_START,
 MAGE_LUMP_START,
 BAT_LUMP_START,
 GREL_LUMP_START,
 TOMBSTONES_LUMP_START,
 ZOMBIE_LUMP_START,
-SPOOK_LUMP_START,
+ANT_LUMP_START,
 SKELDUDE_LUMP_START,
 RGEM_LUMP_START,
 GGEM_LUMP_START,
 BGEM_LUMP_START,
 YGEM_LUMP_START,
 PGEM_LUMP_START,
-RKEY2_LUMP_START,
-WETMAN_LUMP_START,
+0,					//RKEY2_LUMP_START,
+DRAGON_LUMP_START,
 OBJ_WARP_LUMP_START,
 EYE_LUMP_START,
 REDDEMON_LUMP_START,
-PIT_LUMP_START,
+0,					//PIT_LUMP_START,
 TIME_LUMP_START,
 O_WATER_CHEST_LUMP_START,
+TREE_LUMP_START,
+ARCH1_LUMP_START,
+BUNNY_LUMP_START,
+ANTHILL_LUMP_START,
+COLUMN_LUMP_START,
+SULPHURGAS_LUMP_START,
+FIREPOT_LUMP_START,
+0,					//WHIRLPOOL_LUMP_START,
+FOUNTAIN_LUMP_START,
+FORCEFIELD_LUMP_START,
+ARCH2_LUMP_START,
+ARCH3_LUMP_START,
+ARCH4_LUMP_START,
+ARCH5_LUMP_START,
+ARCH6_LUMP_START,
+SKELHANG_LUMP_START,
+0,					//SKELPILE_LUMP_START,
+ARCH7_LUMP_START,
+ARCH8_LUMP_START,
+ARCH9_LUMP_START,
+ARCH10_LUMP_START,
+ARCH11_LUMP_START,
+ARCH12_LUMP_START,
+ARCH13_LUMP_START,
 };
 
 
 int     lumpend[NUMLUMPS] = {
-ORC_LUMP_END,
-TROLL_LUMP_END,
+SUCCUBUS_LUMP_END,
+FATDEMON_LUMP_END,
 BOLT_LUMP_END,
 NUKE_LUMP_END,
 POTION_LUMP_END,
@@ -129,37 +176,60 @@ RKEY_LUMP_END,
 YKEY_LUMP_END,
 GKEY_LUMP_END,
 BKEY_LUMP_END,
-SCROLL_LUMP_END,
+0,
+//SCROLL_LUMP_END,
 CHEST_LUMP_END,
 PLAYER_LUMP_END,
-//WALL1_LUMP_END,
-//WALL2_LUMP_END,
-//BDOOR_LUMP_END,
 0,0,0,
-DEMON_LUMP_END,
+GODESS_LUMP_END,
 MAGE_LUMP_END,
 BAT_LUMP_END,
 GREL_LUMP_END,
 TOMBSTONES_LUMP_END,
 ZOMBIE_LUMP_END,
-SPOOK_LUMP_END,
+ANT_LUMP_END,
 SKELDUDE_LUMP_END,
 RGEM_LUMP_END,
 GGEM_LUMP_END,
 BGEM_LUMP_END,
 YGEM_LUMP_END,
 PGEM_LUMP_END,
-RKEY2_LUMP_END,
-WETMAN_LUMP_END,
+0,					//RKEY2_LUMP_END,
+DRAGON_LUMP_END,
 OBJ_WARP_LUMP_END,
 EYE_LUMP_END,
 REDDEMON_LUMP_END,
-PIT_LUMP_END,
+0,					//PIT_LUMP_END,
 TIME_LUMP_END,
 O_WATER_CHEST_LUMP_END,
+TREE_LUMP_END,
+ARCH1_LUMP_END,
+BUNNY_LUMP_END,
+ANTHILL_LUMP_END,
+COLUMN_LUMP_END,
+SULPHURGAS_LUMP_END,
+FIREPOT_LUMP_END,
+0,					//WHIRLPOOL_LUMP_END,
+FOUNTAIN_LUMP_END,
+FORCEFIELD_LUMP_END,
+ARCH2_LUMP_END,
+ARCH3_LUMP_END,
+ARCH4_LUMP_END,
+ARCH5_LUMP_END,
+ARCH6_LUMP_END,
+SKELHANG_LUMP_END,
+0,					//SKELPILE_LUMP_END,
+ARCH7_LUMP_END,
+ARCH8_LUMP_END,
+ARCH9_LUMP_END,
+ARCH10_LUMP_END,
+ARCH11_LUMP_END,
+ARCH12_LUMP_END,
+ARCH13_LUMP_END,
 };
 
 
+//extern unsigned scolor,gcolor;
 
 
 /*
@@ -192,7 +262,7 @@ boolean lumpneeded[NUMLUMPS];
 //==========================================================================
 //
 //
-//							LOCAL PROTOTYPES
+//                                                      LOCAL PROTOTYPES
 //
 //
 //==========================================================================
@@ -213,14 +283,17 @@ void CashPoints(void);
 
 void ScanInfoPlane (void)
 {
-	extern unsigned gnd_colors[];
-
-	char hibyte;
+	unsigned char hibyte;
 	unsigned        x,y,i,j;
-	int                     tile;
+	unsigned int tile;
 	unsigned        far     *start;
 
 	InitObjList();                  // start spawning things with a clean slate
+
+	scolor = gcolor = 0;
+	skycolor = &scolor;
+	groundcolor = &gcolor;
+
 
 	memset (lumpneeded,0,sizeof(lumpneeded));
 
@@ -231,7 +304,38 @@ void ScanInfoPlane (void)
 			tile = *start++;
 			hibyte = tile >> 8;
 			tile &= 0xff;
-			if (!tile)
+
+			switch (hibyte)
+			{
+				char hi;
+
+				case 0xFB:
+					wall_anim_time = tile;
+					tile = 0;
+					break;
+
+				case 0xfa:								// sky/ground color
+				case 0xf9:								// sky/ground 'strip'
+					x++;
+					tile = *start++;
+					hi = tile >> 8;
+					tile &= 0xff;
+					switch (hibyte)
+					{
+						case 0xfa:			// sky / ground color
+							scolor = ((hi)|(hi<<8));
+							gcolor = ((tile)|(tile<<8));
+							skycolor = &scolor;
+							groundcolor = &gcolor;
+						break;
+
+						case 0xf9:			// sky / ground 'strip'
+						break;
+					}
+				break;
+			}
+
+			if ((!tile) || (hibyte))
 				continue;
 
 			switch (tile)
@@ -255,20 +359,7 @@ void ScanInfoPlane (void)
 				SpawnBonus(x,y,tile-5);
 				break;
 
-			case 29:
-				lumpneeded[RKEY2LUMP] = true;
-				SpawnBonus(x,y,B_RKEY2);
-			break;
-
-			case 58:
-			case 59:
-			case 60:
-			case 61:
-			case 62:
-				lumpneeded[tile-58+RGEMLUMP] = true;
-				SpawnBonus(x,y,tile-58+B_RGEM);
-			break;
-
+#if 0
 			case 12:
 			case 13:
 			case 14:
@@ -280,6 +371,12 @@ void ScanInfoPlane (void)
 				lumpneeded[SCROLLLUMP] = true;
 				SpawnBonus(x,y,B_SCROLL1+tile-12);
 				break;
+#endif
+
+			case 20:
+				lumpneeded[REDDEMONLUMP] = true;
+				SpawnRedDemon (x,y);
+				break;
 
 #if 0
 			case 20:        // goal
@@ -288,73 +385,36 @@ void ScanInfoPlane (void)
 				break;
 #endif
 
-			case 21:        // chest
-				if (gnd_colors[gamestate.mapon] == 0x0101)
-					lumpneeded[WATERCHESTLUMP] = true;
-				else
-					lumpneeded[CHESTLUMP] = true;
-				SpawnBonus(x,y,B_CHEST);
-			break;
-
-			case 31:
-			case 32:
-			case 33:
-			case 34:
-			case 35:
-				lumpneeded[OBJ_WARPLUMP] = true;
-				SpawnWarp (x,y,tile-30);
+			case 21:
+				lumpneeded[GODESSLUMP] = true;
+				SpawnGodess (x,y);
 				break;
 
-			case 41:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 36:
-				if (gamestate.difficulty <gd_Normal)
-					break;
 			case 22:
-				lumpneeded[TROLLLUMP] = true;
-				SpawnTroll (x,y);
+				lumpneeded[FATDEMONLUMP] = true;
+				SpawnFatDemon (x,y);
 				break;
 
-			case 42:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 37:
-				if (gamestate.difficulty <gd_Normal)
-					break;
 			case 23:
-				lumpneeded[ORCLUMP] = true;
-				SpawnOrc (x,y);
+				lumpneeded[SUCCUBUSLUMP] = true;
+				SpawnSuccubus (x,y);
 				break;
 
-			case 43:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 38:
-				if (gamestate.difficulty <gd_Normal)
-					break;
+			case 24:
+				lumpneeded[DRAGONLUMP] = true;
+				SpawnDragon(x,y);
+				break;
+
 			case 25:
 				lumpneeded[BATLUMP] = true;
 				SpawnBat (x,y);
 				break;
 
-			case 44:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 39:
-				if (gamestate.difficulty <gd_Normal)
-					break;
 			case 26:
-				lumpneeded[DEMONLUMP] = true;
-				SpawnDemon (x,y);
+				lumpneeded[EYELUMP] = true;
+				SpawnEye(x,y);
 				break;
 
-			case 45:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 40:
-				if (gamestate.difficulty <gd_Normal)
-					break;
 			case 27:
 				lumpneeded[MAGELUMP] = true;
 				SpawnMage (x,y);
@@ -365,98 +425,179 @@ void ScanInfoPlane (void)
 				SpawnGrelminar (x,y);
 				break;
 
-#if 0
-			case 29:
-				SpawnBounce (x,y,0);
-				break;
-
 			case 30:
-				SpawnBounce (x,y,1);
-				break;
-#endif
-
-			case 46:
-			case 47:
-			case 48:
-				lumpneeded[TOMBSTONESLUMP] = true;
-				SpawnTombstone(x,y,tile-46);
-			break;
-
-			case 54:
-				lumpneeded[PITLUMP]	= true;
-				SpawnWarp(x,y,0);
+				lumpneeded[ANTLUMP] = true;
+				SpawnAnt(x,y);
 				break;
 
-			case 53:
-				if (gamestate.difficulty <gd_Normal)
-					break;
-			case 52:
+			case 31:
+			case 32:
+			case 33:
+			case 34:
+			case 35:
+				lumpneeded[OBJ_WARPLUMP] = true;
+				SpawnWarp (x,y,tile-30);
+				break;
+
+			case 36:
 				lumpneeded[ZOMBIELUMP] = true;
 				SpawnZombie(x,y);
-			break;
-
-			case 51:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 50:
-				if (gamestate.difficulty <gd_Normal)
-					break;
-			case 49:
-				lumpneeded[SPOOKLUMP] = true;
-				SpawnSpook(x,y);
 				break;
 
-			case 57:
-				lumpneeded[FTIMELUMP] = true;
-				SpawnFTime(x,y);
-				break;
-
-			case 56:
-				if (gamestate.difficulty <gd_Normal)
-					break;
-			case 55:
+			case 37:
 				lumpneeded[SKELETONLUMP] = true;
 				SpawnSkeleton(x,y);
 				break;
 
-			case 65:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 64:
-				if (gamestate.difficulty <gd_Normal)
-					break;
-			case 63:
-				lumpneeded[WETMANLUMP] = true;
-				SpawnWetMan(x,y);
-				break;
-
-			case 68:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 67:
-				if (gamestate.difficulty <gd_Normal)
-					break;
-			case 66:
-				lumpneeded[EYELUMP] = true;
-				SpawnEye(x,y);
-				break;
-
-			case 71:
-				if (gamestate.difficulty <gd_Hard)
-					break;
-			case 70:
-				if (gamestate.difficulty <gd_Normal)
-					break;
-			case 69:
+			case 38:
 				lumpneeded[SKELETONLUMP] = true;
 				SpawnWallSkeleton(x,y);
 				break;
 
-			case 20:
-			case 24:
-			case 30:
-				lumpneeded[REDDEMONLUMP] = true;
-				SpawnRedDemon (x,y);
+			case 39:
+				lumpneeded[FTIMELUMP] = true;
+				SpawnFTime(x,y);
+				break;
+
+			case 40:
+			case 41:
+			case 42:
+			case 43:
+			case 44:
+				lumpneeded[tile-40+RGEMLUMP] = true;
+				SpawnBonus(x,y,tile-40+B_RGEM);
+			break;
+
+			case 45:
+			case 46:
+			case 47:
+				lumpneeded[TOMBSTONESLUMP] = true;
+				SpawnTombstone(x,y,tile-45);
+				break;
+
+#if 0
+			case 48:
+				lumpneeded[PITLUMP]     = true;
+				SpawnWarp(x,y,0);
+				break;
+#endif
+			case 49:        // chest
+				if (gcolor == 0x0101)
+					lumpneeded[WATERCHESTLUMP] = true;
+				else
+					lumpneeded[CHESTLUMP] = true;
+				SpawnBonus(x,y,B_CHEST);
+			break;
+
+			case 50:
+				lumpneeded[TREELUMP] = true;
+				SpawnTree(x,y);
+				break;
+
+			case 51:
+				lumpneeded[BUNNYLUMP] = true;
+				SpawnBunny(x,y);
+				break;
+
+			case 52:
+				lumpneeded[ARCH1LUMP] = true;
+				SpawnArch(x,y,1);
+				break;
+
+			case 53:
+				lumpneeded[ANTHILLLUMP] = true;
+				SpawnWarp(x,y,0);
+				break;
+
+			case 54:
+				lumpneeded[COLUMNLUMP] = true;
+				SpawnMiscObjects(x,y,1);		//1=column,2=sulphur hole,3=fire pot,4=fountain
+				break;
+
+			case 55:
+				lumpneeded[SULPHURGASLUMP] = true;
+				SpawnMiscObjects(x,y,2);
+				break;
+
+			case 56:
+				lumpneeded[FIREPOTLUMP] = true;
+				SpawnMiscObjects(x,y,3);
+				break;
+
+			case 57:
+				lumpneeded[ARCH13LUMP] = true;
+				SpawnArch(x,y,13);
+				break;
+
+			case 58:
+				lumpneeded[FOUNTAINLUMP] = true;
+				SpawnMiscObjects(x,y,4);
+				break;
+
+			case 59:
+				lumpneeded[FORCEFIELDLUMP] = true;
+				SpawnForceField(x,y);
+				break;
+
+			case 60:
+				lumpneeded[ARCH2LUMP] = true;
+				SpawnArch(x,y,2);
+				break;
+
+			case 61:
+				lumpneeded[ARCH3LUMP] = true;
+				SpawnArch(x,y,3);
+				break;
+
+			case 62:
+				lumpneeded[ARCH4LUMP] = true;
+				SpawnArch(x,y,4);
+				break;
+
+			case 63:
+				lumpneeded[ARCH5LUMP] = true;
+				SpawnArch(x,y,5);
+				break;
+
+			case 64:
+				lumpneeded[ARCH6LUMP] = true;
+				SpawnArch(x,y,6);
+				break;
+
+			case 65:
+				lumpneeded[SKELHANGLUMP] = true;
+				lumpneeded[SKELETONLUMP] = true;
+				SpawnSkeletonHanging(x,y);
+				break;
+
+			case 66:
+				lumpneeded[ARCH12LUMP] = true;
+				SpawnArch(x,y,12);
+				break;
+
+			case 67:
+				lumpneeded[ARCH7LUMP] = true;
+				SpawnArch(x,y,7);
+				break;
+
+			case 68:
+				lumpneeded[ARCH8LUMP] = true;
+				SpawnArch(x,y,8);
+				break;
+
+			case 69:
+				lumpneeded[ARCH9LUMP] = true;
+				SpawnArch(x,y,9);
+				break;
+
+			case 70:
+				lumpneeded[ARCH10LUMP] = true;
+				SpawnArch(x,y,10);
+				break;
+
+			case 71:
+				lumpneeded[ARCH11LUMP] = true;
+				SpawnArch(x,y,11);
 				break;
 			}
 		}
@@ -505,10 +646,10 @@ void ScanText (void)
 =
 ==================
 */
-
+#if 0
 static  char    *levelnames[] =
 				{
-					"The Towne Cemetery",
+					"Programmers Test Map",
 					"The Garden of Tears",
 					"The Den of Zombies",
 					"The Mausoleum Grounds",
@@ -526,8 +667,30 @@ static  char    *levelnames[] =
 					"The Haunt of Nemesis",
 					"The Passage to the Surface",
 					"Big Jim's Domain",
-					"Nolan's Nasty",
+					"Nolan",
+					"19",
+					"20",
+					"21",
+					"22",
+					"23",
+					"24",
+					"25",
+					"26",
+					"27",
+					"28",
+					"29",
+					"30",
+					"31",
+					"32",
+					"33",
+					"34",
+					"35",
+					"36",
+					"37",
+					"38",
+					"39",
 				};
+#endif
 
 void DrawEnterScreen (void)
 {
@@ -535,12 +698,13 @@ void DrawEnterScreen (void)
 
 	bufferofs = displayofs = screenloc[screenpage];
 	VW_Bar(0,0,VIEWWIDTH,VIEWHEIGHT,0);
-	width = strlen(levelnames[gamestate.mapon]);
+//	width = strlen(levelnames[gamestate.mapon]);
+	width = strlen("You enter a new area ...");
 	if (width < 20)
 		width = 20;
-	CenterWindow(width,5);
-	US_CPrint("\nYou have arrived at\n");
-	US_CPrint(levelnames[gamestate.mapon]);
+	CenterWindow(width,3);
+	US_CPrint("\nYou enter a new area ...\n");
+//	US_CPrint(levelnames[gamestate.mapon]);
 }
 
 //==========================================================================
@@ -585,9 +749,7 @@ void CacheScaleds (void)
 		if (tileneeded[i])
 		{
 			SetupScaleWall (walllight1[i]);
-			SetupScaleWall (walllight2[i]);
 			SetupScaleWall (walldark1[i]);
-			SetupScaleWall (walldark2[i]);
 		}
 
 //
@@ -610,6 +772,7 @@ void CacheScaleds (void)
 
 //==========================================================================
 
+
 /*
 ==================
 =
@@ -622,6 +785,8 @@ void SetupGameLevel ()
 {
 	int     x,y,i,loop;
 	unsigned        far *map,tile,far *spotptr,spot;
+	unsigned                search_tile;
+	boolean		exploding_walls_present = false;
 
 	memset (tileneeded,0,sizeof(tileneeded));
 //
@@ -655,6 +820,7 @@ void SetupGameLevel ()
 	  spot += mapwidth;
 	}
 
+
 //
 // copy the wall data to a data segment array
 //
@@ -669,21 +835,46 @@ void SetupGameLevel ()
 
 			if (((*spotptr)>>8) == EXP_WALL_CODE)
 			{
-				extern unsigned gnd_colors[];
-
-				if (gnd_colors[gamestate.mapon] == 0x0101)
-					tileneeded[WATEREXP] = tileneeded[WATEREXP+1] = tileneeded[WATEREXP+2] = true;
-				else
-					tileneeded[WALLEXP] = tileneeded[WALLEXP+1] = tileneeded[WALLEXP+2] = true;
+				exploding_walls_present = true;
 			}
 
 			if (tile<NUMFLOORS)
 			{
+#if 0
 				if (tile == WALL_SKELETON_CODE)
+				{
 					tileneeded[tile+1] = tileneeded[tile+2] = true;
+					tilemap[x][y] = tile;
+				}
+#endif
+				if ((tile == 66) || (tile == 67) || (tile == 68) || (tile == 69))
+				{
+					if ((tile == 66) || (tile == 67))
+						tileneeded[tile+2] = true;
+					tileneeded[21] = tileneeded[tile] = true;
+					tilemap[x][y] = tile;
+				}
+				else
+				if (tile != INVISIBLEWALL)
+				{
+					tileneeded[tile] = true;
+					tilemap[x][y] = tile;
+					if (ANIM_FLAGS(tile))
+					{
+						search_tile = tile+(char signed)ANIM_FLAGS(tile);
 
-				tileneeded[tile] = true;
-				tilemap[x][y] = tile;
+						if (!tileneeded[search_tile])
+							while (search_tile != tile)
+							{
+								tileneeded[search_tile] = true;
+								if (ANIM_FLAGS(search_tile))
+									search_tile += (char signed)ANIM_FLAGS(search_tile);
+								else
+									TrashProg("Unending Tile Animation!");
+							}
+					}
+
+				}
 				if (tile>0)
 					(unsigned)actorat[x][y] = tile;
 			}
@@ -695,14 +886,34 @@ void SetupGameLevel ()
 	// Mark any gfx chunks needed
 	//
 
-//	CA_MarkGrChunk(NORTHICONSPR);
-//	CA_CacheMarks(NULL);
+//      CA_MarkGrChunk(NORTHICONSPR);
+//      CA_CacheMarks(NULL);
+
 
 //
 // decide which graphics are needed and spawn actors
 //
-	zombie_base_delay = 0;	// (1*60) + random(1*60);
+	zombie_base_delay = 0;  // (1*60) + random(1*60);
 	ScanInfoPlane ();
+	_fmemset(wall_anim_pos,0,sizeof(wall_anim_pos));
+
+
+//
+// mark which exploding walls are needed ---- the check for floor color
+// is preformed in ScanInfoPlane.
+//
+
+	if (exploding_walls_present)
+	{
+				extern unsigned gnd_colors[];
+
+				if (gcolor == 0x0101)
+					tileneeded[WATEREXP] = tileneeded[WATEREXP+1] = tileneeded[WATEREXP+2] = true;
+				else
+					tileneeded[WALLEXP] = tileneeded[WALLEXP+1] = tileneeded[WALLEXP+2] = true;
+
+	}
+
 
 //
 // have the caching manager load and purge stuff to make sure all marks
@@ -710,7 +921,6 @@ void SetupGameLevel ()
 //
 	CA_LoadAllSounds ();
 }
-
 
 //==========================================================================
 
@@ -724,7 +934,8 @@ void SetupGameLevel ()
 
 void LatchDrawPic (unsigned x, unsigned y, unsigned picnum)
 {
-	unsigned wide, height, source, dest;
+	unsigned height, source, dest;
+	unsigned wide;
 
 	wide = pictable[picnum-STARTPICS].width;
 	height = pictable[picnum-STARTPICS].height;
@@ -760,6 +971,60 @@ asm     mov     ds,ax                                   // restore turbo's data 
 	EGAWRITEMODE(0);
 }
 
+#if USE_STRIPS
+
+//--------------------------------------------------------------------------
+// LatchDrawPicStrip() - srcoff is distance into source file (in PIXELS!)
+//--------------------------------------------------------------------------
+void LatchDrawPicStrip (unsigned x, unsigned y, unsigned picnum, unsigned srcoff)
+{
+	unsigned wide, height, source, dest, shift, srcmod;
+
+	shift = (srcoff & 7) >> 1;
+	srcoff >>= 3;
+	wide = pictable[picnum-STARTPICS].width;
+	srcmod = wide - linewidth + (shift != 3);
+	if (wide > linewidth)
+		wide = linewidth;
+	height = pictable[picnum-STARTPICS].height;
+	dest = bufferofs + ylookup[y]+x;
+
+	picnum = ((picnum - (FIRSTSTRIPPIC+1)) >> 2) + (shift);
+	source = latchpics[(FIRSTSTRIPPIC-FIRSTLATCHPIC+1)+picnum];
+
+	EGAWRITEMODE(1);
+	EGAMAPMASK(15);
+
+asm     mov     bx,[linewidth]
+asm     sub     bx,[wide]
+
+asm     mov     ax,[screenseg]
+asm     mov     es,ax
+asm     mov     ds,ax
+
+asm     mov     si,[source]
+asm	  add		 si,[srcoff]
+asm     mov     di,[dest]
+asm     mov     dx,[height]                             // scan lines to draw
+asm     mov     ax,[wide]
+
+lineloop:
+asm     mov     cx,ax
+asm     rep     movsb
+asm     add     di,bx
+asm	  add     si,[srcmod]
+
+asm     dec     dx
+asm     jnz     lineloop
+
+asm     mov     ax,ss
+asm     mov     ds,ax                                   // restore turbo's data segment
+
+	EGAWRITEMODE(0);
+}
+
+#endif
+
 
 //==========================================================================
 
@@ -790,40 +1055,20 @@ void Victory (boolean playsounds)
 		SD_PlaySound (GETPOINTSSND);
 	}
 
-
 	FreeUpMemory();
 
 	if (!screenfaded)
 		VW_FadeOut();
 
-	screenpage = 1;
-	VW_SetScreen (screenloc[screenpage],0);
-	bufferofs = displayofs = screenloc[screenpage];
-	VW_Bar (0,0,320,120,0);
+	NormalScreen ();
+
+	screenpage = bufferofs = 0;
 
 	CA_CacheGrChunk (FINALEPIC);
 	UNMARKGRCHUNK(FINALEPIC);
 	VW_DrawPic(0, 0, FINALEPIC);
 
 	VW_FadeIn();
-
-#if 0
-	FreeUpMemory();
-
-	if (!screenfaded)
-		VW_FadeOut();
-	screenpage = 1;
-	VW_SetScreen (screenloc[screenpage],0);
-	if (!FindFile("FINALE."EXT,NULL,1))
-		Quit("Error: Can't find victory screen.");
-	if (LoadShape("FINALE."EXT,&shape))
-		TrashProg("Can't load FINALE."EXT);
-	bufferofs = displayofs = screenloc[screenpage];
-	VW_Bar (0,0,320,120,0);
-	UnpackEGAShapeToScreen(&shape,(320-shape.bmHdr.w)/2,0);
-	FreeShape(&shape);
-	VW_FadeIn();
-#endif
 }
 
 //==========================================================================
@@ -847,11 +1092,11 @@ void Died (void)
 	SD_PlaySound (GAMEOVERSND);
 	bufferofs = screenloc[(screenpage+1)%3];
 	DisplayMsg("Though fallen, your Spirit ...",NULL);
-//	LatchDrawPic(0,0,DEADPIC);
-//	FizzleFade(bufferofs,displayofs,VIEWWIDTH,VIEWHEIGHT,false);
+//      LatchDrawPic(0,0,DEADPIC);
+//      FizzleFade(bufferofs,displayofs,VIEWWIDTH,VIEWHEIGHT,false);
 	IN_ClearKeysDown();
 	while (!Keyboard[sc_Enter]);
-//	IN_Ack();
+//      IN_Ack();
 	VW_SetScreen (bufferofs,0);
 	VW_ColorBorder(0);
 }
@@ -929,9 +1174,13 @@ void DrawPlayScreen (void)
 ===================
 */
 
+unsigned latchmemavail;
+
 void LoadLatchMem (void)
 {
-	int     i,j,p,m;
+	static unsigned base_destoff=0;
+	static int base_numpics=0;
+	int     i,j,p,m,numpics;
 	byte    far *src, far *dest;
 	unsigned        destoff;
 
@@ -940,6 +1189,9 @@ void LoadLatchMem (void)
 //
 // draw some pics into latch memory
 //
+
+  if (!base_numpics)
+  {
 
 //
 // tile 8s
@@ -997,10 +1249,11 @@ void LoadLatchMem (void)
 //
 // pics
 //
+	numpics=1;
 	destoff = FP_OFF(dest);
-	for (i=FIRSTLATCHPIC+1;i<FIRSTSCALEPIC;i++)
+	for (i=FIRSTLATCHPIC+1;i<FIRSTGROUNDPIC;i++)
 	{
-		latchpics[i-FIRSTLATCHPIC] = destoff;
+		latchpics[numpics++] = destoff;
 		CA_CacheGrChunk (i);
 		j = pictable[i-STARTPICS].width * pictable[i-STARTPICS].height;
 		VW_MemToScreen (grsegs[i],destoff,j,1);
@@ -1008,6 +1261,115 @@ void LoadLatchMem (void)
 		MM_FreePtr (&grsegs[i]);
 		UNMARKGRCHUNK(i);
 	}
+
+	base_numpics = numpics;
+	base_destoff = destoff;
+
+  }
+
+	numpics = base_numpics;
+	destoff = base_destoff;
+
+#if USE_STRIPS
+//
+// ground pics
+//
+	numpics++;
+	for (i=FIRSTGROUNDPIC+1;i<FIRSTSTRIPPIC;i++)
+	{
+		int shape = (*groundcolor & 0xf0) - 16;
+
+	// Is current shape needed?
+	//
+		if (shape != (i-(FIRSTGROUNDPIC+1)))
+		{
+			numpics++;
+			continue;
+		}
+
+		latchpics[numpics++] = destoff;
+		CA_CacheGrChunk (i);
+		j = pictable[i-STARTPICS].width * pictable[i-STARTPICS].height;
+		VW_MemToScreen (grsegs[i],destoff,j,1);
+		destoff+=j;
+		MM_FreePtr (&grsegs[i]);
+		UNMARKGRCHUNK(i);
+	}
+
+
+//
+// 'parallax' strips - used in place of a sky color
+//
+// Under current setup, each strip takes about 7k in latch memory.
+// To create 2 pixel scrolling, 4 strips are needed, that's 28k of
+// latch memory needed to produce this effect.
+//
+	numpics++;
+	for (i=FIRSTSTRIPPIC+1;i<FIRSTSCALEPIC;i++)
+	{
+		memptr work;
+		unsigned workdest,stripsize,planesize;
+		short loop,pic=i-STARTPICS;
+		int shape = (*skycolor & 0xf0) - 16;
+
+	// Is current shape needed?
+	//
+		if (shape != (i-(FIRSTSTRIPPIC+1)))
+		{
+			numpics++;
+			continue;
+		}
+
+	// CAL_ShiftSprite() works with the SRC and DST in the same
+	// segment. So we must allocate memory for two strips, and
+	// move the base strip into that segment. Then we can use the
+	// 2nd half of that memory for each shifted strip.
+	//
+		CA_CacheGrChunk (i);
+		planesize = (pictable[pic].width+1) * pictable[pic].height;
+		stripsize = planesize * 4;
+//		MM_GetPtr(&work,(stripsize*2)+0000);
+		MM_GetPtr(&work,65536);
+		movedata((unsigned)grsegs[i],0,(unsigned)work,0,stripsize);
+		workdest = 32768; //(stripsize+15) & 0xFFF0;
+
+	// Free base strip
+	//
+		MM_FreePtr (&grsegs[i]);
+		UNMARKGRCHUNK(i);
+
+	// Create three shifted strips and move 'em to latch!
+	//
+		for (loop=3; loop; loop--)
+		{
+		// Produce current shift for this strip
+		//
+			latchpics[numpics++] = destoff;
+			CAL_ShiftSprite ((unsigned)work,0,workdest,pictable[pic].width,
+								  pictable[pic].height,loop*2,false);
+
+		// Copy this shift to latch memory
+		//
+			VW_MemToScreen ((memptr)((unsigned)work+(workdest>>4)),destoff,planesize,1);
+			destoff+=planesize;
+		}
+
+	// Copy unshifted strip to latch
+	//
+		latchpics[numpics++] = destoff;
+		planesize = pictable[pic].width * pictable[pic].height;
+		VW_MemToScreen (work,destoff,planesize,1);
+		destoff+=planesize;
+
+	// Free work buffer
+	//
+		MM_FreePtr(&work);
+	}
+#endif
+
+// Keep track of how much latch memory we have...
+//
+	latchmemavail = 65535-destoff;
 
 	EGAMAPMASK(15);
 }
@@ -1231,7 +1593,6 @@ restart:
 			wait = false;
 		}
 
-
 #ifdef PROFILE
 start = clock();
 while (start == clock());
@@ -1256,8 +1617,16 @@ itoa(end-start,str,10);
 			NewGame();
 		case ex_loadedgame:
 		case ex_warped:
+			FreeUpMemory();
+			if (playstate != ex_resetgame)
+				DisplayMsg("                                      ", NULL);
+			DisplaySMsg("                  ", NULL);
 			goto restart;
-		break;
+		case ex_victorious:
+			screenpage = 0;
+			bufferofs = 0;
+			status_flag = 0;
+			return;
 		}
 
 	} while (1);

@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -862,7 +862,7 @@ US_CPrintLine(char *s)
 	USL_MeasureString(s,&w,&h);
 
 	if (w > WindowW)
-		Quit("US_CPrintLine() - String exceeds width\n-->%s",s);
+		Quit("US_CPrintLine() - String exceeds width");
 	px = WindowX + ((WindowW - w) / 2);
 	py = PrintY;
 	USL_DrawString(s);

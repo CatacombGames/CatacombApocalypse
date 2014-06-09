@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,38 +16,37 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include "SL_FILE.h"
+
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Defines
 //
 
-#define MAX_TEXT_PAGES  40
-#define SAVEVER_DATA "0.93"
+#define ANIM_USES_SHAPE_TABLE false
+#define PI_MAX_ANIMS 10
+#define PI_MAX_PAGES	40
+
+#define SAVEVER_DATA "0.01"
 #define FILENAME_LEN 15
 
-#define  GAMENAME               "CATACOMB ABYSS 3-D"
-#define VERSION         "V1.24   "
-#define  REVISION               "1"
+#define  GAMENAME		"CATACOMB ARMAGEDDON 3-D"
+#define	VERSION		"V1.02"
+#define  REVISION		"  rev 1 "
 
 //#define BOBLIST 1                          //SP - Undefine if not using BOBList
 
-#define AUDIO_DISK              (2)
-#define VIDEO_DISK              (1)
-#define LEVEL_DISK              (2)
+#define AUDIO_DISK		(2)
+#define VIDEO_DISK		(1)
+#define LEVEL_DISK		(2)
 
-#define BIO_BUFFER_LEN  (512)
+#define BIO_BUFFER_LEN	(512)
 
 #define TrashProg Quit
 
-///////////////////////////////////////////////////////////////////////////
-//
-// Externs
-//
+//   #define AMIGA
 
-extern char Filename[], ID[], VER[];
-extern boolean ge_textmode;
-extern short PPT_LeftEdge,PPT_RightEdge;
-//extern boolean ConserveMemory;
 
 typedef struct Sample {
 		char *filename;
@@ -56,17 +55,17 @@ typedef struct Sample {
 
 typedef enum {ged_none, ged_SoundSource,ged_SoundBlaster} AudioDeviceType;
 
-typedef struct {
-	memptr textptr;
-	char far *pages[MAX_TEXT_PAGES];
-	short totalpages;
-} textinfo;
+//typedef struct {
+//	memptr textptr;
+//	char far *pages[MAX_TEXT_PAGES];
+//	short totalpages;
+//} textinfo;
 
 typedef struct {
-	int handle;                     // handle of file
-	memptr buffer;          // pointer to buffer
-	word offset;            // offset into buffer
-	word status;            // read/write status
+	int handle;			// handle of file
+	memptr buffer;		// pointer to buffer
+	word offset;		// offset into buffer
+	word status;		// read/write status
 } BufferedIO;
 
 typedef enum ANIMINFO {at_NONE,at_INIT,at_WAIT,at_ONCE,at_CYCLE,
@@ -75,8 +74,8 @@ typedef enum ANIMINFO {at_NONE,at_INIT,at_WAIT,at_ONCE,at_CYCLE,
 } ANIMINFO;
 
 struct BitMapHeader {
-	unsigned int    w,h,x,y;
-	unsigned char   d,trans,comp,pad;
+	unsigned int	w,h,x,y;
+	unsigned char	d,trans,comp,pad;
 };
 
 struct BitMap {
@@ -94,6 +93,39 @@ struct Shape {
 	struct BitMapHeader bmHdr;
 };
 
+#ifdef AMIGA
+typedef struct {
+	char *script[PI_MAX_PAGES];
+	XBitMap **shapes;
+	XBitMap **font;
+	short xl,yl,xh,yh;
+	struct BitMap *dst;
+	char numpages,bgcolor;
+} PresenterInfo;
+#else
+typedef struct {
+	char far *script[PI_MAX_PAGES];
+	memptr scriptstart;
+	short xl,yl,xh,yh;
+	char numpages,bgcolor,ltcolor,dkcolor;
+} PresenterInfo;
+#endif
+
+
+///////////////////////////////////////////////////////////////////////////
+//
+// Externs
+//
+
+extern char Filename[], ID[], VER[];
+extern boolean ge_textmode;
+extern short PPT_LeftEdge,PPT_RightEdge;
+//extern boolean ConserveMemory;
+extern BufferedIO lzwBIO;
+extern short wall_anim_delay,wall_anim_time;
+
+
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // Function prototypes
@@ -104,10 +136,10 @@ void MoveScreen(short x, short y);
 void MoveGfxDst(short x, short y);
 void DoPiracy(void);
 void PrintPropText(char far *text);
-void DisplayText(textinfo *textinfo);
-long LoadTextFile(char *filename,textinfo *textinfo);
-void FreeTextFile(textinfo *textinfo);
-void InitTextFile(textinfo *textinfo);
+//void DisplayText(textinfo *textinfo);
+//long LoadTextFile(char *filename,textinfo *textinfo);
+//void FreeTextFile(textinfo *textinfo);
+//void InitTextFile(textinfo *textinfo);
 long Verify(char *filename);
 void GE_SaveGame(void);
 boolean GE_LoadGame(void);
@@ -163,3 +195,16 @@ boolean FindFile(char *filename,char *disktext,char disknum);
 void CacheAV(char *title);
 void BlackPalette(void);
 void ColoredPalette(void);
+void Presenter(PresenterInfo *pi);
+unsigned PI_VALUE(char far *ptr,char num_nybbles);
+long LoadPresenterScript(char *filename,PresenterInfo *pi);
+void FreePresenterScript(PresenterInfo *pi);
+void InitPresenterScript(PresenterInfo *pi);
+
+void AnimatePage(short numanims);
+short BoxAroundPic(short x1, short y1, unsigned picnum, PresenterInfo *pi);
+void PurgeAllGfx(void);
+void CachePage(char far *script);
+
+
+void AnimateWallList(void);

@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -44,7 +44,10 @@
 byte bcolor;
 short skytimer=-1,skytimer_reset;
 short groundtimer=-1,groundtimer_reset;
-unsigned *skycolor,*groundcolor;
+
+unsigned scolor,gcolor;
+unsigned *skycolor,*groundcolor,debug_sky,debug_gnd;
+
 unsigned nocolorchange=0xFFFF;
 byte BGFLAGS,				// global that holds all current flags
 	  bgflag;				// used by BG changer, this flag is set when done
@@ -72,6 +75,10 @@ boolean		running=false; //,slowturn;
 
 int			bordertime;
 objtype objlist[MAXACTORS],*new,*obj,*player,*lastobj,*objfreelist;
+
+#if USE_INERT_LIST
+inertobjtype inertobjlist[MAXINERTOBJ],*inert;
+#endif
 
 unsigned	farmapylookup[MAPSIZE];
 byte		*nearmapylookup[MAPSIZE];
@@ -165,19 +172,6 @@ void CheckKeys (void)
 
 	if (screenfaded)			// don't do anything with a faded screen
 		return;
-
-	if (Keyboard[sc_M]&&Keyboard[sc_I]&&Keyboard[sc_K]&&Keyboard[sc_E])
-	{
-		CenterWindow (12,2);
-		if (autofire)
-		  US_PrintCentered ("Auto-Bolt OFF");
-		else
-		  US_PrintCentered ("Auto-Bolt ON");
-		VW_UpdateScreen();
-		IN_Ack();
-		autofire ^= 1;
-		return 1;
-	}
 
 #if 0
 //
@@ -294,8 +288,7 @@ deadloop:;
 		char ch;
 
 		DisplaySMsg("Options", NULL);
-		if ((status_flag != S_TIMESTOP) || (Flags & FL_DEAD))
-			status_flag = S_NONE;
+		status_flag = S_NONE;
 
 
 		if (Flags & FL_DEAD)
@@ -326,12 +319,10 @@ deadloop:;
 				VW_WaitVBL(60);
 				playstate = ex_resetgame;
 				Flags &= ~FL_DEAD;
-				status_flag = S_NONE;
 			break;
 
 			case sc_Q:
 				DisplaySMsg("FARE THEE WELL!", NULL);
-				status_flag = S_NONE;
 				VW_WaitVBL(120);
 				if (!Flags & FL_QUICK)
 					VW_FadeOut();
@@ -341,36 +332,22 @@ deadloop:;
 			break;
 		}
 		tics = realtics = 1;
-
-		if (status_flag == S_TIMESTOP)
-			DisplaySMsg("Time Stopped:     ",NULL);
 	}
 
 // F1 - DISPLAY HELP
 //
 	if (Keyboard[sc_F1])
 	{
-		boolean nohelp=false;
-		extern textinfo MainHelpText;
+		PrintHelp();
+
+#ifdef TEXT_PRESENTER
+
+		extern PresenterInfo MainHelpText;
 
 		VW_FadeOut();
 
 		FreeUpMemory();
-		if (!FindFile("HELP.TXT",NULL,1))
-			nohelp = true;
-
-		if (LoadTextFile("HELP.TXT",&MainHelpText))
-		{
-			VW_SetSplitScreen(200);
-			bufferofs = displayofs = screenloc[0];
-			VW_Bar(0,0,320,200,0);
-
-			DisplayText(&MainHelpText);
-		}
-		else
-			nohelp = true;
-
-		if (nohelp)
+		if (!LoadPresenterScript("HELP.TXT",&MainHelpText))
 		{
 			VW_FadeIn();
 			CenterWindow(30,5);
@@ -378,9 +355,19 @@ deadloop:;
 			US_CPrint("Press any key.");
 			IN_Ack();
 			VW_FadeOut();
-			nohelp = false;
 		}
-		FreeTextFile(&MainHelpText);
+		else
+		{
+			VW_SetSplitScreen(200);
+			bufferofs = displayofs = screenloc[0];
+			VW_Bar(0,0,320,200,0);
+
+			Display640();
+			Presenter(&MainHelpText);
+			Display320();
+		}
+		FreePresenterScript(&MainHelpText);
+#endif
 		VW_SetSplitScreen(120);
 		VW_SetScreen(screenloc[0],0);
 		screenpage = 0;
@@ -416,6 +403,7 @@ deadloop:;
 			loadedgame = true;
 			playstate = ex_loadedgame;
 			Flags &= ~FL_DEAD;
+			lasttext = -1;
 			PostFullDisplay(false);
 		}
 		else
@@ -423,6 +411,8 @@ deadloop:;
 		{
 			PostFullDisplay(false);
 			Victory(false);
+			IN_Ack();
+//			gamestate.mapon++;
 		}
 		else
 			PostFullDisplay(true);
@@ -437,7 +427,7 @@ deadloop:;
 //
 // F10-? debug keys
 //
-	if (Keyboard[sc_F10])
+	if (Keyboard[sc_BackSpace])
 	{
 		DebugKeys();
 		if (MousePresent) Mouse(MDelta);	// Clear accumulated mouse movement
@@ -529,6 +519,11 @@ void InitObjList (void)
 //
 	GetNewObj (false);
 	player = new;
+
+#if USE_INERT_LIST
+	inert = inertobjlist;
+#endif
+
 }
 
 //===========================================================================
@@ -611,7 +606,45 @@ void RemoveObj (objtype *gone)
 //
 	gone->prev = objfreelist;
 	objfreelist = gone;
+
+	objectcount--;
 }
+
+#if USE_INERT_LIST
+
+//--------------------------------------------------------------------------
+// MoveObjToInert()
+//--------------------------------------------------------------------------
+void MoveObjToInert(objtype *obj)
+{
+
+	if (inert == &inertobjlist[MAXINERTOBJ])
+		return;
+
+// Transfer info needed by inert objtype
+//
+	inert->x = obj->x;
+	inert->y = obj->y;
+	inert->size = obj->size;
+	inert->viewx = obj->viewx;
+	inert->tilex = obj->tilex;
+	inert->tiley = obj->tiley;
+	inert->state = obj->state;
+	inert->ticcount = obj->ticcount;
+
+// Setup links between inert objects
+//
+	if (inert != inertobjlist)
+		(inert-1)->next = inert;
+	inert->next = NULL;
+	inert++;
+
+// Free 'real' object from list.
+//
+	RemoveObj(obj);
+}
+
+#endif
 
 //==========================================================================
 
@@ -733,7 +766,6 @@ void PlayLoop (void)
 //	int originx=0;
 //	int i=100;
 	signed long dx,dy,radius,psin,pcos,newx,newy;
-	short jim;
 	int		give;
 	short objnum;
 	signed long ox,oy,xl,xh,yl,yh,px,py,norm_dx,norm_dy;
@@ -746,11 +778,14 @@ void PlayLoop (void)
 	gamestate.shotpower = handheight = 0;
 	pointcount = pointsleft = 0;
 
+	status_flag = S_NONE;
+
+#if 0
 	// setup sky/ground colors and effects (based on level)
 	//
 	switch (gamestate.mapon)
 	{
-		case 0:
+		case 255:
 			if (!(BGFLAGS & BGF_NIGHT))
 			{
 				InitBgChange(3*60,sky_daytonight,-1,NULL,BGF_NIGHT);
@@ -769,7 +804,13 @@ void PlayLoop (void)
 			skytimer = groundtimer = -1;
 		break;
 	}
+#endif
 
+	BGFLAGS |= BGF_NOT_LIGHTNING;
+	skytimer = groundtimer = -1;
+
+	debug_gnd = *groundcolor;
+	debug_sky = *skycolor;
 	RedrawStatusWindow();
 	ThreeDRefresh();
 	if (screenfaded)
@@ -791,18 +832,16 @@ void PlayLoop (void)
 		if (++TimeCount == 300)
 			return;
 #endif
+		DisplayStatus(&status_flag);
 
 		objnum=0;
 		for (obj = player;obj;obj = obj->next)
 		{
 			if ((obj->active >= yes) && (!(FreezeTime && (obj!=player))))
 			{
-
-
 				if (obj->ticcount)
 				{
-					obj->ticcount-=tics;
-
+					obj->ticcount-=realtics;
 					while ( obj->ticcount <= 0)
 					{
 						think = obj->state->think;
@@ -816,7 +855,6 @@ void PlayLoop (void)
 								RemoveObj (obj);
 								goto nextactor;
 							}
-
 							if (obj->state != oldstate)
 								break;
 						}
@@ -827,21 +865,17 @@ void PlayLoop (void)
 							RemoveObj (obj);
 							goto nextactor;
 						}
-
 						if (!obj->state->tictime)
 						{
 							obj->ticcount = 0;
 							goto nextactor;
 						}
-
 						if (obj->state->tictime>0)
 							obj->ticcount += obj->state->tictime;
 					}
 				}
 
-
 				think =	obj->state->think;
-
 				if (think)
 				{
 					think (obj);
@@ -907,16 +941,23 @@ nextactor:;
 								RadarXY[objnum++][2]=shot_color[screenpage];
 							break;
 
-					// BATS	    						(DK GRAY)
+					// BATS	    							(DK GRAY)
 					//
 							case batobj:
 								if (obj->active == always)
 									RadarXY[objnum++][2]=8;
 							break;
 
+					// RABBITS	    						(LT GRAY)
+					//
+							case bunnyobj:
+								if (obj->active == always)
+									RadarXY[objnum++][2]=7;
+							break;
+
 			// RED GEM
 			//
-					// EYE, RED DEMON        		(DK RED)
+					// EYE, RED DEMON        					(DK RED)
 					//
 							case eyeobj:
 							case reddemonobj:
@@ -935,35 +976,37 @@ nextactor:;
 
 			// BLUE GEM
 			//
-					// WATER TROLL						(LT BLUE)
+					// SUCCUBUS							(LT BLUE)
 					//
-							case wetobj:
+							case succubusobj:
 								if (gamestate.gems[B_BGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=9;
 							break;
 
-					// WATER TROLL						(DK BLUE)
+					// WATER DRAGON							(DK BLUE)
 					//
-							case demonobj:
-								if (gamestate.gems[B_BGEM-B_RGEM])
+							case wetobj:
+								if (gamestate.gems[B_GGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=1;
 							break;
 
+
+
 			// GREEN GEM
 			//
-					// GREEN TROLL						(LT GREEN)
+					// GREEN TROLL							(LT GREEN)
 					//
-							case trollobj:
+							case fatdemonobj:
 								if (gamestate.gems[B_GGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=10;
 							break;
 
-					// ORC								(DK GREEN)
+					// GODESS							(DK GREEN)
 					//
-							case orcobj:
+							case godessobj:
 								if (gamestate.gems[B_GGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=2;
@@ -971,9 +1014,10 @@ nextactor:;
 
 			// YELLOW GEM
 			//
-					// SPOOK								(BROWN)
+					// ANT								(BROWN)
 					//
-							case spookobj:
+							case antobj:
+							case treeobj:
 								if (gamestate.gems[B_YGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=6;
@@ -1012,6 +1056,30 @@ nextactor:;
 		}
 		RadarXY[objnum][2]=-1;		// Signals end of RadarXY list...
 
+#if USE_INERT_LIST
+		if (inert != inertobjlist)
+			for (obj=(objtype *)inertobjlist;obj;obj=obj->next)
+				if (obj->ticcount)
+				{
+					obj->ticcount-=realtics;
+					while ( obj->ticcount <= 0)
+					{
+						obj->state = obj->state->next;
+						if (!obj->state)
+							Quit("Removable object in INERT list.");
+
+						if (!obj->state->tictime)
+						{
+							obj->ticcount = 0;
+							goto nextactor;
+						}
+
+						if (obj->state->tictime>0)
+							obj->ticcount += obj->state->tictime;
+					}
+				}
+#endif
+
 		if (bordertime)
 		{
 			bordertime -= realtics;
@@ -1022,21 +1090,17 @@ nextactor:;
 			}
 		}
 
+#if 1
 // random lightning?
 //
-	if (BGFLAGS & (BGF_NIGHT|BGF_NOT_LIGHTNING))
-		switch (gamestate.mapon)
+	if (BGFLAGS & (BGF_NOT_LIGHTNING))
+	{
+		if ((scolor & 0xe0) && (!(random(20-realtics))))
 		{
-			case 0:
-			case 1:
-			case 3:
-				if (!random(120-realtics))
-				{
-					BGFLAGS &= ~BGF_NOT_LIGHTNING;
-					InitBgChange(1,sky_lightning,-1,NULL,BGF_NOT_LIGHTNING);
-				}
-			break;
+			BGFLAGS &= ~BGF_NOT_LIGHTNING;
+			InitBgChange(1,sky_lightning,-1,NULL,BGF_NOT_LIGHTNING);
 		}
+	}
 
 // handle sky/ground color changes
 //
@@ -1049,7 +1113,8 @@ nextactor:;
 				if (*skycolor == 0xffff)
 				{
 					skytimer = -1;
-					skycolor--;
+//					skycolor--;
+					skycolor = &scolor;
 					if (groundtimer == -1)
 						BGFLAGS |= bgflag;
 				}
@@ -1067,7 +1132,8 @@ nextactor:;
 				if (*groundcolor == 0xffff)
 				{
 					groundtimer = -1;
-					groundcolor--;
+//					groundcolor--;
+					groundcolor = &gcolor;
 					if (skytimer == -1)
 						BGFLAGS |= bgflag;
 				}
@@ -1075,6 +1141,7 @@ nextactor:;
 					groundtimer = groundtimer_reset;
 			}
 		}
+#endif
 
 
 //
@@ -1122,10 +1189,11 @@ nextactor:;
 		if (playstate == ex_victorious)
 		{
 			Victory(true);
-			Flags |= FL_DEAD;
+//			Flags |= FL_DEAD;
+			IN_Ack();
+//			gamestate.mapon++;
 		}
 
-		DisplayStatus(&status_flag);
 		CheckKeys();
 
 	}while (!playstate);

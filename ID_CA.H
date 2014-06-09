@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -42,8 +42,8 @@
 #define GRHEADERLINKED
 #define AUDIOHEADERLINKED
 
-#define NUMMAPS		19
-#define MAPPLANES	3
+#define NUMMAPS		39
+#define MAPPLANES		3
 
 //===========================================================================
 
@@ -84,7 +84,7 @@ extern	void	(*finishcachebox)	(void);
 // just for the score box reshifting
 
 void CAL_ShiftSprite (unsigned segment,unsigned source,unsigned dest,
-	unsigned width, unsigned height, unsigned pixshift);
+	unsigned width, unsigned height, unsigned pixshift, boolean domask);
 
 //===========================================================================
 

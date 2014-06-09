@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 // C3_WIZ.C
 
 #include "DEF.H"
+#include "gelib.h"
 #pragma hdrstop
 
 /*
@@ -29,7 +30,7 @@
 =============================================================================
 */
 
-#define NUMSCROLLS	8
+////////#define NUMSCROLLS	8
 
 #define	SHOWITEMS	9
 
@@ -46,6 +47,7 @@
 #define POWERLINE	80
 
 #define SPECTILESTART	0			// 18
+
 
 #define SHOTDAMAGE		1
 #define BIGSHOTDAMAGE	3
@@ -65,6 +67,12 @@
 
 #define HANDPAUSE	60
 
+#define	RIGHTEDGE 	205;
+#define	LEFTEDGE  	95;
+#define	PRNY    	32;
+#define	WINX		10;
+#define	WINY   		32;
+
 /*
 =============================================================================
 
@@ -79,7 +87,7 @@ int			handheight;
 int			boltsleft,bolttimer;
 short RadarXY[MAX_RADAR_BLIPS][3]={-1,-1,-1};
 short radarx=RADARX,radary=RADARY,radar_xcenter=RADAR_XCENTER,radar_ycenter=RADAR_YCENTER;
-int key_x[4]={20,23,23,20},key_y[4]={30,57,30,57};
+int key_x[4]={24,27,27,24},key_y[4]={30,57,30,57};
 
 boolean redraw_gems,button0down;
 
@@ -100,7 +108,6 @@ short RotateAngle = -1;				// -1 == No Angle to turn to...
 short FreezeTime = 0;				// Stops all think (except player)
 short RotateSpeed;					// Speed (and dir) to rotate..
 
-short turntime = 0;					// accumulated time for fast turning..
 
 //===========================================================================
 
@@ -119,9 +126,9 @@ void GivePotion (void);
 void TakePotion (void);
 void GiveKey (int keytype);
 void TakeKey (int keytype);
-void GiveScroll (int scrolltype,boolean show);
-void ReadScroll (int scroll);
-void DrawScrolls(void);
+////////////void GiveScroll (int scrolltype,boolean show);
+////////////void ReadScroll (int scroll);
+////////////void DrawScrolls(void);
 
 void DrawNum(short x,short y,short value,short maxdigits);
 
@@ -213,15 +220,15 @@ void RedrawStatusWindow (void)
 	EGABITMASK(0xff);
 	for (keytype=0; keytype<4; keytype++)
 		DrawNum(key_x[keytype],key_y[keytype],gamestate.keys[keytype],2);
-	DrawNum(17,54,gamestate.potions,2);
-	DrawNum(17,36,gamestate.nukes,2);
-	DrawNum(17,18,gamestate.bolts,2);
+	DrawNum(20,54,gamestate.potions,2);
+	DrawNum(20,36,gamestate.nukes,2);
+	DrawNum(20,18,gamestate.bolts,2);
 
 	DrawHealth();
 	DrawRadar();
 	EGAWRITEMODE(0);
 	DrawGems();
-	DrawScrolls();
+////////	DrawScrolls();
 	redraw_gems = false;
 }
 
@@ -242,7 +249,7 @@ void GiveBolt (void)
 		return;
 
 	SD_PlaySound (GETBOLTSND);
-	DrawNum(17,18,++gamestate.bolts,2);
+	DrawNum(20,18,++gamestate.bolts,2);
 }
 
 
@@ -257,7 +264,7 @@ void GiveBolt (void)
 void TakeBolt (void)
 {
 	SD_PlaySound (USEBOLTSND);
-	DrawNum(17,18,--gamestate.bolts,2);
+	DrawNum(20,18,--gamestate.bolts,2);
 }
 
 //===========================================================================
@@ -276,7 +283,7 @@ void GiveNuke (void)
 		return;
 
 	SD_PlaySound (GETNUKESND);
-	DrawNum(17,36,++gamestate.nukes,2);
+	DrawNum(20,36,++gamestate.nukes,2);
 }
 
 
@@ -291,7 +298,7 @@ void GiveNuke (void)
 void TakeNuke (void)
 {
 	SD_PlaySound (USENUKESND);
-	DrawNum(17,36,--gamestate.nukes,2);
+	DrawNum(20,36,--gamestate.nukes,2);
 }
 
 //===========================================================================
@@ -310,7 +317,7 @@ void GivePotion (void)
 		return;
 
 	SD_PlaySound (GETPOTIONSND);
-	DrawNum(17,54,++gamestate.potions,2);
+	DrawNum(20,54,++gamestate.potions,2);
 }
 
 
@@ -325,7 +332,7 @@ void GivePotion (void)
 void TakePotion (void)
 {
 	SD_PlaySound (USEPOTIONSND);
-	DrawNum(17,54,--gamestate.potions,2);
+	DrawNum(20,54,--gamestate.potions,2);
 }
 
 //===========================================================================
@@ -440,6 +447,8 @@ void DrawGems()
 
 //===========================================================================
 
+#if 0
+
 /*
 ===============
 =
@@ -486,6 +495,8 @@ void DrawScrolls()
 			DrawChar(x,y,SCROLLCHARS+loop);
 		}
 }
+#endif
+
 
 //===========================================================================
 
@@ -550,7 +561,7 @@ void DrawHealth()
 
 	percentage = PERCENTAGE(100,MAXBODY,gamestate.body,9);
 
-	DrawNum(9,57,percentage,3);
+	DrawNum(11,57,percentage,3);
 
 	if (percentage > 75)
 		picnum = FACE1PIC;
@@ -573,10 +584,11 @@ void DrawHealth()
 	if (!percentage)
 	{
 		UNMARKGRCHUNK(picnum);
-		VW_DrawPic(8,14,picnum);
+//		VW_DrawPic(8,14,picnum);
+		VW_DrawPic(10,14,picnum);
 	}
 	else
-		LatchDrawPic(8,14,picnum);
+		LatchDrawPic(10,14,picnum);
 }
 
 //===========================================================================
@@ -1016,6 +1028,25 @@ newline3:
 }
 #endif
 
+/////////////////////////////////////////////////////////////////////////////
+//
+//  Check the object and make sure it is a monster.  Used in making the sound
+//  of a monster being shot.
+//
+/////////////////////////////////////////////////////////////////////////////
+
+boolean PlayMonsterSound(classtype objclass)
+{
+	switch (objclass)
+	{
+		case solidobj:
+		case realsolidobj:
+			return false;
+		default:
+			return true;
+	}
+}
+
 
 /*
 =============================================================================
@@ -1123,14 +1154,25 @@ boolean JimsShotClipMove (objtype *ob, long xmove, long ymove)
 			ob->x -= xmove;
 			ob->y -= ymove;
 
-			if (check->obclass != solidobj)
+			if (check->obclass != solidobj && check->obclass != hbunnyobj)
 			{
-				SD_PlaySound (SHOOTMONSTERSND);
+				if (PlayMonsterSound(check->obclass))
+					SD_PlaySound (SHOOTMONSTERSND);
 				if (ob->obclass == bigpshotobj)
 					ShootActor (check,BIGSHOTDAMAGE);
 				else
 					ShootActor (check,SHOTDAMAGE);
 			}
+			else
+				if (check->obclass == solidobj && (check->flags & of_forcefield))
+				{
+					if (PlayMonsterSound(check->obclass))
+						SD_PlaySound (SHOOTMONSTERSND);
+					if (ob->obclass == bigpshotobj)
+						ShootActor (check,BIGSHOTDAMAGE);
+					else
+						ShootActor (check,SHOTDAMAGE);
+				}
 			ob->state = &s_pshot_exp1;
 			ob->ticcount = ob->state->tictime;
 			return(true);
@@ -1167,7 +1209,8 @@ void T_Pshot (objtype *ob)
 
 			if (check->obclass != solidobj)
 			{
-				SD_PlaySound (SHOOTMONSTERSND);
+				if (PlayMonsterSound(check->obclass))
+					SD_PlaySound (SHOOTMONSTERSND);
 				if (ob->obclass == bigpshotobj)
 					ShootActor (check,BIGSHOTDAMAGE);
 				else
@@ -1238,9 +1281,10 @@ void T_Pshot (objtype *ob)
 		&& ob->yh >= check->yl)
 		{
 
-			if (check->obclass != solidobj)
+			if (check->obclass != solidobj && check->obclass != hbunnyobj)
 			{
-				SD_PlaySound (SHOOTMONSTERSND);
+				if (PlayMonsterSound(check->obclass))
+					SD_PlaySound (SHOOTMONSTERSND);
 				if (ob->obclass == bigpshotobj)
 					ShootActor (check,BIGSHOTDAMAGE);
 				else
@@ -1477,6 +1521,8 @@ void ContinueBolt (void)
 
 void CastNuke (void)
 {
+	extern boolean autofire;
+
 	int	angle;
 
 	if (!gamestate.nukes)
@@ -1485,7 +1531,8 @@ void CastNuke (void)
 		return;
 	}
 
-	TakeNuke ();
+	if (!autofire)
+		TakeNuke ();
 	lastnuke = TimeCount;
 
 	for (angle = 0; angle < ANGLES; angle+= ANGLES/16)
@@ -1572,6 +1619,62 @@ newline:
 
 //===========================================================================
 
+#if 0
+
+////////////////////////////////////////////////////////////////////////////
+//
+//   GetScrollText
+//
+//   parms   - scroll -- the number of the scroll to display
+//   returns - a far pointer to the scroll text
+//
+////////////////////////////////////////////////////////////////////////////
+
+char far *GetScrollText (int scroll)
+{
+	boolean found;
+	int     i;
+	char far *txt;
+	unsigned ofset;
+
+	CA_CacheGrChunk(SCROLLTEXT);
+
+	found = false;
+	i     = 0;
+
+	txt = (char _seg *)grsegs[SCROLLTEXT];
+
+	while (!found)
+	{
+		while (*txt != '\n')
+		{
+			if (*txt == '\r')
+				*txt = 0;
+			txt++;
+		}
+		txt++;
+		if (i == scroll)
+		{
+			found   = true;
+			ofset = FP_OFF(txt);
+
+			while (*txt != '\n')
+			{
+				if (*txt == '\r')
+					*txt = 0;
+				txt++;
+			}
+		}
+		i++;
+	}
+	txt = (char _seg *)grsegs[SCROLLTEXT]+ofset;
+
+	UNMARKGRCHUNK(SCROLLTEXT);
+	return(txt);
+}  	//End of GetScrollText
+
+//===========================================================================
+
 /*
 ===============
 =
@@ -1584,8 +1687,10 @@ extern	boolean	tileneeded[NUMFLOORS];
 
 void ReadScroll (int scroll)
 {
+	PresenterInfo pi;
 	int	i;
 	unsigned *skytemp,*gndtemp,blackcolor=0;
+	char far *scrolltext;
 
 	DisplaySMsg("Reading Scroll", NULL);
 	bufferofs = displayofs = screenloc[screenpage];
@@ -1596,7 +1701,7 @@ void ReadScroll (int scroll)
 	FreeUpMemory();
 
 	CA_CacheGrChunk (SCROLLTOPPIC);
-	CA_CacheGrChunk (SCROLL1PIC + scroll);
+	CA_CacheGrChunk (SCROLL1PIC);
 	CA_CacheGrChunk (SCROLLBOTTOMPIC);
 
 	skytemp = skycolor;
@@ -1605,32 +1710,42 @@ void ReadScroll (int scroll)
 
 	VW_Bar(0,0,VIEWWIDTH,VIEWHEIGHT,0);
 	VW_DrawPic (10,0,SCROLLTOPPIC);
-	VW_DrawPic (10,32,SCROLL1PIC + scroll);
+	VW_DrawPic (10,32,SCROLL1PIC);
 	VW_DrawPic (10,88,SCROLLBOTTOMPIC);
+
+	scrolltext = GetScrollText(scroll);
+
+	pi.xl = LEFTEDGE;
+	pi.yl = PRNY;
+	pi.xh = RIGHTEDGE;
+	pi.yh = PRNY+1;
+	pi.bgcolor = 7;
+	pi.script[0] = (char far *)scrolltext;
+	Presenter(&pi);
 
 	skycolor = skytemp;
 	groundcolor = gndtemp;
 
-	UNMARKGRCHUNK(SCROLL1PIC + scroll);
+	UNMARKGRCHUNK(SCROLL1PIC);
 	UNMARKGRCHUNK(SCROLLTOPPIC);
 	UNMARKGRCHUNK(SCROLLBOTTOMPIC);
-	MM_FreePtr (&grsegs[SCROLL1PIC + scroll]);
+	MM_FreePtr (&grsegs[SCROLL1PIC]);
 	MM_FreePtr (&grsegs[SCROLLTOPPIC]);
 	MM_FreePtr (&grsegs[SCROLLBOTTOMPIC]);
 
 	CacheScaleds();
 
 	IN_ClearKeysDown ();
-// MDM begin
 	lasttext = -1;
 	DisplayMsg("Press ENTER or ESC to exit.",NULL);
 	while ((!Keyboard[sc_Escape]) && (!Keyboard[sc_Enter]));
-// MDM end
 	IN_ClearKeysDown ();
 
 	if (status_flag == S_TIMESTOP)
 		DisplaySMsg("Time Stopped:     ",NULL);
 }
+
+#endif
 
 
 //===============
@@ -1662,6 +1777,9 @@ void TakeDamage (int points)
 
 	if (!gamestate.body || (bordertime && bcolor==FLASHCOLOR) || godmode)
 		return;
+
+	if (points != 1)
+		points = EasyDoDamage(points);
 
 	if (points >= gamestate.body)
 	{
@@ -1819,27 +1937,30 @@ boolean HitSpecialTile (unsigned x, unsigned y, unsigned tile)
 	short keyspot;
 	unsigned	temp,spot,curmap=gamestate.mapon,newlevel;
 	char *key_colors[] = {"a RED key",
-								 "a YELLOW key",
-								 "a GREEN key",
-								 "a BLUE key"};
+			      "a YELLOW key",
+			      "a GREEN key",
+			      "a BLUE key"};
 
 	switch (tile)
 	{
-		case 28:
+		case 65:
 			playstate = ex_victorious;
 		break;
 
-		case 36:			// Water gate
-		case 24:			// Steel gate (BLUE KEY REQ.)
-		case 25:			// Steel gate (RED KEY REQ.)
-		case 26:			// Steel gate (YELLOW KEY REQ.)
-		case 27:			// HOT Steel gate (YELLOW KEY REQ.)
-		case 18:			// Wooden Doorway
-		case 19:			// Wooden doorway with a GLOW - Oh, THATS's what IT is!
-		case 1:			// tile warp
-		case 54:			// DOWN stairs
-		case 56:			// UP stairs
-		case 51:			// generic door
+		case 9:
+		case 15:
+		case 27:
+		case 30:
+		case 40:
+		case 42:
+		case 43:
+		case 45:
+		case 46:
+		case 47:
+		case 49:
+		case 76:
+		case 77:
+
 			if (!playstate && !FreezeTime)
 			{
 
@@ -1848,8 +1969,8 @@ boolean HitSpecialTile (unsigned x, unsigned y, unsigned tile)
 				spot = (*(mapsegs[2]+farmapylookup[y]+x)) >> 8;
 				if (spot == CANT_OPEN_CODE)	// CAN'T EVER OPEN (it's just for looks)
 				{
-					CenterWindow(20,4);
-					US_CPrint("\nThe door is blocked");
+					CenterWindow(30,4);
+					US_CPrint("\nThis door is permanently blocked");
 					VW_UpdateScreen();
 					IN_ClearKeysDown();
 					IN_Ack();
@@ -1978,13 +2099,14 @@ boolean TouchActor (objtype *ob, objtype *check)
 
 				case B_POTION:		GivePotion ();		break;
 
-				case B_RKEY2:		GiveKey(B_RKEY-B_RKEY);					break;
+//				case B_RKEY2:		GiveKey(B_RKEY-B_RKEY);					break;
 
 				case B_RKEY:
 				case B_YKEY:
 				case B_GKEY:
 				case B_BKEY:		GiveKey (check->temp1-B_RKEY);		break;
 
+#if 0
 				case B_SCROLL1:
 				case B_SCROLL2:
 				case B_SCROLL3:
@@ -1993,6 +2115,7 @@ boolean TouchActor (objtype *ob, objtype *check)
 				case B_SCROLL6:
 				case B_SCROLL7:
 				case B_SCROLL8:	GiveScroll (check->temp1-B_SCROLL1,true);	break;
+#endif
 
 				case B_CHEST:		GiveChest (); 		break;
 
@@ -2015,15 +2138,16 @@ boolean TouchActor (objtype *ob, objtype *check)
 			RemoveObj (check);
 
 			return false;
-		break;
 
 		case freezeobj:
 			StopTime();
 			(unsigned)actorat[check->tilex][check->tiley] = 0;
 			RemoveObj(check);
 			return(false);
-		break;
 
+		case cloudobj:
+			TakeDamage(2);
+			return false;
 	}
 
 	return	true;
@@ -2076,6 +2200,9 @@ boolean LocationInActor (objtype *ob)
 			check = actorat[x][y];
 			if (check>(objtype *)LASTTILE
 				&& (check->flags & of_shootable)
+				&&	(check->obclass != bonusobj)
+				&& (check->obclass != freezeobj)
+				&& (check->obclass != solidobj)
 				&& ob->xl-SIZE_TEST <= check->xh
 				&& ob->xh+SIZE_TEST >= check->xl
 				&& ob->yl-SIZE_TEST <= check->yh
@@ -2102,6 +2229,7 @@ void ClipXMove (objtype *ob, long xmove)
 	unsigned	inside,total,tile;
 	objtype		*check;
 	boolean		moveok;
+	boolean		invisible_present = false;
 
 //
 // move player and check to see if any corners are in solid tiles
@@ -2134,6 +2262,13 @@ void ClipXMove (objtype *ob, long xmove)
 					HitSpecialTile(x,y,(unsigned)check-SPECTILESTART);
 					goto blockmove;
 				}
+
+				if (TILE_FLAGS((unsigned)check) & tf_INVISIBLE_WALL)
+				{
+					invisible_present = true;
+					goto blockmove;
+				}
+
 
 				if (TILE_FLAGS((unsigned)check) & tf_SOLID)
 				{
@@ -2195,11 +2330,20 @@ blockmove:
 			}
 		}
 		else
-		{
-			if (xmove>=-2048 && xmove <=2048)
-				return;
-			moveok = true;
-		}
+			if (invisible_present)
+			{
+				moveok = false;
+				if (xmove>=-2048 && xmove <=2048)
+				{
+					ob->x = basex;
+					ob->y = basey;
+					return;
+				}
+			}
+			else
+				if (xmove>=-2048 && xmove <=2048)
+					return;
+				moveok = true;
 	} while (1);
 }
 
@@ -2220,6 +2364,7 @@ void ClipYMove (objtype *ob, long ymove)
 	unsigned	inside,total,tile;
 	objtype		*check;
 	boolean		moveok;
+	boolean		invisible_present = false;
 
 //
 // move player and check to see if any corners are in solid tiles
@@ -2251,6 +2396,13 @@ void ClipYMove (objtype *ob, long ymove)
 					HitSpecialTile (x,y,(unsigned)check-SPECTILESTART);
 					goto blockmove;
 				}
+
+				if (TILE_FLAGS((unsigned)check) & tf_INVISIBLE_WALL)
+				{
+					invisible_present = true;
+					goto blockmove;
+				}
+
 
 				if (TILE_FLAGS((unsigned)check) & tf_SOLID)		// LASTWALLTILE)
 				{
@@ -2309,11 +2461,20 @@ blockmove:
 			}
 		}
 		else
-		{
-			if (ymove>=-2048 && ymove <=2048)
-				return;
-			moveok = true;
-		}
+			if (invisible_present)
+			{
+				moveok = false;
+				if (ymove>=-2048 && ymove <=2048)
+				{
+					ob->x = basex;
+					ob->y = basey;
+					return;
+				}
+			}
+			else
+				if (ymove>=-2048 && ymove <=2048)
+					return;
+				moveok = true;
 	} while (1);
 }
 
@@ -2574,22 +2735,19 @@ void ControlMovement (objtype *ob)
 	//
 
 		//
-		// TURNING
+		// turning
 		//
 		if (control.xaxis == 1)
 		{
 			ob->angle -= tics;
-
-			if (running)
-				ob->angle -= (tics<<1);		// FAST turn
-
+			if (running)				// fast turn
+				ob->angle -= (tics<<1);
 		}
 		else if (control.xaxis == -1)
 		{
 			ob->angle+= tics;
-
-			if (running)
-				ob->angle += (tics<<1);    // FAST turn
+			if (running)				// fast turn
+				ob->angle += (tics<<1);
 		}
 
 		ob->angle -= (mousexmove/10);
@@ -2742,9 +2900,11 @@ void	T_Player (objtype *ob)
 	if ( (Keyboard[sc_Enter] || Keyboard[sc_X]) && ((TimeCount-lastnuke > NUKETIME) || (autofire)))
 		CastNuke ();
 
+#if 0
 	scroll = LastScan-2;
 	if ( scroll>=0 && scroll<NUMSCROLLS && gamestate.scrolls[scroll])
 		ReadScroll (scroll);
+#endif
 
 	DrawText(false);
 	DrawHealth();
@@ -2984,7 +3144,7 @@ void FaceAngle(short DestAngle)
 
 					// RED GEM
 					//
-							case demonobj:
+							case godessobj:
 								if (gamestate.gems[B_RGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=12;
@@ -2992,7 +3152,7 @@ void FaceAngle(short DestAngle)
 
 					// GREEN GEM
 					//
-							case trollobj:
+							case fatdemonobj:
 								if (gamestate.gems[B_GGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=10;

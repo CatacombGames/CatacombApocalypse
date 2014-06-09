@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -274,6 +274,7 @@ void	VW_SetAtrReg (int reg, int value);
 void VW_MaskBlock(memptr segm,unsigned ofs,unsigned dest,
 	unsigned wide,unsigned height,unsigned planesize);
 void VW_MemToScreen(memptr source,unsigned dest,unsigned width,unsigned height);
+void VW_MemToScreen2x(memptr source,unsigned dest,unsigned width,unsigned height);
 void VW_ScreenToMem(unsigned source,memptr dest,unsigned width,unsigned height);
 void VW_ScreenToScreen(unsigned source,unsigned dest,unsigned width,unsigned height);
 
@@ -307,6 +308,7 @@ void VW_DrawTile8(unsigned x, unsigned y, unsigned tile);
 #endif
 
 void VW_DrawPic(unsigned x, unsigned y, unsigned chunknum);
+void VW_DrawPic2x(unsigned x, unsigned y, unsigned chunknum);
 void VW_DrawMPic(unsigned x, unsigned y, unsigned chunknum);
 void VW_ClipDrawMPic(unsigned x, int y, unsigned chunknum);
 
@@ -368,4 +370,5 @@ void VWB_Plot (int x, int y, int color);
 void VWB_Hlin (int x1, int x2, int y, int color);
 void VWB_Vlin (int y1, int y2, int x, int color);
 
+void VWL_MeasureString (char far *string, word *width, word *height, fontstruct _seg *font);
 //===========================================================================

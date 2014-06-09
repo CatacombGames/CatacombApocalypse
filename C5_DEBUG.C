@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -53,62 +53,13 @@
 =============================================================================
 */
 
+short colordelay=0;
 boolean autofire=false;
 int	maporgx;
 int	maporgy;
 enum {mapview,tilemapview,actoratview,visview,mapseg2,lastview}	viewtype;
 
 void ViewMap (void);
-
-//===========================================================================
-
-
-/*
-==================
-=
-= DebugMemory
-=
-==================
-*/
-
-void DebugMemory (void)
-{
-	int	i;
-	char    scratch[80],str[10];
-	long	mem;
-	spritetype _seg	*block;
-
-	VW_FixRefreshBuffer ();
-	CenterWindow (16,7);
-
-#if 0
-	CA_OpenDebug ();
-	for (i=0;i<NUMCHUNKS;i++)
-	{
-		if (grsegs[i])
-		{
-			strcpy (scratch,"Chunk:");
-			itoa (i,str,10);
-			strcat (scratch,str);
-			strcat (scratch,"\n");
-			write (debughandle,scratch,strlen(scratch));
-		}
-	}
-	CA_CloseDebug ();
-#endif
-
-	US_CPrint ("Memory Usage");
-	US_CPrint ("------------");
-	US_Print ("Total     :");
-	US_PrintUnsigned (mminfo.mainmem/1024);
-	US_Print ("k\nFree      :");
-	US_PrintUnsigned (MM_UnusedMemory()/1024);
-	US_Print ("k\nWith purge:");
-	US_PrintUnsigned (MM_TotalFree()/1024);
-	US_Print ("k\n");
-	VW_UpdateScreen();
-	IN_Ack ();
-}
 
 //===========================================================================
 
@@ -189,7 +140,22 @@ int DebugKeys (void)
 	boolean esc;
 	int level,i;
 
-#if 0
+#if DEBUG_KEYS_AVAILABLE
+	if (Keyboard[sc_R])
+	{
+		CenterWindow (12,2);
+		if (autofire)
+		  US_PrintCentered ("Rapid-Fire OFF");
+		else
+		  US_PrintCentered ("Rapid-Fire ON");
+		VW_UpdateScreen();
+		IN_Ack();
+		autofire ^= 1;
+		return 1;
+	}
+#endif
+
+#if DEBUG_KEYS_AVAILABLE
 	if (Keyboard[sc_A])
 	{
 		char levelstr[50];
@@ -252,7 +218,7 @@ int DebugKeys (void)
 	//
 			if (Keyboard[sc_RightArrow])
 			{
-				if (mapon < LASTMAP-2)
+				if (mapon < LASTMAP-1)
 				{
 					MM_SetPurge(&grsegs[LEVEL1TEXT+mapon],3);
 					mapon++;
@@ -298,31 +264,19 @@ int DebugKeys (void)
 		DrawText(true);
 		status_flag = 0;
 	}
-#endif
 
-	if (Keyboard[sc_T])
-	{
-		VW_FixRefreshBuffer ();
-		CenterWindow (16,4);
-
-		US_Print("Tics      :");
-		US_PrintUnsigned (tics);
-		US_Print("\nReal Tics :");
-		US_PrintUnsigned(realtics);
-		VW_UpdateScreen();
-		IN_Ack ();
-	}
 
 	if (Keyboard[sc_V])
 	{
 		displayofs = bufferofs = screenloc[screenpage];
-		CenterWindow (20,5);
+		CenterWindow (16,4);
 		US_CPrint("\n"GAMENAME);
 		US_CPrint(VERSION);
 		US_CPrint(REVISION);
 		VW_UpdateScreen();
 		IN_Ack ();
 	}
+
 
 	if (Keyboard[sc_Q])			// Q = Insta-Quit!
 		Quit("Insta-Quit!");
@@ -337,6 +291,8 @@ int DebugKeys (void)
 		IN_Ack();
 		return 1;
 	}
+#endif
+
 
 //	if (Keyboard[sc_E])
 //		FaceDoor((player->x>>16l)+1,(player->y>>16l));
@@ -359,6 +315,69 @@ int DebugKeys (void)
 		return 1;
 	}
 #endif
+
+
+#if 1//DEBUG_KEYS_AVAILABLE
+	if (Keyboard[sc_O])
+	{
+		extern unsigned objectcount,latchmemavail;
+		unsigned unused,total;
+
+		CenterWindow (30,13);
+		US_Print ("Objects: ");
+		US_PrintUnsigned (objectcount);
+
+		US_Print("\n\nTics: ");
+		US_PrintUnsigned (tics);
+		US_Print("      Real Tics: ");
+		US_PrintUnsigned(realtics);
+
+		US_Print ("\n\n    Total Available: ");
+		US_PrintUnsigned (mminfo.mainmem/1024);
+		US_Print ("k\n        Mem In Use: ");
+		unused=MM_UnusedMemory()/1024;
+		US_PrintUnsigned (unused);
+		US_Print ("k\n Mem After Purge: ");
+		total=MM_TotalFree()/1024;
+		US_PrintUnsigned (total);
+		US_Print ("k (");
+		US_PrintUnsigned (total-unused);
+
+		US_Print (")\n\nLatch Mem Free: ");
+		US_PrintUnsigned (latchmemavail);
+		US_Print ("\n");
+		VW_UpdateScreen();
+		IN_Ack();
+	}
+
+	if (colordelay<1)
+	{
+		if (Keyboard[26])
+		{
+			extern unsigned *groundcolor,debug_gnd;
+
+			groundcolor = &debug_gnd;
+			debug_gnd += 0x0101;
+			if (debug_gnd == 0x1010)
+				debug_gnd = 0;
+			colordelay = 10;
+		}
+
+		if (Keyboard[27])
+		{
+			extern unsigned *skycolor,debug_sky;
+
+			skycolor = &debug_sky;
+			debug_sky += 0x0101;
+			if (debug_sky == 0x1010)
+				debug_sky = 0;
+			colordelay = 10;
+		}
+	}
+	else
+		colordelay -= realtics;
+#endif
+
 
 #if 0
 	if (Keyboard[sc_C])		// C = count objects
@@ -445,21 +464,15 @@ int DebugKeys (void)
 		}
 		gamestate.gems[4] = GEM_DELAY_TIME;
 		redraw_gems = true;
-		for (i=0;i<8;i++)
-			GiveScroll (i,false);
+/////////		for (i=0;i<8;i++)
+/////////			GiveScroll (i,false);
 
 		IN_Ack ();
 		return 1;
 	}
 
-	if (Keyboard[sc_M])			// M = memory info
-	{
-		DebugMemory();
-		return 1;
-	}
-
 #if DEBUG_OVERHEAD
-	if (Keyboard[sc_O])			// O = overhead
+	if (Keyboard[sc_Z])			// O is used elsewhere...
 	{
 		ViewMap();
 		return 1;
@@ -511,7 +524,7 @@ int DebugKeys (void)
 	{
 		CenterWindow(26,3);
 		PrintY+=6;
-		US_Print("  Warp to which level(0-18):");
+		US_Print("  Warp to which level(0-16):");
 		VW_UpdateScreen();
 		esc = !US_LineInput (px,py,str,NULL,true,2,0);
 		if (!esc)
@@ -544,11 +557,11 @@ int DebugKeys (void)
 	}
 #endif
 
-	if (LastScan >= sc_1 && LastScan <= sc_8)	// free scrolls
-	{
-		GiveScroll (LastScan-sc_1,false);
-		IN_ClearKeysDown ();
-	}
+////////	if (LastScan >= sc_1 && LastScan <= sc_8)	// free scrolls
+////////	{
+////////		GiveScroll (LastScan-sc_1,false);
+////////		IN_ClearKeysDown ();
+////////	}
 
 	return 0;
 }

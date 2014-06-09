@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,13 +18,13 @@
 
 /////////////////////////////////////////////////
 //
-// MUSE Header for .ABS
-// Created Thu Apr 16 14:56:19 1992
+// MUSE Header for .ARM
+// Created Mon Jun 08 16:14:17 1992
 //
 /////////////////////////////////////////////////
 
-#define NUMSOUNDS		34
-#define NUMSNDCHUNKS		103
+#define NUMSOUNDS		35
+#define NUMSNDCHUNKS		106
 
 //
 // Sound names & indexes
@@ -64,6 +64,7 @@ typedef enum {
 		FREEZETIMESND,           // 31
 		TIMERETURNSND,           // 32
 		TICKSND,                 // 33
+		BODY_EXPLODESND,         // 34
 		LASTSOUND
 	     } soundnames;
 
@@ -71,9 +72,9 @@ typedef enum {
 // Base offsets
 //
 #define STARTPCSOUNDS		0
-#define STARTADLIBSOUNDS	34
-#define STARTDIGISOUNDS		68
-#define STARTMUSIC		102
+#define STARTADLIBSOUNDS	35
+#define STARTDIGISOUNDS		70
+#define STARTMUSIC		105
 
 //
 // Music names & indexes

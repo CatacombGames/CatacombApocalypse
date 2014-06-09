@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,8 @@
 
 //#define PROFILE
 
+#define DEBUG_KEYS_AVAILABLE 0
+
 /*
 =============================================================================
 
@@ -31,32 +33,54 @@
 */
 
 //
+// SOFTLIB GFX FILENAME
+//
+#define 	SLIB_GFX			"ARM_SLIB."EXT
+
+
+#define USE_INERT_LIST false
+
+
+//
 // MAX_BASE - represents 100 percent in 1st base
 // MAX_PERC - represents 100 percent in 2nd base
 // PERC - fractional portion of 2nd base
 // SCALE - arbitrary scaling value (bigger number means more accurate)
 //
-// ex: PERCENTAGE(320,16,8,8)    returns  160
+// ex: PERCENTAGE(320,16,8,7)    returns  160
 //
+// Make sure values used won't overflow a WORD! In general, if largest number
+// to be used (320 in ex: above) * (1<<SCALE) is greater than 65535, use
+// LONG_PERCENTAGE or a lower SCALE. Using a SCALE of 8 in the example
+// above would overflow a WORD in some circumstances!
+//
+// LONG_PERCENTAGE is to be used for larger SCALEs, thus, giving you
+// massive accuracy!
 //
 #define PERCENTAGE(MAX_BASE,MAX_PERC,PERC,SCALE) ((unsigned)(MAX_BASE*((PERC<<SCALE)/MAX_PERC))>>SCALE)
+#define LONG_PERCENTAGE(MAX_BASE,MAX_PERC,PERC,SCALE) (((long)MAX_BASE*(((long)PERC<<SCALE)/MAX_PERC))>>SCALE)
 
 #define PI	3.141592657
 
+//#define SIZE_TEST 		65000
+#define SIZE_TEST 		0
 
-#define SIZE_TEST			0 //50000			// DO NOT USE!! ARGH!
 
 #define FL_QUICK 			0x01
 #define FL_NOMEMCHECK	0x02
+#define FL_HELPTEST		0x04
 
-#define FL_CLEAR		(FL_QUICK|FL_NOMEMCHECK)
+#define FL_CLEAR		(FL_QUICK|FL_NOMEMCHECK|FL_HELPTEST)
 
+#if 0
 #define GEM_SHIFT		2
 #define FL_RGEM		0x04
 #define FL_GGEM		0x08
 #define FL_BGEM		0x10
 #define FL_YGEM		0x20
 #define FL_PGEM		0x40
+#endif
+
 #define FL_DEAD		0x80
 
 
@@ -102,10 +126,10 @@
 #define MOUSEINT	0x33
 
 #define EXPWALLSTART	8
-#define NUMEXPWALLS		7
-#define WALLEXP			15
-#define WATEREXP			29
-#define NUMFLOORS		71
+#define NUMEXPWALLS	7
+#define WALLEXP		59
+#define WATEREXP	62
+#define NUMFLOORS	80	//71
 
 #define NUMLATCHPICS	 (FIRSTWALLPIC-FIRSTLATCHPIC) //+5
 #define NUMSCALEPICS	 (FIRSTWALLPIC-FIRSTSCALEPIC) //+5
@@ -116,7 +140,7 @@
 #define FLASHTICS	4
 
 
-#define NUMLEVELS	21
+#define NUMLEVELS	32		//21
 
 #define VIEWX		0		// corner of view window
 #define VIEWY		0
@@ -134,7 +158,6 @@
 
 #define MINDIST		(2*GLOBAL1/5)
 #define FOCALLENGTH	(TILEGLOBAL)	// in global coordinates
-
 
 #define ANGLES		360		// must be divisable by 4
 
@@ -173,7 +196,7 @@
 
 enum bonusnumbers {B_BOLT,B_NUKE,B_POTION,B_RKEY,B_YKEY,B_GKEY,B_BKEY,B_SCROLL1,
  B_SCROLL2,B_SCROLL3,B_SCROLL4,B_SCROLL5,B_SCROLL6,B_SCROLL7,B_SCROLL8,
- B_GOAL,B_CHEST,B_RGEM,B_GGEM,B_BGEM,B_YGEM,B_PGEM,B_RKEY2};
+ B_GOAL,B_CHEST,B_RGEM,B_GGEM,B_BGEM,B_YGEM,B_PGEM};
 
 
 #define MAX_DOOR_STORAGE 5
@@ -187,8 +210,10 @@ enum bonusnumbers {B_BOLT,B_NUKE,B_POTION,B_RKEY,B_YKEY,B_GKEY,B_BKEY,B_SCROLL1,
 #define MAXREALTICS (2*60)
 
 #define MAXFREEZETIME			(100*30)				// 50 secs (100 half)
-extern	boolean EASYMODEON;
 
+#define INVISIBLEWALL			0x46
+
+#define USE_STRIPS		FALSE
 
 /*
 =============================================================================
@@ -214,53 +239,78 @@ typedef struct
 } walltype;
 
 typedef enum
-  {nothing,playerobj,bonusobj,orcobj,batobj,skeletonobj,trollobj,demonobj,
-  mageobj,pshotobj,bigpshotobj,mshotobj,inertobj,bounceobj,grelmobj,
-  gateobj,zombieobj,spookobj,wetobj,expobj,eyeobj,wallskelobj,eshotobj,
-  gshotobj,reddemonobj,freezeobj,solidobj} classtype;
+  {nothing,playerobj,bonusobj,succubusobj,batobj,skeletonobj,fatdemonobj,godessobj,
+  mageobj,pshotobj,bigpshotobj,mshotobj,inertobj,bounceobj,grelmobj,sshotobj,
+  gateobj,zombieobj,antobj,wetobj,expobj,eyeobj,wallskelobj,eshotobj,treeobj,
+  gshotobj,reddemonobj,freezeobj,solidobj,cloudobj,dshotobj,hbunnyobj,bunnyobj,
+  realsolidobj} classtype;
 
 typedef enum {north,east,south,west,northeast,southeast,southwest,
 		  northwest,nodir} dirtype;		// a catacombs 2 carryover
-
 
 typedef struct	statestruct
 {
 	int		shapenum;
 	int		tictime;
 	void	(*think) ();
-	struct	statestruct	*next;
-} statetype;
+	struct	statestruct	far *next;
+} statetypestruct;
+
+#define statetype statetypestruct far
 
 #define of_shootable		0x01
 #define of_damagedone	0x02
+#define of_forcefield	0x40		// defines a solid object as a forcefield???????????
+#define of_tree			0x80		// used to identify between a tree and a statue --
+											//			last minute changes for Greg
 
 typedef struct objstruct
 {
+
+	int ticcount;						//
+	statetype *state;					// THESE MEMBERS MUST BE IN THE SAME
+	fixed x,y;                    // ORDER AS THE MEMBERS DEFINED IN
+	int viewx;                    // IOBJSTRUCT OR ALL HELL WILL BREAK
+	unsigned tilex,tiley;         // LOOSE!!
+	unsigned viewheight;          //
+	unsigned size;                //
+	struct	objstruct	*next;   //
+
+
+  struct objstruct *prev;
   enum {no,noalways,yes,always}	active;
-  int		ticcount;
   classtype	obclass;
-  statetype	*state;
 
   unsigned char flags;
-//  boolean	tileobject;		// true if entirely inside one tile
 
   long		distance;
   dirtype	dir;
-  fixed 	x,y;
-  unsigned	tilex,tiley;
-  int	 	viewx;
-  unsigned	viewheight;
 
   int 		angle;
   int		hitpoints;
   long		speed;
 
-  unsigned	size;			// global radius for hit rect calculation
   fixed		xl,xh,yl,yh;	// hit rectangle
 
   int		temp1,temp2;
-  struct	objstruct	*next,*prev;
 } objtype;
+
+#if USE_INERT_LIST
+
+#define MAXINERTOBJ 20
+
+typedef struct iobjstruct {
+	int ticcount;
+	statetype *state;
+	fixed x,y;
+	int viewx;
+	unsigned tilex,tiley;
+	unsigned viewheight;
+	unsigned size;
+	struct iobjstruct *next;
+} inertobjtype;
+
+#endif
 
 
 typedef	enum	{ex_stillplaying,ex_died,ex_warped,ex_resetgame
@@ -294,6 +344,7 @@ typedef	struct
 
 	long	score;
 	int		body,shotpower;
+	short mapwidth,mapheight;
 //	levelinfo levels[NUMLEVELS];
 } gametype;
 
@@ -305,7 +356,7 @@ typedef	struct
 =============================================================================
 */
 
-extern char inlevel[][2];
+extern	char inlevel[][2];
 extern	char		str[80],str2[20];
 extern	unsigned	tedlevelnum;
 extern	boolean		tedlevel;
@@ -313,6 +364,8 @@ extern	gametype	gamestate;
 extern	exittype	playstate;
 extern 	char SlowMode;
 extern   unsigned Flags;
+extern	boolean LoadShapes;
+extern	boolean EASYMODEON;
 
 
 void NewGame (void);
@@ -328,6 +381,9 @@ void SetupScalePic (unsigned picnum);
 void SetupScaleWall (unsigned picnum);
 void SetupScaling (void);
 void main (void);
+void Display320(void);
+void Display640(void);
+void PrintHelp(void);
 
 /*
 =============================================================================
@@ -351,7 +407,7 @@ extern	unsigned	textstarts[27];
 
 void ScanInfoPlane (void);
 void ScanText (void);
-void SetupGameLevel (void);
+void SetupGameLevel(void);
 void Victory (boolean playsounds);
 void Died (void);
 void NormalScreen (void);
@@ -372,8 +428,8 @@ void GameLoop (void);
 =============================================================================
 */
 
-#define BGF_NIGHT					0x01			// it is officially night
-#define BGF_NOT_LIGHTNING		0x02			// lightning flash has ended
+#define BGF_NIGHT			0x01		// it is officially night
+#define BGF_NOT_LIGHTNING		0x02		// lightning flash has ended
 
 extern byte BGFLAGS,bcolor;
 
@@ -397,15 +453,14 @@ extern	byte		update[];
 extern	boolean		godmode,singlestep;
 extern	int			extravbls;
 
-extern int objectcount;
 extern	int			mousexmove,mouseymove;
 extern	int			pointcount,pointsleft;
 extern	status_flags    status_flag;
 extern  int             status_delay;
 
 extern 	objtype 		dummyobj;
-extern 	short 		BeepTime;				//
-
+extern 	short 		BeepTime;
+extern  unsigned	scolor,gcolor;
 
 void CenterWindow(word w,word h);
 void DebugMemory (void);
@@ -432,11 +487,12 @@ void DisplayStatus (status_flags *stat_flag);
 //void SpawnNewObj (unsigned x, unsigned y, statetype *state, unsigned size);
 //void SpawnNewObjFrac (long x, long y, statetype *state, unsigned size);
 
-void Internal_SpawnNewObj (unsigned x, unsigned y, statetype *state, unsigned size,boolean UseDummy);
+void Internal_SpawnNewObj (unsigned x, unsigned y, statetype *state, unsigned size, boolean UseDummy, boolean PutInActorat);
 void Internal_SpawnNewObjFrac (long x, long y, statetype *state, unsigned size,boolean UseDummy);
 
-#define DSpawnNewObj(x, y, state, size)				Internal_SpawnNewObj(x,y,state,size,true)
-#define SpawnNewObj(x, y, state, size)					Internal_SpawnNewObj(x,y,state,size,false)
+#define DSpawnNewObj(x, y, state, size)				Internal_SpawnNewObj(x,y,state,size,true,true)
+#define SpawnNewObj(x, y, state, size)					Internal_SpawnNewObj(x,y,state,size,false,true)
+#define ASpawnNewObj(x, y, state, size)					Internal_SpawnNewObj(x,y,state,size,false,false)
 #define SpawnNewObjFrac(x, y, state, size,Dummy)	Internal_SpawnNewObjFrac(x, y, state, size,false)
 #define DSpawnNewObjFrac(x, y, state, size)			Internal_SpawnNewObjFrac(x, y, state, size,true)
 
@@ -520,12 +576,13 @@ extern	fixed	mindist;
 extern	int		viewheight;
 extern	fixed scale;
 
-extern	int	walllight1[NUMFLOORS];
-extern	int	walldark1[NUMFLOORS];
-extern	int	walllight2[NUMFLOORS];
-extern	int	walldark2[NUMFLOORS];
+extern	int	far walllight1[NUMFLOORS];
+extern	int	far walldark1[NUMFLOORS];
 
 extern unsigned topcolor,bottomcolor;
+
+extern char wall_anim_info[NUMFLOORS];
+extern char wall_anim_pos[NUMFLOORS];
 
 //==========================================================================
 
@@ -663,32 +720,36 @@ void SpawnBigExplosion(fixed x, fixed y, short Delay, fixed Range);
 int EasyHitPoints(int NrmHitPts);
 int EasyDoDamage(int Damage);
 
+#define zombie_mode	ob->temp1
+#define zombie_delay	ob->temp2
+
+enum zombie_modes {zm_wait_for_dark,zm_wait_to_rise,zm_active};
+
+enum eye_modes {em_other1,em_player1,em_other2,em_player2,em_other3,em_player3,em_other4,em_player4,em_dummy};
+
+#define MSHOTDAMAGE	2
+#define MSHOTSPEED	10000
+
+#define ESHOTDAMAGE	1
+#define ESHOTSPEED	5000
+
+#define SSHOTDAMAGE	3
+#define SSHOTSPEED	6500
+
+#define RANDOM_ATTACK 20
+
+extern dirtype dirtable[];
+extern short other_x[],	other_y[];
 extern short zombie_base_delay;
 
-extern	statetype s_trollouch;
-extern	statetype s_trolldie1;
+extern statetype s_fatdemon_ouch;
+extern statetype s_fatdemon_blowup1;
 
+extern statetype s_succubus_ouch;
+extern statetype s_succubus_death1;
 
-extern	statetype s_orcpause;
-
-extern	statetype s_orc1;
-extern	statetype s_orc2;
-extern	statetype s_orc3;
-extern	statetype s_orc4;
-
-extern	statetype s_orcattack1;
-extern	statetype s_orcattack2;
-extern	statetype s_orcattack3;
-
-extern	statetype s_orcouch;
-
-extern	statetype s_orcdie1;
-extern	statetype s_orcdie2;
-extern	statetype s_orcdie3;
-
-
-extern	statetype s_demonouch;
-extern	statetype s_demondie1;
+extern	statetype s_godessouch;
+extern	statetype s_godessdie1;
 
 extern	statetype s_mageouch;
 extern	statetype s_magedie1;
@@ -706,32 +767,17 @@ extern statetype s_zombie_rise2;
 extern statetype s_zombie_rise3;
 extern statetype s_zombie_rise4;
 
-extern statetype s_spook0_1;
-extern statetype s_spook0_2;
-extern statetype s_spook0_3;
-extern statetype s_spook0_4;
-extern statetype s_spook0;
-extern statetype s_spook1;
-extern statetype s_spook2;
-extern statetype s_spook3;
-extern statetype s_spook4;
-extern statetype s_spook5;
-extern statetype s_spook6;
-extern statetype s_spook_pause;
-extern statetype s_spook_attack1;
-extern statetype s_spook_attack2;
-extern statetype s_spook_attack3;
-extern statetype s_spookouch;
-extern statetype s_spookdie;
-extern statetype s_spookdie1;
-extern statetype s_spookdie2;
-extern statetype s_spookdie3;
-extern statetype s_spookdie4;
-extern statetype s_spookdie5;
-extern statetype s_spookdie6;
-extern statetype s_spookdie7;
-extern statetype s_spook_wait;
-
+extern statetype s_ant_wait;
+extern statetype s_ant_egg;
+extern statetype s_ant_walk1;
+extern statetype s_ant_walk2;
+extern statetype s_ant_walk3;
+extern statetype s_ant_attack1;
+extern statetype s_ant_pause;
+extern statetype s_ant_ouch;
+extern statetype s_ant_die1;
+extern statetype s_ant_die2;
+extern statetype s_ant_die3;
 
 extern statetype s_skel_pause;
 extern statetype s_skel_1;
@@ -795,10 +841,6 @@ extern statetype s_eye_2;
 extern statetype s_eye_3;
 extern statetype s_eye_4;
 
-//statetype s_eye_attack1 = {SKELETON_ATTACK_1PIC,20,NULL,&s_eye_attack2};
-//statetype s_eye_attack2 = {SKELETON_ATTACK_2PIC,10,T_DoDamage,&s_eye_attack3};
-//statetype s_eye_attack3 = {SKELETON_ATTACK_3PIC,40,NULL,&s_eye_pause};
-
 extern statetype s_eye_ouch;
 extern statetype s_eye_ouch2;
 
@@ -812,5 +854,12 @@ extern	statetype s_mshot2;
 extern statetype s_bonus_die;
 
 extern	statetype s_red_demonouch;
-
 extern	statetype s_red_demondie1;
+
+extern statetype s_bunny_death1;
+extern statetype s_bunny_ouch;
+
+extern statetype s_tree_death1;
+extern statetype s_tree_ouch;
+
+extern statetype s_force_field_die;

@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -36,13 +36,13 @@
 
 //--------------------------------------------------------------------------
 
-#define	EXT	"ABS"
+#define	EXT	"ARM"
 
 extern	char far introscn;
 
-#include "GFXE_ABS.H"
-#include "AUDIOABS.H"
-#include "MAPSABS.H"
+#include "GFXE_ARM.H"
+#include "AUDIOARM.H"
+#include "MAPSARM.H"
 
 //--------------------------------------------------------------------------
 
@@ -56,7 +56,10 @@ extern	char far introscn;
 #define tf_SOLID							0x01
 #define tf_SPECIAL						0x02
 #define tf_EMBEDDED_KEY_COLOR			0x04
+#define tf_INVISIBLE_WALL			0x09
+#define tf_MARKED                	0x80
 
+#define ANIM_FLAGS(tile)	(tinf[ANIM+(tile)])
 #define TILE_FLAGS(tile)   (tinf[FLAGS+(tile)])
 
 #define GATE_KEY_COLOR(tile)		((unsigned char)(TILE_FLAGS(tile)>>4))

@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,10 +21,10 @@
 #include "DEF.H"
 #pragma hdrstop
 
-//#define DRAWEACH				// draw walls one at a time for debugging
+//#define DRAWEACH                              // draw walls one at a time for debugging
 
-unsigned	highest;
-unsigned	mostwalls,numwalls;
+unsigned        highest;
+unsigned        mostwalls,numwalls;
 
 /*
 =============================================================================
@@ -34,19 +34,19 @@ unsigned	mostwalls,numwalls;
 =============================================================================
 */
 
-#define PI	3.141592657
-#define ANGLEQUAD	(ANGLES/4)
+#define PI      3.141592657
+#define ANGLEQUAD       (ANGLES/4)
 
-unsigned	oldend;
+unsigned        oldend;
 
-#define FINEANGLES	3600
+#define FINEANGLES      3600
 
-#define MINRATIO	16
+#define MINRATIO        16
 
 
-const	unsigned	MAXSCALEHEIGHT	= (VIEWWIDTH/2);
-const	unsigned	MAXVISHEIGHT	= (VIEWHEIGHT/2);
-const	unsigned	BASESCALE		= 32;
+const   unsigned        MAXSCALEHEIGHT  = (VIEWWIDTH/2);
+const   unsigned        MAXVISHEIGHT    = (VIEWHEIGHT/2);
+const   unsigned        BASESCALE               = 32;
 
 /*
 =============================================================================
@@ -64,10 +64,10 @@ const	unsigned	BASESCALE		= 32;
 unsigned screenloc[3]= {PAGE1START,PAGE2START,PAGE3START};
 unsigned freelatch = FREESTART;
 
-boolean		fizzlein;
+boolean         fizzlein;
 
-long	scaleshapecalll;
-long	scaletablecall;
+long    scaleshapecalll;
+long    scaletablecall;
 
 /*
 =============================================================================
@@ -77,12 +77,12 @@ long	scaletablecall;
 =============================================================================
 */
 
-long 	bytecount,endcount;		// for profiling
-int		animframe;
-int		pixelangle[VIEWWIDTH];
-int		far finetangent[FINEANGLES+1];
-int		fineviewangle;
-unsigned	viewxpix,viewypix;
+long    bytecount,endcount;             // for profiling
+int             animframe;
+int             pixelangle[VIEWWIDTH];
+int             far finetangent[FINEANGLES+1];
+int             fineviewangle;
+unsigned        viewxpix,viewypix;
 
 /*
 ============================================================================
@@ -92,25 +92,25 @@ unsigned	viewxpix,viewypix;
 ============================================================================
 */
 
-fixed	tileglobal	= TILEGLOBAL;
-fixed	focallength	= FOCALLENGTH;
-fixed	mindist		= MINDIST;
-int		viewheight	= VIEWHEIGHT;
+fixed   tileglobal      = TILEGLOBAL;
+fixed   focallength     = FOCALLENGTH;
+fixed   mindist         = MINDIST;
+int             viewheight      = VIEWHEIGHT;
 fixed scale;
 
 
-tilept	tile,lasttile,		// tile of wall being followed
-	focal,			// focal point in tiles
-	left,mid,right;		// rightmost tile in view
+tilept  tile,lasttile,          // tile of wall being followed
+	focal,                  // focal point in tiles
+	left,mid,right;         // rightmost tile in view
 
 globpt edge,view;
 
-int	segstart[VIEWHEIGHT],	// addline tracks line segment and draws
+int     segstart[VIEWHEIGHT],   // addline tracks line segment and draws
 	segend[VIEWHEIGHT],
-	segcolor[VIEWHEIGHT];	// only when the color changes
+	segcolor[VIEWHEIGHT];   // only when the color changes
 
 
-walltype	walls[MAXWALLS],*leftwall,*rightwall;
+walltype        walls[MAXWALLS],*leftwall,*rightwall;
 
 
 //==========================================================================
@@ -133,29 +133,29 @@ fixed prestep;
 
 fixed sintable[ANGLES+ANGLES/4],*costable = sintable+(ANGLES/4);
 
-fixed	viewx,viewy;			// the focal point
-int	viewangle;
-fixed	viewsin,viewcos;
+fixed   viewx,viewy;                    // the focal point
+int     viewangle;
+fixed   viewsin,viewcos;
 
-int	zbuffer[VIEWXH+1];	// holds the height of the wall at that point
+int     zbuffer[VIEWXH+1];      // holds the height of the wall at that point
 
 //==========================================================================
 
-void	DrawLine (int xl, int xh, int y,int color);
-void	DrawWall (walltype *wallptr);
-void	TraceRay (unsigned angle);
-fixed	FixedByFrac (fixed a, fixed b);
-fixed	FixedAdd (void);
-fixed	TransformX (fixed gx, fixed gy);
-int		FollowTrace (fixed tracex, fixed tracey, long deltax, long deltay, int max);
-int		BackTrace (int finish);
-void	ForwardTrace (void);
-int		TurnClockwise (void);
-int		TurnCounterClockwise (void);
-void	FollowWall (void);
+void    DrawLine (int xl, int xh, int y,int color);
+void    DrawWall (walltype *wallptr);
+void    TraceRay (unsigned angle);
+fixed   FixedByFrac (fixed a, fixed b);
+fixed   FixedAdd (void);
+fixed   TransformX (fixed gx, fixed gy);
+int             FollowTrace (fixed tracex, fixed tracey, long deltax, long deltay, int max);
+int             BackTrace (int finish);
+void    ForwardTrace (void);
+int             TurnClockwise (void);
+int             TurnCounterClockwise (void);
+void    FollowWall (void);
 
-void	NewScene (void);
-void	BuildTables (void);
+void    NewScene (void);
+void    BuildTables (void);
 
 //==========================================================================
 
@@ -175,9 +175,9 @@ void	BuildTables (void);
 ==================
 */
 
-unsigned static	char dotmask[8] = {0x80,0x40,0x20,0x10,8,4,2,1};
-unsigned static	char leftmask[8] = {0xff,0x7f,0x3f,0x1f,0xf,7,3,1};
-unsigned static	char rightmask[8] = {0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe,0xff};
+unsigned static char dotmask[8] = {0x80,0x40,0x20,0x10,8,4,2,1};
+unsigned static char leftmask[8] = {0xff,0x7f,0x3f,0x1f,0xf,7,3,1};
+unsigned static char rightmask[8] = {0x80,0xc0,0xe0,0xf0,0xf8,0xfc,0xfe,0xff};
 
 void DrawLine (int xl, int xh, int y,int color)
 {
@@ -203,9 +203,9 @@ void DrawLine (int xl, int xh, int y,int color)
 	//
 	// set the GC index register to point to the bit mask register
 	//
-	asm	mov	al,GC_BITMASK
-	asm	mov	dx,GC_INDEX
-	asm	out	dx,al
+	asm     mov     al,GC_BITMASK
+	asm     mov     dx,GC_INDEX
+	asm     out     dx,al
 
   if (xlb==xhb)
   {
@@ -215,50 +215,50 @@ void DrawLine (int xl, int xh, int y,int color)
 
 	maskleft&=maskright;
 
-	asm	mov	es,[screenseg]
-	asm	mov	di,[dest]
-	asm	mov	dx,GC_INDEX+1
+	asm     mov     es,[screenseg]
+	asm     mov     di,[dest]
+	asm     mov     dx,GC_INDEX+1
 
-	asm	mov	al,[BYTE PTR maskleft]
-	asm	out	dx,al		// mask off pixels
+	asm     mov     al,[BYTE PTR maskleft]
+	asm     out     dx,al           // mask off pixels
 
-	asm	mov	al,[BYTE PTR color]
-	asm	xchg	al,[es:di]	// load latches and write pixels
+	asm     mov     al,[BYTE PTR color]
+	asm     xchg    al,[es:di]      // load latches and write pixels
 
 	return;
   }
 
-asm	mov	es,[screenseg]
-asm	mov	di,[dest]
-asm	mov	dx,GC_INDEX+1
-asm	mov	bh,[BYTE PTR color]
+asm     mov     es,[screenseg]
+asm     mov     di,[dest]
+asm     mov     dx,GC_INDEX+1
+asm     mov     bh,[BYTE PTR color]
 
 //
 // draw left side
 //
-asm	mov	al,[BYTE PTR maskleft]
-asm	out	dx,al		// mask off pixels
+asm     mov     al,[BYTE PTR maskleft]
+asm     out     dx,al           // mask off pixels
 
-asm	mov	al,bh
-asm	xchg	al,[es:di]	// load latches and write pixels
-asm	inc	di
+asm     mov     al,bh
+asm     xchg    al,[es:di]      // load latches and write pixels
+asm     inc     di
 
 //
 // draw middle
 //
-asm	mov	al,255
-asm	out	dx,al		// no masking
+asm     mov     al,255
+asm     out     dx,al           // no masking
 
-asm	mov	al,bh
-asm	mov	cx,[mid]
-asm	rep	stosb
+asm     mov     al,bh
+asm     mov     cx,[mid]
+asm     rep     stosb
 
 //
 // draw right side
 //
-asm	mov	al,[BYTE PTR maskright]
-asm	out	dx,al		// mask off pixels
-asm	xchg	bh,[es:di]	// load latches and write pixels
+asm     mov     al,[BYTE PTR maskright]
+asm     out     dx,al           // mask off pixels
+asm     xchg    bh,[es:di]      // load latches and write pixels
 
 }
 
@@ -289,9 +289,9 @@ void DrawLineDot (int xl, int xh, int y,int color)
 	//
 	// set the GC index register to point to the bit mask register
 	//
-	asm	mov	al,GC_BITMASK
-	asm	mov	dx,GC_INDEX
-	asm	out	dx,al
+	asm     mov     al,GC_BITMASK
+	asm     mov     dx,GC_INDEX
+	asm     out     dx,al
 
   if (xlb==xhb)
   {
@@ -301,69 +301,69 @@ void DrawLineDot (int xl, int xh, int y,int color)
 
 	maskleft&=maskright;
 
-	asm	mov	es,[screenseg]
-	asm	mov	di,[dest]
-	asm	mov	dx,GC_INDEX+1
+	asm     mov     es,[screenseg]
+	asm     mov     di,[dest]
+	asm     mov     dx,GC_INDEX+1
 
-	asm	mov	al,[BYTE PTR maskleft]
-	asm	out	dx,al		// mask off pixels
+	asm     mov     al,[BYTE PTR maskleft]
+	asm     out     dx,al           // mask off pixels
 
-	asm	mov	al,[BYTE PTR color]
-	asm	xchg	al,[es:di]	// load latches and write pixels
+	asm     mov     al,[BYTE PTR color]
+	asm     xchg    al,[es:di]      // load latches and write pixels
 
 
 	//
 	// write the black dot at the start
 	//
-	asm	mov	al,[BYTE PTR maskdot]
-	asm	out	dx,al		// mask off pixels
+	asm     mov     al,[BYTE PTR maskdot]
+	asm     out     dx,al           // mask off pixels
 
-	asm	xor	al,al
-	asm	xchg	al,[es:di]	// load latches and write pixels
+	asm     xor     al,al
+	asm     xchg    al,[es:di]      // load latches and write pixels
 
 
 	return;
   }
 
-asm	mov	es,[screenseg]
-asm	mov	di,[dest]
-asm	mov	dx,GC_INDEX+1
-asm	mov	bh,[BYTE PTR color]
+asm     mov     es,[screenseg]
+asm     mov     di,[dest]
+asm     mov     dx,GC_INDEX+1
+asm     mov     bh,[BYTE PTR color]
 
 //
 // draw left side
 //
-asm	mov	al,[BYTE PTR maskleft]
-asm	out	dx,al		// mask off pixels
+asm     mov     al,[BYTE PTR maskleft]
+asm     out     dx,al           // mask off pixels
 
-asm	mov	al,bh
-asm	xchg	al,[es:di]	// load latches and write pixels
+asm     mov     al,bh
+asm     xchg    al,[es:di]      // load latches and write pixels
 
 //
 // write the black dot at the start
 //
-asm	mov	al,[BYTE PTR maskdot]
-asm	out	dx,al		// mask off pixels
-asm	xor	al,al
-asm	xchg	al,[es:di]	// load latches and write pixels
-asm	inc	di
+asm     mov     al,[BYTE PTR maskdot]
+asm     out     dx,al           // mask off pixels
+asm     xor     al,al
+asm     xchg    al,[es:di]      // load latches and write pixels
+asm     inc     di
 
 //
 // draw middle
 //
-asm	mov	al,255
-asm	out	dx,al		// no masking
+asm     mov     al,255
+asm     out     dx,al           // no masking
 
-asm	mov	al,bh
-asm	mov	cx,[mid]
-asm	rep	stosb
+asm     mov     al,bh
+asm     mov     cx,[mid]
+asm     rep     stosb
 
 //
 // draw right side
 //
-asm	mov	al,[BYTE PTR maskright]
-asm	out	dx,al		// mask off pixels
-asm	xchg	bh,[es:di]	// load latches and write pixels
+asm     mov     al,[BYTE PTR maskright]
+asm     out     dx,al           // mask off pixels
+asm     xchg    bh,[es:di]      // load latches and write pixels
 
 }
 
@@ -372,7 +372,7 @@ asm	xchg	bh,[es:di]	// load latches and write pixels
 //==========================================================================
 
 
-long		wallscalesource;
+long            wallscalesource;
 
 #ifdef DRAWEACH
 /*
@@ -385,7 +385,7 @@ long		wallscalesource;
 
 void near ScaleOneWall (int xl, int xh)
 {
-	int	x,pixwidth,height;
+	int     x,pixwidth,height;
 
 	*(((unsigned *)&wallscalesource)+1) = wallseg[xl];
 
@@ -401,189 +401,280 @@ void near ScaleOneWall (int xl, int xh)
 		//
 		// scale a byte wide strip of wall
 		//
-		asm	mov	bx,[x]
-		asm	mov	di,bx
-		asm	shr	di,1
-		asm	shr	di,1
-		asm	shr	di,1						// X in bytes
-		asm	add	di,[bufferofs]
-		asm	and	bx,7
-		asm	shl	bx,1
-		asm	shl	bx,1
-		asm	shl	bx,1
-		asm	add	bx,[pixwidth]				// bx = pixel*8+pixwidth-1
-		asm	dec	bx
-		asm	mov	al,BYTE PTR [bitmasks1+bx]
-		asm	mov	dx,GC_INDEX+1
-		asm	out	dx,al						// set bit mask register
-		asm	mov	es,[screenseg]
-		asm	lds	si,[wallscalesource]
-		asm	call [DWORD PTR ss:scaletablecall]		// scale the line of pixels
+		asm     mov     bx,[x]
+		asm     mov     di,bx
+		asm     shr     di,1
+		asm     shr     di,1
+		asm     shr     di,1                                            // X in bytes
+		asm     add     di,[bufferofs]
+		asm     and     bx,7
+		asm     shl     bx,1
+		asm     shl     bx,1
+		asm     shl     bx,1
+		asm     add     bx,[pixwidth]                           // bx = pixel*8+pixwidth-1
+		asm     dec     bx
+		asm     mov     al,BYTE PTR [bitmasks1+bx]
+		asm     mov     dx,GC_INDEX+1
+		asm     out     dx,al                                           // set bit mask register
+		asm     mov     es,[screenseg]
+		asm     lds     si,[wallscalesource]
+		asm     call [DWORD PTR ss:scaletablecall]              // scale the line of pixels
 
-		asm	mov	al,BYTE PTR [ss:bitmasks2+bx]
-		asm	or	al,al
-		asm	jz	nosecond
+		asm     mov     al,BYTE PTR [ss:bitmasks2+bx]
+		asm     or      al,al
+		asm     jz      nosecond
 
 		//
 		// draw a second byte for vertical strips that cross two bytes
 		//
-		asm	inc	di
-		asm	out	dx,al						// set bit mask register
-		asm	call [DWORD PTR ss:scaletablecall]	// scale the line of pixels
+		asm     inc     di
+		asm     out     dx,al                                           // set bit mask register
+		asm     call [DWORD PTR ss:scaletablecall]      // scale the line of pixels
 	nosecond:
-		asm	mov	ax,ss
-		asm	mov	ds,ax
+		asm     mov     ax,ss
+		asm     mov     ds,ax
 	}
 }
 
 #endif
 
+char wall_anim_pos[NUMFLOORS];
+
 // EAST / WEST WALLS
 //
-int	walllight1[NUMFLOORS] = {0,
-	W_WARP1EWPIC,
-	W_NEMPICEWPIC,W_PENTAEWPIC,W_ALTER_LFPIC,W_ALTER_RTPIC,
-	W_SUB1EWPIC,W_SUB2EWPIC,W_SUB3EWPIC,
+int     far walllight1[NUMFLOORS] = {0,
 
-	W_TORCH1PIC,W_TORCH2PIC,
-	W_LSUB_STONEPIC,
-	W_BLOODY_LSUB_STONEPIC,
-	W_BREATH_LWALL1PIC,W_BREATH_LWALL2PIC,
+	CRYSTAL_LIGHT_1PIC,
+	CRYSTAL_LIGHT_2PIC,
+	CRYSTAL_LIGHT_3PIC,
+	CRYSTAL_LIGHT_4PIC,			//4
 
-	EXPWALL1PIC,EXPWALL2PIC,EXPWALL3PIC,
+	FIRE_WALL_1PIC,
+	FIRE_WALL_2PIC,
+	FIRE_WALL_3PIC,
+	FIRE_WALL_4PIC,				//8
 
-	W_WOOD_DOORWAYPIC,W_WOOD_DOORWAY_GLOWPIC,
+	BRN_STONE_GATEPIC,
+	BRN_STONE_WALL_1PIC,
+	KUDZU_WEAK_LIGHTPIC,
+	KUDZU_LIGHT_WALLPIC,
+	HEDGE_WALLPIC,
+	HEDGE_EYESPIC,    			//14
 
-	W_WATER1EWPIC,W_DRAIN1EWPIC,
-	W_WATER2EWPIC,W_DRAIN2EWPIC,
+	W_GEN_DOOR1PIC,					//15
+	BRN_WINDOW_LIGHTPIC,
 
-	W_WOODEN_DOORPIC,W_WOOD_DOOREWPIC,W_METAL_DOORPIC,W_GLOW_DOORPIC,
+	ALTAR_LEFTPIC,
+	ALTAR_RIGHTPIC,
+	GRAY_LIGHT_WALLPIC,
+	GRAY_LIGHT_SIGNPIC,			//20
 
-	W_FINALEXITPIC,
+	MANICLE_LIGHT_WALLPIC,
+	MANICLE_LIGHT_BLOODYPIC,
 
-	W_WATER_EXP1PIC,W_WATER_EXP2PIC,W_WATER_EXP3PIC,
+	LIGHT_CURTAIN_WINDOWPIC,
+	LIGHT_CURTAIN_WALLPIC,
+	BRN_LIGHT_SIGNPIC,			//25
 
-	W_PRE_CHEATSPIC,W_CHEAT_WARPPIC,W_CHEAT_FREEZEPIC,W_SURFACE_PLAQPIC,
+	LIGHT_STONE_WALLPIC,
 
-	W_WATER_GATEEW1PIC,
-	WALL8LPIC,WALL9LPIC,WALL10DPIC,WALL11LPIC,WALL12LPIC,WALL13LPIC,WALL14LPIC,WALL15LPIC,
-	WALL16LPIC,WALL17LPIC,W_WINDOWEWPIC,WALL19LPIC,WALL20LPIC,WALL21LPIC,
-	WALL22LPIC,WALL23LPIC,WALL24LPIC,WALL25LPIC,WALL26LPIC,WALL27LPIC,
-	WALL28LPIC,WALL29LPIC,WALL30LPIC,WALL31LPIC,
-	W_BREATH_LWALL4PIC,W_BREATH_LWALL3PIC,
-	MAGE_STATUEPIC,ZOMBIE_STATUEPIC,EYE_STATUEPIC,NEM_STATUEPIC,
-	SKELETON_STATUEPIC,SPOOK_STATUEPIC,ORCH_STATUEPIC,
+	W_GEN_DOOR2PIC,					//27
+
+	TROLL_LIGHT_STONEPIC,
+
+	BRN_FLAGSTONE_LIGHT_2PIC,
+
+	W_CRYSTAL_DOORPIC,
+
+	DMG_BRN_FSTN_LTPIC,
+
+	RUST_METAL_LIGHTPIC,
+	GRAY_METAL_LIGHTPIC,			//33
+
+	WEAK_STONE_LIGHTPIC,
+
+	DMG_FIN_FSTN_LTPIC,
+
+	WEAK_GRAY_RFGSTN_LIGHTPIC,
+	0,
+
+	WEAK_CRYSTAL_LIGHTPIC,
+
+	RED_MUD_LIGHTPIC,
+
+	STEEL_DOOR1PIC,				//40
+
+	RED_MUD_WEAK_LIGHTPIC,
+
+	STEEL_DOOR2PIC,                         //42
+
+	HORN_DOORPIC,
+	TROLL_BLOODY_LT_STONEPIC,
+	CLOSED_DOOR_1PIC,
+
+	GRY_DOOR_LTPIC,				//46
+
+	BRN_DOOR_LTPIC,                         //47
+
+	GRY_FGSTN_LTPIC,                           //48
+	DOOR_2PIC,
+
+	WATER_LIGHT_WEAK_1PIC,
+	WATER_LIGHT_WEAK_2PIC,
+	WATER_LIGHT_WEAK_3PIC,			//52
+
+	WATER_LIGHT_1PIC,
+	WATER_LIGHT_2PIC,
+	WATER_LIGHT_3PIC,
+
+	LIGHT_BREATH_1PIC,
+	LIGHT_BREATH_2PIC,
+	LIGHT_BREATH_3PIC,			//58
+
+	EXP_WALL_1PIC,
+	EXP_WALL_2PIC,
+	EXP_WALL_3PIC,
+
+	WATER_EXP_WALL_1PIC,
+	WATER_EXP_WALL_2PIC,
+	WATER_EXP_WALL_3PIC,			//64
+
+	FINALWALLPIC,
+
+	LT_SKEL1PIC,
+	DK_SKEL1PIC,
+	LT_SKEL2PIC,
+	DK_SKEL2PIC,
+
+	0,
+
+	TAP_1PIC,
+	TAP_2PIC,
+	TAP_3PIC,
+	TAP_4PIC,
+	TAP_5PIC,
+
+	WATER_DOOR1_PIC,
+	WATER_DOOR2_PIC,
 	};
 
 // NORTH / SOUTH WALLS
 //
-int	walldark1[NUMFLOORS] = {0,
-	W_WARP1NSPIC,
-	W_NEMPICEWPIC,W_PENTANSPIC,1,1,
-	W_SUB1NSPIC,W_SUB2NSPIC,W_SUB3NSPIC,
+int     far walldark1[NUMFLOORS] = {0,
 
-	W_TORCH1PIC,W_TORCH2PIC,
-	W_DSUB_STONEPIC,
-	W_BLOODY_DSUB_STONEPIC,
-	W_BREATH_DWALL1PIC,W_BREATH_DWALL2PIC,
+	CRYSTAL_DARK_1PIC,
+	CRYSTAL_DARK_2PIC,
+	CRYSTAL_DARK_3PIC,
+	CRYSTAL_DARK_4PIC,			//4
 
-	EXPWALL1PIC,EXPWALL2PIC,EXPWALL3PIC,
+	FIRE_WALL_1PIC,
+	FIRE_WALL_2PIC,
+	FIRE_WALL_3PIC,
+	FIRE_WALL_4PIC,				//8
 
-	W_WOOD_DOORWAYPIC,W_WOOD_DOORWAY_GLOWPIC,
+	BRN_STONE_GATEPIC,
+	BRN_STONE_WALL_2PIC,
+	KUDZU_WEAK_DARKPIC,
+	KUDZU_DARK_WALLPIC,
+	HEDGE_WALLPIC,
+	HEDGE_EYESPIC,				//14
 
-	W_WATER1NSPIC,W_DRAIN1NSPIC,
-	W_WATER2NSPIC,W_DRAIN2NSPIC,
-	W_WOODEN_DOORPIC,W_WOOD_DOORNSPIC,W_METAL_DOORPIC,W_GLOW_DOORPIC,
+	W_GEN_DOOR1PIC,				//15
+	BRN_WINDOW_DARKPIC,
 
-	W_FINALEXITPIC,
+	ALTAR_LEFTPIC,
+	ALTAR_RIGHTPIC,
+	GRAY_DARK_WALLPIC,
+	GRAY_DARK_SIGNPIC,			//20
 
-	W_WATER_EXP1PIC,W_WATER_EXP2PIC,W_WATER_EXP3PIC,
+	MANICLE_DARK_WALLPIC,
+	MANICLE_DARK_BLOODYPIC,
 
-	W_CHEAT_GODPIC,W_CHEAT_ITEMSPIC,W_POST_CHEATPIC,W_SURFACE_PLAQPIC,
+	DARK_CURTAIN_WINDOWPIC,
+	DARK_CURTAIN_WALLPIC,
+	BRN_DARK_SIGNPIC,
 
-	W_WATER_GATENS1PIC,
-	WALL8DPIC,WALL9DPIC,WALL10LPIC,WALL11DPIC,WALL12DPIC,WALL13DPIC,WALL14DPIC,WALL15DPIC,
-	WALL16DPIC,WALL17DPIC,W_WINDOWNSPIC,WALL19DPIC,WALL20DPIC,WALL21DPIC,
-	WALL22DPIC,WALL23DPIC,WALL24DPIC,WALL25DPIC,WALL26DPIC,WALL27DPIC,
-	WALL28DPIC,WALL29DPIC,WALL30DPIC,WALL31DPIC,
-	W_BREATH_DWALL4PIC,W_BREATH_DWALL3PIC,
-	MAGE_STATUEPIC,ZOMBIE_STATUEPIC,EYE_STATUEPIC,NEM_STATUEPIC,
-	SKELETON_STATUEPIC,SPOOK_STATUEPIC,ORCH_STATUEPIC,
+	DARK_STONE_WALLPIC,
+
+	W_GEN_DOOR2PIC,				//27
+
+	TROLL_DARK_STONEPIC,
+
+	BRN_FLAGSTONE_DARK_2PIC,
+
+	W_CRYSTAL_DOORPIC,				//30
+
+	DMG_BRN_FSTN_DKPIC,
+
+	RUST_METAL_DARKPIC,
+	GRAY_METAL_DARKPIC,
+
+	WEAK_STONE_DARKPIC,
+
+	DMG_FIN_FSTN_DKPIC,			//35
+
+	WEAK_GRAY_RFGSTN_DARKPIC,
+	0,
+
+	WEAK_CRYSTAL_DARKPIC,
+
+	BRN_MUD_DARKPIC,
+
+	STEEL_DOOR1PIC,				//40
+
+	BRN_MUD_WEAK_DARKPIC,
+
+	STEEL_DOOR2PIC,
+
+	HORN_DOORPIC,
+	TROLL_BLOODY_DK_STONEPIC,
+
+	CLOSED_DOOR_1PIC,
+
+	GRY_DOOR_DKPIC,				//46
+	BRN_DOOR_DKPIC,				//47
+	GRY_FGSTN_DKPIC,				//48
+	DOOR_2PIC,
+
+	WATER_DARK_WEAK_1PIC,
+	WATER_DARK_WEAK_2PIC,
+	WATER_DARK_WEAK_3PIC,
+
+	WATER_DARK_1PIC,
+	WATER_DARK_2PIC,
+	WATER_DARK_3PIC,
+
+	DARK_BREATH_1PIC,
+	DARK_BREATH_2PIC,
+	DARK_BREATH_3PIC,
+
+	EXP_WALL_1PIC,
+	EXP_WALL_2PIC,
+	EXP_WALL_3PIC,
+
+	WATER_EXP_WALL_1PIC,
+	WATER_EXP_WALL_2PIC,
+	WATER_EXP_WALL_3PIC,
+
+	FINALWALLPIC,
+
+	LT_SKEL1PIC,
+	DK_SKEL1PIC,
+	LT_SKEL2PIC,
+	DK_SKEL2PIC,
+
+	0,
+
+	TAP_1PIC,
+	TAP_2PIC,
+	TAP_3PIC,
+	TAP_4PIC,
+	TAP_5PIC,
+
+	WATER_DOOR1_PIC,
+	WATER_DOOR2_PIC,
 	};
 
-// EAST / WEST WALLS
-//
-int	walllight2[NUMFLOORS] = {0,
-	W_WARP2EWPIC,
-	W_NEMPICEWPIC,W_PENTAEWPIC,W_ALTER_LFPIC,W_ALTER_RTPIC,
-	W_SUB1EWPIC,W_SUB2EWPIC,W_SUB3EWPIC,
-
-	W_TORCH2PIC,W_TORCH1PIC,
-	W_LSUB_STONEPIC,
-	W_BLOODY_LSUB_STONEPIC,
-	W_BREATH_LWALL2PIC,W_BREATH_LWALL1PIC,
-
-	EXPWALL2PIC,EXPWALL1PIC,EXPWALL3PIC,
-
-	W_WOOD_DOORWAYPIC,W_WOOD_DOORWAY_GLOWPIC,
-
-	W_WATER2EWPIC,W_DRAIN2EWPIC,
-	W_WATER1EWPIC,W_DRAIN1EWPIC,
-
-	W_WOODEN_DOORPIC,W_WOOD_DOOREWPIC,W_METAL_DOORPIC,W_GLOW_DOORPIC,
-
-	W_FINALEXITPIC,
-
-	W_WATER_EXP2PIC,W_WATER_EXP1PIC,W_WATER_EXP1PIC,
-
-	W_PRE_CHEATSPIC,W_CHEAT_WARPPIC,W_CHEAT_FREEZEPIC,W_SURFACE_PLAQPIC,
-
-	W_WATER_GATEEW2PIC,
-	WALL8LPIC,WALL9LPIC,WALL10DPIC,WALL11LPIC,WALL12LPIC,WALL13LPIC,WALL14LPIC,WALL15LPIC,
-	WALL16LPIC,WALL17LPIC,W_WINDOWEWPIC,WALL19LPIC,WALL20LPIC,WALL21LPIC,
-	WALL22LPIC,WALL23LPIC,WALL24LPIC,WALL25LPIC,WALL26LPIC,WALL27LPIC,
-	WALL28LPIC,WALL29LPIC,WALL30LPIC,WALL31LPIC,
-	W_BREATH_LWALL3PIC,W_BREATH_LWALL4PIC,
-	MAGE_STATUEPIC,ZOMBIE_STATUEPIC,EYE_STATUEPIC,NEM_STATUEPIC,
-	SKELETON_STATUEPIC,SPOOK_STATUEPIC,ORCH_STATUEPIC,
-	};
-
-// NORTH / SOUTH WALLS
-//
-int	walldark2[NUMFLOORS] = {0,
-	W_WARP2NSPIC,
-	W_NEMPICEWPIC,W_PENTANSPIC,1,1,
-	W_SUB1NSPIC,W_SUB2NSPIC,W_SUB3NSPIC,
-
-	W_TORCH2PIC,W_TORCH1PIC,
-	W_DSUB_STONEPIC,
-	W_BLOODY_DSUB_STONEPIC,
-	W_BREATH_DWALL2PIC,W_BREATH_DWALL1PIC,
-
-	EXPWALL2PIC,EXPWALL1PIC,EXPWALL3PIC,
-
-	W_WOOD_DOORWAYPIC,W_WOOD_DOORWAY_GLOWPIC,
-
-	W_WATER2NSPIC,W_DRAIN2NSPIC,
-	W_WATER1NSPIC,W_DRAIN1NSPIC,
-
-	W_WOODEN_DOORPIC,W_WOOD_DOORNSPIC,W_METAL_DOORPIC,W_GLOW_DOORPIC,
-
-	W_FINALEXITPIC,
-
-	W_WATER_EXP2PIC,W_WATER_EXP1PIC,W_WATER_EXP1PIC,
-
-	W_CHEAT_GODPIC,W_CHEAT_ITEMSPIC,W_POST_CHEATPIC,W_SURFACE_PLAQPIC,
-
-	W_WATER_GATENS2PIC,
-	WALL8DPIC,WALL9DPIC,WALL10LPIC,WALL11DPIC,WALL12DPIC,WALL13DPIC,WALL14DPIC,WALL15DPIC,
-	WALL16DPIC,WALL17DPIC,W_WINDOWNSPIC,WALL19DPIC,WALL20DPIC,WALL21DPIC,
-	WALL22DPIC,WALL23DPIC,WALL24DPIC,WALL25DPIC,WALL26DPIC,WALL27DPIC,
-	WALL28DPIC,WALL29DPIC,WALL30DPIC,WALL31DPIC,
-	W_BREATH_DWALL3PIC,W_BREATH_DWALL4PIC,
-	MAGE_STATUEPIC,ZOMBIE_STATUEPIC,EYE_STATUEPIC,NEM_STATUEPIC,
-	SKELETON_STATUEPIC,SPOOK_STATUEPIC,ORCH_STATUEPIC,
-	};
 
 /*
 =====================
@@ -601,21 +692,18 @@ int	walldark2[NUMFLOORS] = {0,
 
 void DrawVWall (walltype *wallptr)
 {
-	int			x,i;
-	unsigned	source;
-	unsigned	width,sourceint;
-	unsigned	wallpic,wallpicseg;
-	unsigned	skip;
-	long		fracheight,fracstep,longheightchange;
-	unsigned	height;
-	int			heightchange;
-	unsigned	slope,distance;
-	int			traceangle,angle;
-	int			mapadd;
-	unsigned	lastpix,lastsource,lastwidth;
-
-	short mike;
-
+	int                     x,i;
+	unsigned        source;
+	unsigned        width,sourceint;
+	unsigned        wallpic,wallpicseg;
+	unsigned        skip;
+	long            fracheight,fracstep,longheightchange;
+	unsigned        height;
+	int                     heightchange;
+	unsigned        slope,distance;
+	int                     traceangle,angle;
+	int                     mapadd;
+	unsigned        lastpix,lastsource,lastwidth;
 
 	if (wallptr->rightclip < wallptr->leftclip)
 		Quit ("DrawVWall: Right < Left");
@@ -625,15 +713,15 @@ void DrawVWall (walltype *wallptr)
 //
 	wallptr->height1 >>= 1;
 	wallptr->height2 >>= 1;
-	wallptr->planecoord>>=10;			// remove non significant bits
+	wallptr->planecoord>>=10;                       // remove non significant bits
 
 	width = wallptr->x2 - wallptr->x1;
 	if (width)
 	{
 		heightchange = wallptr->height2 - wallptr->height1;
-		asm	mov	ax,[heightchange]
-		asm	mov	WORD PTR [longheightchange+2],ax
-		asm	mov	WORD PTR [longheightchange],0	// avoid long shift by 16
+		asm     mov     ax,[heightchange]
+		asm     mov     WORD PTR [longheightchange+2],ax
+		asm     mov     WORD PTR [longheightchange],0   // avoid long shift by 16
 		fracstep = longheightchange/width;
 	}
 
@@ -655,55 +743,41 @@ void DrawVWall (walltype *wallptr)
 	// find wall picture to map from
 	//
 	if (wallptr->side)
-	{	// east or west wall
+	{       // east or west wall
 
-		if (wallptr->color == 1)
-			mike = 1;
-
-		if (animframe)
-			wallpic = walllight2[wallptr->color];
-		else
-			wallpic = walllight1[wallptr->color];
-
+		wallpic = walllight1[wallptr->color+wall_anim_pos[wallptr->color]];
 		if (wallptr->planecoord < viewxpix)
 		{
 			distance = viewxpix-wallptr->planecoord;
 			traceangle -= FINEANGLES/2;
-			mapadd = (64-viewypix&63);		// the pixel spot of the origin
+			mapadd = (64-viewypix&63);              // the pixel spot of the origin
 		}
 		else
 		{
 			distance = wallptr->planecoord-viewxpix;
 			// traceangle is correct
-			mapadd = viewypix&63;		// the pixel spot of the origin
+			mapadd = viewypix&63;           // the pixel spot of the origin
 		}
 	}
 	else
-	{	// north or south wall
+	{       // north or south wall
 
-		if (wallptr->color == 1)
-			mike = 1;
-
-		if (animframe)
-			wallpic = walldark2[wallptr->color];
-		else
-			wallpic = walldark1[wallptr->color];
-
+		wallpic = walldark1[wallptr->color+wall_anim_pos[wallptr->color]];
 		if (wallptr->planecoord < viewypix)
 		{
 			distance = viewypix-wallptr->planecoord;
 			traceangle -= FINEANGLES/4;
-			mapadd = viewxpix&63;		// the pixel spot of the origin
+			mapadd = viewxpix&63;           // the pixel spot of the origin
 		}
 		else
 		{
 			distance = wallptr->planecoord-viewypix;
 			traceangle -= FINEANGLES*3/4;
-			mapadd = (64-viewxpix&63);		// the pixel spot of the origin
+			mapadd = (64-viewxpix&63);              // the pixel spot of the origin
 		}
 	}
 
-	mapadd = 64*64-mapadd;				// make sure it stays positive
+	mapadd = 64*64-mapadd;                          // make sure it stays positive
 
 	wallpicseg = (unsigned)walldirectory[wallpic-FIRSTWALLPIC];
 	if (traceangle > FINEANGLES/2)
@@ -721,27 +795,27 @@ void DrawVWall (walltype *wallptr)
 		//
 		// height
 		//
-		asm	mov	ax,WORD PTR [fracheight]
-		asm	mov	dx,WORD PTR [fracheight+2]
-		asm	mov	cx,dx
-		asm	add	ax,WORD PTR [fracstep]
-		asm	adc	dx,WORD PTR [fracstep+2]
-		asm	mov	WORD PTR [fracheight],ax
-		asm	mov	WORD PTR [fracheight+2],dx
-		asm	mov	bx,[x]
-		asm	shl	bx,1
-		asm	cmp	cx,MAXSCALEHEIGHT
-		asm	jbe	storeheight
-		asm	mov	cx,MAXSCALEHEIGHT
+		asm     mov     ax,WORD PTR [fracheight]
+		asm     mov     dx,WORD PTR [fracheight+2]
+		asm     mov     cx,dx
+		asm     add     ax,WORD PTR [fracstep]
+		asm     adc     dx,WORD PTR [fracstep+2]
+		asm     mov     WORD PTR [fracheight],ax
+		asm     mov     WORD PTR [fracheight+2],dx
+		asm     mov     bx,[x]
+		asm     shl     bx,1
+		asm     cmp     cx,MAXSCALEHEIGHT
+		asm     jbe     storeheight
+		asm     mov     cx,MAXSCALEHEIGHT
 storeheight:
-		asm	mov WORD PTR [wallheight+bx],cx
-		asm	mov WORD PTR [zbuffer+bx],cx
+		asm     mov WORD PTR [wallheight+bx],cx
+		asm     mov WORD PTR [zbuffer+bx],cx
 
-//		height = fracheight>>16;
-//		fracheight += fracstep;
-//		if (height > MAXSCALEHEIGHT)
-//			height = MAXSCALEHEIGHT;
-//		wallheight[x] = zbuffer[x] = height;
+//              height = fracheight>>16;
+//              fracheight += fracstep;
+//              if (height > MAXSCALEHEIGHT)
+//                      height = MAXSCALEHEIGHT;
+//              wallheight[x] = zbuffer[x] = height;
 
 		//
 		// texture map
@@ -763,26 +837,26 @@ storeheight:
 		source >>=20;
 
 		source += mapadd;
-		source &= 63;				// mask off the unused units
+		source &= 63;                           // mask off the unused units
 		source = 63-source;
-		source <<= 6;				// multiply by 64 for offset into pic
+		source <<= 6;                           // multiply by 64 for offset into pic
 #endif
-		asm	mov	ax,[distance]
-		asm	imul	[slope]			// ax is the source pixel
-		asm	mov	al,ah
-		asm	shr	al,1
-		asm	shr	al,1				// low 6 bits is now pixel number
-		asm	add	ax,[mapadd]
-		asm	and ax,63
-		asm	mov	dx,63
-		asm	sub	dx,ax				// otherwise it is backwards
-		asm	shl	dx,1
-		asm	shl	dx,1
-		asm	shl	dx,1
-		asm	shl	dx,1
-		asm	shl	dx,1
-		asm	shl	dx,1				// *64 to index into shape
-		asm	mov	[source],dx
+		asm     mov     ax,[distance]
+		asm     imul    [slope]                 // ax is the source pixel
+		asm     mov     al,ah
+		asm     shr     al,1
+		asm     shr     al,1                            // low 6 bits is now pixel number
+		asm     add     ax,[mapadd]
+		asm     and ax,63
+		asm     mov     dx,63
+		asm     sub     dx,ax                           // otherwise it is backwards
+		asm     shl     dx,1
+		asm     shl     dx,1
+		asm     shl     dx,1
+		asm     shl     dx,1
+		asm     shl     dx,1
+		asm     shl     dx,1                            // *64 to index into shape
+		asm     mov     [source],dx
 
 		if (source != lastsource)
 		{
@@ -797,7 +871,7 @@ storeheight:
 			lastwidth = 1;
 		}
 		else
-			lastwidth++;			// optimized draw, same map as last one
+			lastwidth++;                    // optimized draw, same map as last one
 	}
 	wallofs[lastpix] = lastsource;
 	wallseg[lastpix] = wallpicseg;
@@ -817,8 +891,8 @@ storeheight:
 = Follows a ray of the given angle from viewx,viewy in the global map until
 = it hits a solid tile
 = sets:
-=   tile.x,tile.y	: tile coordinates of contacted tile
-=   tilecolor	: solid tile's color
+=   tile.x,tile.y       : tile coordinates of contacted tile
+=   tilecolor   : solid tile's color
 =
 ==================
 */
@@ -842,21 +916,21 @@ void TraceRay (unsigned angle)
   fixtemp = FixedByFrac(prestep,traceystep);
   tracey = viewy-fixtemp;
 
-  tile.x = tracex>>TILESHIFT;	// starting point in tiles
+  tile.x = tracex>>TILESHIFT;   // starting point in tiles
   tile.y = tracey>>TILESHIFT;
 
 
-  if (tracexstep<0)			// use 2's complement, not signed magnitude
+  if (tracexstep<0)                     // use 2's complement, not signed magnitude
 	tracexstep = -(tracexstep&0x7fffffff);
 
-  if (traceystep<0)			// use 2's complement, not signed magnitude
+  if (traceystep<0)                     // use 2's complement, not signed magnitude
 	traceystep = -(traceystep&0x7fffffff);
 
 //
 // we assume viewx,viewy is not inside a solid tile, so go ahead one step
 //
 
-  do	// until a solid tile is hit
+  do    // until a solid tile is hit
   {
     otx = tile.x;
 	oty = tile.y;
@@ -948,7 +1022,7 @@ void TraceRay (unsigned angle)
 ========================
 */
 
-#pragma warn -rvl			// I stick the return value in with ASMs
+#pragma warn -rvl                       // I stick the return value in with ASMs
 
 fixed FixedByFrac (fixed a, fixed b)
 {
@@ -957,40 +1031,40 @@ fixed FixedByFrac (fixed a, fixed b)
 //
 // setup
 //
-asm	mov	si,[WORD PTR b+2]	// sign of result = sign of fraction
+asm     mov     si,[WORD PTR b+2]       // sign of result = sign of fraction
 
-asm	mov	ax,[WORD PTR a]
-asm	mov	cx,[WORD PTR a+2]
+asm     mov     ax,[WORD PTR a]
+asm     mov     cx,[WORD PTR a+2]
 
-asm	or	cx,cx
-asm	jns	aok:				// negative?
-asm	not	ax
-asm	not	cx
-asm	add	ax,1
-asm	adc	cx,0
-asm	xor	si,0x8000			// toggle sign of result
+asm     or      cx,cx
+asm     jns     aok:                            // negative?
+asm     not     ax
+asm     not     cx
+asm     add     ax,1
+asm     adc     cx,0
+asm     xor     si,0x8000                       // toggle sign of result
 aok:
 
 //
 // multiply  cx:ax by bx
 //
-asm	mov	bx,[WORD PTR b]
-asm	mul	bx					// fraction*fraction
-asm	mov	di,dx				// di is low word of result
-asm	mov	ax,cx				//
-asm	mul	bx					// units*fraction
-asm add	ax,di
-asm	adc	dx,0
+asm     mov     bx,[WORD PTR b]
+asm     mul     bx                                      // fraction*fraction
+asm     mov     di,dx                           // di is low word of result
+asm     mov     ax,cx                           //
+asm     mul     bx                                      // units*fraction
+asm add ax,di
+asm     adc     dx,0
 
 //
 // put result dx:ax in 2's complement
 //
-asm	test	si,0x8000		// is the result negative?
-asm	jz	ansok:
-asm	not	ax
-asm	not	dx
-asm	add	ax,1
-asm	adc	dx,0
+asm     test    si,0x8000               // is the result negative?
+asm     jz      ansok:
+asm     not     ax
+asm     not     dx
+asm     add     ax,1
+asm     adc     dx,0
 
 ansok:;
 
@@ -1014,44 +1088,44 @@ fixed FixedAdd (fixed a, fixed b)
 {
   fixed value;
 
-asm	mov	ax,[WORD PTR a]
-asm	mov	dx,[WORD PTR a+2]
+asm     mov     ax,[WORD PTR a]
+asm     mov     dx,[WORD PTR a+2]
 
-asm	mov	bx,[WORD PTR b]
-asm	mov	cx,[WORD PTR b+2]
+asm     mov     bx,[WORD PTR b]
+asm     mov     cx,[WORD PTR b+2]
 
-asm	or	dx,dx
-asm	jns	aok:		// negative?
-asm	and	dx,0x7fff
-asm	not	ax		// convert a from signed magnitude to 2's compl
-asm	not	dx
-asm	add	ax,1
-asm	adc	dx,0
+asm     or      dx,dx
+asm     jns     aok:            // negative?
+asm     and     dx,0x7fff
+asm     not     ax              // convert a from signed magnitude to 2's compl
+asm     not     dx
+asm     add     ax,1
+asm     adc     dx,0
 aok:
 
-asm	or	cx,cx
-asm	jns	bok:		// negative?
-asm	and	cx,0x7fff
-asm	not	bx		// convert b from signed magnitude to 2's compl
-asm	not	cx
-asm	add	bx,1
-asm	adc	cx,0
+asm     or      cx,cx
+asm     jns     bok:            // negative?
+asm     and     cx,0x7fff
+asm     not     bx              // convert b from signed magnitude to 2's compl
+asm     not     cx
+asm     add     bx,1
+asm     adc     cx,0
 bok:
 
-asm	add	ax,bx		// perform the addition
-asm	adc	dx,cx
-asm	jns	done
+asm     add     ax,bx           // perform the addition
+asm     adc     dx,cx
+asm     jns     done
 
-asm	and	dx,0x7fff	// value was negative
-asm	not	ax		// back to signed magnitude
-asm	not	dx
-asm	add	ax,1
-asm	adc	dx,0
+asm     and     dx,0x7fff       // value was negative
+asm     not     ax              // back to signed magnitude
+asm     not     dx
+asm     add     ax,1
+asm     adc     dx,0
 
 done:
 
-asm	mov	[WORD PTR value],ax
-asm	mov	[WORD PTR value+2],dx
+asm     mov     [WORD PTR value],ax
+asm     mov     [WORD PTR value+2],dx
 
   return value;
 }
@@ -1066,18 +1140,18 @@ asm	mov	[WORD PTR value+2],dx
 = TransformPoint
 =
 = Takes paramaters:
-=   gx,gy		: globalx/globaly of point
+=   gx,gy               : globalx/globaly of point
 =
 = globals:
-=   viewx,viewy		: point of view
-=   viewcos,viewsin	: sin/cos of viewangle
+=   viewx,viewy         : point of view
+=   viewcos,viewsin     : sin/cos of viewangle
 =
 =
 = defines:
-=   CENTERX		: pixel location of center of view window
-=   TILEGLOBAL		: size of one
-=   FOCALLENGTH		: distance behind viewx/y for center of projection
-=   scale		: conversion from global value to screen value
+=   CENTERX             : pixel location of center of view window
+=   TILEGLOBAL          : size of one
+=   FOCALLENGTH         : distance behind viewx/y for center of projection
+=   scale               : conversion from global value to screen value
 =
 = returns:
 =   screenx,screenheight: projected edge location and size
@@ -1203,22 +1277,22 @@ fixed TransformX (fixed gx, fixed gy)
 =
 = Calculates:
 =
-= scale			projection constant
-= sintable/costable	overlapping fractional tables
-= firstangle/lastangle	angles from focalpoint to left/right view edges
-= prestep		distance from focal point before checking for tiles
+= scale                 projection constant
+= sintable/costable     overlapping fractional tables
+= firstangle/lastangle  angles from focalpoint to left/right view edges
+= prestep               distance from focal point before checking for tiles
 =
 ==================
 */
 
 void BuildTables (void)
 {
-  int 		i;
-  long		intang;
-  long		x;
-  float 	angle,anglestep,radtoint;
-  double	tang;
-  fixed 	value;
+  int           i;
+  long          intang;
+  long          x;
+  float         angle,anglestep,radtoint;
+  double        tang;
+  fixed         value;
 
 //
 // calculate the angle offset from view angle of each pixel's ray
@@ -1239,7 +1313,7 @@ void BuildTables (void)
 // calculate fine tangents
 // 1 sign bit, 5 units (clipped to), 10 fracs
 //
-#define MININT	(-MAXINT)
+#define MININT  (-MAXINT)
 
 	for (i=0;i<FINEANGLES/4;i++)
 	{
@@ -1255,8 +1329,8 @@ void BuildTables (void)
 			intang = 0xff00 | (intang & 0xff);
 
 		finetangent[i] = intang;
-//		finetangent[FINEANGLES/2+i] = intang;
-//		finetangent[FINEANGLES/2-i-1] = -intang;
+//              finetangent[FINEANGLES/2+i] = intang;
+//              finetangent[FINEANGLES/2-i-1] = -intang;
 		finetangent[FINEANGLES-i-1] = -intang;
 	}
 
@@ -1321,50 +1395,93 @@ void BuildTables (void)
 void ClearScreen (void)
 {
 	unsigned topcolor=*skycolor, bottomcolor=*groundcolor;
+	unsigned topimage=topcolor&0xf0,bottomimage=bottomcolor&0xf0;
+	unsigned pfoffset=0;
+
+
+#if USE_STRIPS
+	if (topimage == 0x20)		// special code for lightning
+		topimage = topcolor = 0;
+
+// Manually wipe screen with solid color.
+// If BOTH sky and ground are 'images' don't manually clear it!
+//
+	if ((!topimage) || (!bottomimage))
+	{
+#endif
 
   //
   // clear the screen
   //
-asm	mov	dx,GC_INDEX
-asm	mov	ax,GC_MODE + 256*2		// read mode 0, write mode 2
-asm	out	dx,ax
-asm	mov	ax,GC_BITMASK + 255*256
-asm	out	dx,ax
+asm     mov     dx,GC_INDEX
+asm     mov     ax,GC_MODE + 256*2              // read mode 0, write mode 2
+asm     out     dx,ax
+asm     mov     ax,GC_BITMASK + 255*256
+asm     out     dx,ax
 
-asm	mov	dx,40-VIEWWIDTH/8
-asm	mov	bl,VIEWWIDTH/16
-asm	mov	bh,CENTERY+1
+//asm     mov     dx,40-VIEWWIDTH/8					// dx = modulo
+asm     mov     bl,VIEWWIDTH/16
+asm     mov     bh,CENTERY+1
 
-asm	mov	ax,topcolor
-asm	mov	es,[screenseg]
-asm	mov	di,[bufferofs]
-asm	add	di,((SCREENWIDTH*VIEWY)+(VIEWX/8))
+asm     mov     ax,topcolor
+asm     mov     es,[screenseg]
+asm     mov     di,[bufferofs]
+asm     add     di,((SCREENWIDTH*VIEWY)+(VIEWX/8))
 
 toploop:
-asm	mov	cl,bl
-asm	rep	stosw
-asm	stosb
-asm	add	di,dx
-asm	dec	bh
-asm	jnz	toploop
+asm     mov     cl,bl
+asm     rep     stosw
+asm     stosb
+//asm     add     di,dx					// no need to add "0" modulo
+asm     dec     bh
+asm     jnz     toploop
 
-asm	mov	bh,CENTERY+1
-asm	mov	ax,bottomcolor
+asm     mov     bh,CENTERY+1
+asm     mov     ax,bottomcolor
 
 bottomloop:
-asm	mov	cl,bl
-asm	rep	stosw
-asm	stosb
-asm	add	di,dx
-asm	dec	bh
-asm	jnz	bottomloop
+asm     mov     cl,bl
+asm     rep     stosw
+asm     stosb
+//asm     add     di,dx					// no need to add "0" modulo
+asm     dec     bh
+asm     jnz     bottomloop
+
+#if USE_STRIPS
+	}
 
 
-asm	mov	dx,GC_INDEX
-asm	mov	ax,GC_MODE + 256*10		// read mode 1, write mode 2
-asm	out	dx,ax
-asm	mov	al,GC_BITMASK
-asm	out	dx,al
+//
+// code to test parallax turning
+//
+
+	if (topimage)
+	{
+		topimage -= 16;
+		pfoffset = LONG_PERCENTAGE(3200,359,(359-player->angle),12);
+		while (pfoffset >= 640)
+			pfoffset -= 640;
+		LatchDrawPicStrip(0,0,SKY1PIC+topimage,pfoffset+8);
+	}
+
+	if (bottomimage)
+	{
+////		pfoffset = LONG_PERCENTAGE(3200,359,(359-player->angle),12)+320;
+//		pfoffset += 320;
+//		while (pfoffset >= 640)
+//			pfoffset -= 640;
+//		LatchDrawPicStrip(0,64,SKY1PIC+topimage,pfoffset+8);
+		bottomimage -= 16;
+		LatchDrawPic(0,64,GND1PIC+bottomimage);
+	}
+#endif
+
+
+asm     mov     dx,GC_INDEX
+asm     mov     ax,GC_MODE + 256*10             // read mode 1, write mode 2
+asm     out     dx,ax
+asm     mov     al,GC_BITMASK
+asm     out     dx,al
 
 }
 
@@ -1385,12 +1502,12 @@ void DrawWallList (void)
 	int i,leftx,newleft,rightclip;
 	walltype *wall, *check;
 
-asm	mov	ax,ds
-asm	mov	es,ax
-asm	mov	di,OFFSET wallwidth
-asm	xor	ax,ax
-asm	mov	cx,VIEWWIDTH/2
-asm	rep	stosw
+asm     mov     ax,ds
+asm     mov     es,ax
+asm     mov     di,OFFSET wallwidth
+asm     xor     ax,ax
+asm     mov     cx,VIEWWIDTH/2
+asm     rep     stosw
 
 	ClearScreen ();
 
@@ -1418,7 +1535,7 @@ asm	rep	stosw
 		rightclip=VIEWXH;
 
 	  if (leftx < wall->x1 - 1)
-		newleft = wall->x1-1;		// there was black space between walls
+		newleft = wall->x1-1;           // there was black space between walls
 	  else
 		newleft = leftx;
 
@@ -1432,7 +1549,7 @@ asm	rep	stosw
 	}
 
 #ifndef DRAWEACH
-	ScaleWalls ();					// draw all the walls
+	ScaleWalls ();                                  // draw all the walls
 #endif
 }
 
@@ -1452,10 +1569,15 @@ objtype *depthsort[MAXACTORS];
 
 void DrawScaleds (void)
 {
-	int 		i,j,least,numvisable,height;
-	objtype 	*obj,**vislist,*farthest;
-	memptr		shape;
-	byte		*tilespot,*visspot;
+#if USE_INERT_LIST
+		extern inertobjtype inertobjlist[], *inert;
+
+		boolean inertlist=false;
+#endif
+	int             i,j,least,numvisable,height;
+	objtype         *obj,**vislist,*farthest;
+	memptr          shape;
+	byte            *tilespot,*visspot;
 
 	numvisable = 0;
 
@@ -1464,7 +1586,8 @@ void DrawScaleds (void)
 //
 	vislist = &depthsort[0];
 
-	for (obj = player->next;obj;obj=obj->next)
+	obj = player->next;
+	while (obj)
 	{
 		tilespot = &tilemap[0][0]+(obj->tilex<<6)+obj->tiley;
 		visspot = &spotvis[0][0]+(obj->tilex<<6)+obj->tiley;
@@ -1481,27 +1604,44 @@ void DrawScaleds (void)
 		|| ( *(visspot+64) && !*(tilespot+64) )
 		|| ( *(visspot+63) && !*(tilespot+63) ) )
 		{
-			if ((obj->active == noalways) || (obj->active == always))
-				obj->active = always;
-			else
-				obj->active = yes;
+#if USE_INERT_LIST
+			if (!inertlist)
+#endif
+				if ((obj->active == noalways) || (obj->active == always))
+					obj->active = always;
+				else
+					obj->active = yes;
 			TransformActor (obj);
 			if (!obj->viewheight || obj->viewheight > VIEWWIDTH)
-				continue;			// too close or far away
+				goto cont;                       // too close or far away
 
 			if (!obj->state->shapenum)
-				continue;
+				goto cont;
 
 			*vislist++ = obj;
 			numvisable++;
 		}
 		else
-			if ((obj->active != always) && (obj->active != noalways))
-				obj->active = no;
+#if USE_INERT_LIST
+			if (!inertlist)
+#endif
+				if ((obj->active != always) && (obj->active != noalways))
+					obj->active = no;
+
+cont:;
+		obj = obj->next;
+#if USE_INERT_LIST
+		if ((!obj) && (!inertlist))
+		{
+			if (inert != inertobjlist)
+				obj = (objtype *)inertobjlist;
+			inertlist = true;
+		}
+#endif
 	}
 
 	if (vislist == &depthsort[0])
-		return;						// no visable objects
+		return;                                         // no visable objects
 
 //
 // draw from back to front
@@ -1540,7 +1680,7 @@ void DrawScaleds (void)
 
 void CalcTics (void)
 {
-	long	newtime,oldtimecount;
+	long    newtime,oldtimecount;
 
 
 #ifdef PROFILE
@@ -1552,11 +1692,11 @@ void CalcTics (void)
 // calculate tics since last refresh for adaptive timing
 //
 	if (lasttimecount > TimeCount)
-		TimeCount = lasttimecount;		// if the game was paused a LONG time
+		TimeCount = lasttimecount;              // if the game was paused a LONG time
 
 #if 0
-	if (DemoMode)					// demo recording and playback needs
-	{								// to be constant
+	if (DemoMode)                                   // demo recording and playback needs
+	{                                                               // to be constant
 //
 // take DEMOTICS or more tics, and modify Timecount to reflect time taken
 //
@@ -1608,20 +1748,20 @@ void CalcTics (void)
 ========================
 */
 
-void	DrawHand (void)
+void    DrawHand (void)
 {
-	#define HAND_X_POS	((VIEWWIDTH/16)-(10/2))		// "10" = hand width in bytes
+	#define HAND_X_POS      ((VIEWWIDTH/16)-(10/2))         // "10" = hand width in bytes
 
 	#define picnum HAND1PICM
 
 	memptr source;
 	unsigned dest,width,height;
 
-//	if (gamestate.shotpower || boltsleft)
-//		picnum += (((unsigned)TimeCount>>3)&1);
+//      if (gamestate.shotpower || boltsleft)
+//              picnum += (((unsigned)TimeCount>>3)&1);
 
 	source = grsegs[picnum];
-	dest = ylookup[VIEWHEIGHT-handheight]+HAND_X_POS+bufferofs;			// 12
+	dest = ylookup[VIEWHEIGHT-handheight]+HAND_X_POS+bufferofs;                     // 12
 	width = picmtable[picnum-STARTPICM].width;
 	height = picmtable[picnum-STARTPICM].height;
 
@@ -1640,7 +1780,7 @@ void	DrawHand (void)
 ========================
 */
 
-void	ThreeDRefresh (void)
+void    ThreeDRefresh (void)
 {
 	int tracedir;
 
@@ -1650,17 +1790,17 @@ restart:
 //
 // clear out the traced array
 //
-asm	mov	ax,ds
-asm	mov	es,ax
-asm	mov	di,OFFSET spotvis
-asm	xor	ax,ax
-asm	mov	cx,[mapwidth]		// mapheight*32 words
-asm	shl	cx,1
-asm	shl	cx,1
-asm	shl	cx,1
-asm	shl	cx,1
-asm	shl	cx,1
-asm	rep stosw
+asm     mov     ax,ds
+asm     mov     es,ax
+asm     mov     di,OFFSET spotvis
+asm     xor     ax,ax
+asm     mov     cx,[mapwidth]           // mapheight*32 words
+asm     shl     cx,1
+asm     shl     cx,1
+asm     shl     cx,1
+asm     shl     cx,1
+asm     shl     cx,1
+asm     rep stosw
 
 
 //
@@ -1673,7 +1813,7 @@ asm	rep stosw
 	viewcos = costable[viewangle];
 	viewx = player->x - FixedByFrac(FOCALLENGTH,viewcos);
 	viewy = player->y + FixedByFrac(FOCALLENGTH,viewsin);
-	viewx &= 0xfffffc00;		// stop on a pixel boundary
+	viewx &= 0xfffffc00;            // stop on a pixel boundary
 	viewy &= 0xfffffc00;
 	viewx += 0x180;
 	viewy += 0x180;
@@ -1728,22 +1868,23 @@ asm	rep stosw
 //
 // draw the wall list saved be FollowWalls ()
 //
-	animframe = (TimeCount&8)>>3;
+//      animframe = (TimeCount&8)>>3;
 
 //
 // draw all the scaled images
 //
-	asm	mov	dx,GC_INDEX
+	asm     mov     dx,GC_INDEX
 
-	asm	mov	ax,GC_COLORDONTCARE
-	asm	out	dx,ax						// don't look at any of the planes
+	asm     mov     ax,GC_COLORDONTCARE
+	asm     out     dx,ax                                           // don't look at any of the planes
 
-	asm	mov	ax,GC_MODE + 256*(10)		// read mode 1, write mode 2
-	asm	out	dx,ax
+	asm     mov     ax,GC_MODE + 256*(10)           // read mode 1, write mode 2
+	asm     out     dx,ax
 
-	asm	mov	al,GC_BITMASK
-	asm	out	dx,al
+	asm     mov     al,GC_BITMASK
+	asm     out     dx,al
 
+	AnimateWallList();
 	DrawWallList();
 	DrawScaleds();
 
@@ -1764,24 +1905,24 @@ asm	rep stosw
 		fizzlein = false;
 		FizzleFade(bufferofs,displayofs,VIEWWIDTH,VIEWHEIGHT,true);
 		lasttimecount = TimeCount;
-		if (MousePresent) Mouse(MDelta);	// Clear accumulated mouse movement
+		if (MousePresent) Mouse(MDelta);        // Clear accumulated mouse movement
 	}
 
-asm	cli
-asm	mov	cx,[bufferofs]
-asm	mov	dx,3d4h		// CRTC address register
-asm	mov	al,0ch		// start address high register
-asm	out	dx,al
-asm	inc	dx
-asm	mov	al,ch
-asm	out	dx,al   	// set the high byte
-asm	dec	dx
-asm	mov	al,0dh		// start address low register
-asm	out	dx,al
-asm	inc	dx
-asm	mov	al,cl
-asm	out	dx,al		// set the low byte
-asm	sti
+asm     cli
+asm     mov     cx,[bufferofs]
+asm     mov     dx,3d4h         // CRTC address register
+asm     mov     al,0ch          // start address high register
+asm     out     dx,al
+asm     inc     dx
+asm     mov     al,ch
+asm     out     dx,al           // set the high byte
+asm     dec     dx
+asm     mov     al,0dh          // start address low register
+asm     out     dx,al
+asm     inc     dx
+asm     mov     al,cl
+asm     out     dx,al           // set the low byte
+asm     sti
 
 	displayofs = bufferofs;
 

@@ -1,4 +1,4 @@
-/* Catacomb Abyss Source Code
+/* Catacomb Armageddon Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -479,10 +479,8 @@ void ScaleShape (int xcenter, t_compshape _seg *compshape, unsigned scale)
 	scale = (scale+1)/2;
 	if (!scale)
 		return;								// too far away
-
 	if (scale>MAX_OBJ_SCALE)
 		scale = MAX_OBJ_SCALE;
-
 	comptable = scaledirectory[scale];
 
 	width = compshape->width;
@@ -490,7 +488,6 @@ void ScaleShape (int xcenter, t_compshape _seg *compshape, unsigned scale)
 
 	pixel = xcenter - scalewidth/2;
 	lastpixel = pixel+scalewidth-1;
-
 	if (pixel >= VIEWWIDTH || lastpixel < 0)
 		return;								// totally off screen
 
