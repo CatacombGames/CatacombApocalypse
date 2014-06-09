@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -295,6 +295,7 @@ deadloop:;
 		{
 			char choices[] = {sc_Escape,sc_R,sc_N,sc_Q,0};
 			ch = DisplayMsg("Restore          New          Quit",choices);
+			DisplayMsg("                                      ", NULL);
 		}
 		else
 		{
@@ -412,7 +413,7 @@ deadloop:;
 			PostFullDisplay(false);
 			Victory(false);
 			IN_Ack();
-//			gamestate.mapon++;
+			Quit(NULL);
 		}
 		else
 			PostFullDisplay(true);
@@ -936,39 +937,26 @@ nextactor:;
 
 					// WIZARD'S SHOTS
 					//
+							case bounceobj:
 							case pshotobj:
 							case bigpshotobj:
 								RadarXY[objnum++][2]=shot_color[screenpage];
 							break;
 
-					// BATS	    							(DK GRAY)
-					//
-							case batobj:
-								if (obj->active == always)
-									RadarXY[objnum++][2]=8;
-							break;
-
-					// RABBITS	    						(LT GRAY)
-					//
-							case bunnyobj:
-								if (obj->active == always)
-									RadarXY[objnum++][2]=7;
-							break;
-
 			// RED GEM
 			//
-					// EYE, RED DEMON        					(DK RED)
+					// STOMPY										(DK RED)
 					//
-							case eyeobj:
-							case reddemonobj:
+							case invisdudeobj:
+							case stompyobj:
 								if (gamestate.gems[B_RGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=4;
 							break;
 
-					// RED MAGE							(LT RED)
+					// BLOB											(LT RED)
 					//
-							case mageobj:
+							case blobobj:
 								if (gamestate.gems[B_RGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=12;
@@ -976,37 +964,38 @@ nextactor:;
 
 			// BLUE GEM
 			//
-					// SUCCUBUS							(LT BLUE)
+					// ROBOTANK										(LT BLUE)
 					//
-							case succubusobj:
+							case robotankobj:
+							case fmageobj:
 								if (gamestate.gems[B_BGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=9;
 							break;
 
-					// WATER DRAGON							(DK BLUE)
+#if 1
+					// BLUE DEMON									(DK BLUE)
 					//
-							case wetobj:
+							case demonobj:
 								if (gamestate.gems[B_GGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=1;
 							break;
-
-
+#endif
 
 			// GREEN GEM
 			//
-					// GREEN TROLL							(LT GREEN)
+					// WIZARD										(LT GREEN)
 					//
-							case fatdemonobj:
+							case wizardobj:
 								if (gamestate.gems[B_GGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=10;
 							break;
 
-					// GODESS							(DK GREEN)
+					// AQUA MAN										(DK GREEN)
 					//
-							case godessobj:
+							case aquamanobj:
 								if (gamestate.gems[B_GGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=2;
@@ -1014,28 +1003,51 @@ nextactor:;
 
 			// YELLOW GEM
 			//
-					// ANT								(BROWN)
+					// EQYPTIAN HEAD								(BROWN)
 					//
-							case antobj:
-							case treeobj:
+							case headobj:
 								if (gamestate.gems[B_YGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=6;
 							break;
 
-					// SKELETON							(YELLOW)
-					//
-							case skeletonobj:
+					//	RAMBONE										(YELLOW)
+					//	TROLL
+							case ramboneobj:
+							case trollobj:
 								if (gamestate.gems[B_YGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=14;
 							break;
 
+					//	BUG											(LIGHT GRAY)
+							case bugobj:
+								if (gamestate.gems[B_YGEM-B_RGEM])
+									if (obj->active == always)
+										RadarXY[objnum++][2]=7;
+							break;
+
+					//	RAY											(DARK GRAY)
+							case rayobj:
+								if (gamestate.gems[B_YGEM-B_RGEM])
+									if (obj->active == always)
+										RadarXY[objnum++][2]=8;
+							break;
+
 			// PURPLE GEM
 			//
-					// ZOMBIE
+					// MEC DEMON									(PURPLE)
 					//
-							case zombieobj:
+							case cyborgdemonobj:
+								if (gamestate.gems[B_PGEM-B_RGEM])
+									if (obj->active == always)
+										RadarXY[objnum++][2]=5;
+							break;
+
+					// EYE											(LT PURPLE)
+					//
+							case eyeobj:
+							case reyeobj:
 								if (gamestate.gems[B_PGEM-B_RGEM])
 									if (obj->active == always)
 										RadarXY[objnum++][2]=13;
@@ -1175,13 +1187,6 @@ nextactor:;
 			SD_PlaySound (GAMEOVERSND);
 			DisplaySMsg("DEAD",NULL);
 			DrawHealth();
-			if (gamestate.potions)
-			{
-				 bufferofs = displayofs = screenloc[screenpage];
-				 CenterWindow(35,3);
-				 US_CPrint("\nYou should use your Cure Potions wisely\n");
-				 IN_Ack();
-			}
 		}
 
 // check for win
@@ -1189,9 +1194,8 @@ nextactor:;
 		if (playstate == ex_victorious)
 		{
 			Victory(true);
-//			Flags |= FL_DEAD;
 			IN_Ack();
-//			gamestate.mapon++;
+			Quit(NULL);
 		}
 
 		CheckKeys();

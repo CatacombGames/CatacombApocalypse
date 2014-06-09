@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,7 +57,7 @@ EMS / XMS unmanaged routines
 
 
 #define OUT_OF_MEM_MSG	"\n"                                                                          \
-								"You need more memory to run CATACOMB ARMAGEDDON.  Read the INSTRUCTION\n"   \
+								"You need more memory to run CATACOMB APOCALYPSE.  Read the INSTRUCTION\n"   \
 								"section of the START program for tips on getting more memory.\n"
 #endif
 

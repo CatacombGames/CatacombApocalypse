@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 
 ///////////////////////////////////////
 //
-// TED5 Map Header for ARM
+// TED5 Map Header for APC
 //
 ///////////////////////////////////////
 
@@ -26,23 +26,24 @@
 // Map Names
 //
 typedef enum {
-		TOWN_MORBIDITY_MAP,      // 0
-		DARK_FOREST_MAP,         // 1
-		GARDEN_OF_SOULS_MAP,     // 2
-		LOST_CITY_DAMND_MAP,     // 3
-		TEMPLE_OF_VIPER_MAP,     // 4
-		TORTURE_CHAMBER_MAP,     // 5
-		DEMONS_HOLD_MAP,         // 6
-		COLONY_FIRE_ANT_MAP,     // 7
-		HALL_WRETCH_POX_MAP,     // 8
-		LAIR_OF_SUCUBUS_MAP,     // 9
-		BLOOD_CHAMB_EYE_MAP,     // 10
-		FLAMING_INFERNO_MAP,     // 11
-		SUBTERR_RIVER_MAP,       // 12
-		CRYSTAL_MAZE_MG_MAP,     // 13
-		RAMPARTS_OF_NEM_MAP,     // 14
-		FORTRESS_OF_NEM_MAP,     // 15
-		PASSAGE_TO_SURF_MAP,     // 16
+		EGYPT_CEMETERY_MAP,      // 0
+		CEMETERY_EGYPT_MAP,      // 1
+		WIZARDS_ROOM_MAP,        // 2
+		AXIS_TIME_LORDS_MAP,     // 3
+		FUTURE_NODE_MAP,         // 4
+		FIRE_NODE_MAP,           // 5
+		ANCIENT_NODE_MAP,        // 6
+		WATER_NODE_MAP,          // 7
+		BIG_WIZARD_MAZE_MAP,     // 8
+		RAMB_MANTA_MAP,          // 9
+		FLOODED_CITY_MAP,        // 10
+		COMPUTER_CORE_MAP,       // 11
+		BIG_SPACE_MAP_MAP,       // 12
+		ENCOUNTER_MAP,           // 13
+		NEMESIS_FINAL_MAP,       // 14
+		PASSAGE_HOME_MAP,        // 15
+		EGYPT_1_MAP,             // 16
+		WIZARD_GARDEN_MAP,       // 17
 		LASTMAP
 	     } mapnames;
 

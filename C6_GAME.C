@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -37,72 +37,56 @@
 =============================================================================
 */
 
-#define NUMLUMPS        61
+#define NUMLUMPS				45
 
-#define SUCCUBUSLUMP	0
-#define FATDEMONLUMP	1
-#define BOLTLUMP	2
-#define NUKELUMP	3
-#define POTIONLUMP	4
-#define RKEYLUMP        5
-#define YKEYLUMP        6
-#define GKEYLUMP        7
-#define BKEYLUMP        8
-//#define SCROLLLUMP	9
-#define CHESTLUMP       10
-#define PLAYERLUMP      11
-#define WALL1LUMP       12
-#define WALL2LUMP       13
-#define BDOORLUMP       14
-#define GODESSLUMP	15
-#define MAGELUMP	16
-#define BATLUMP		17
-#define GRELLUMP	18
-#define TOMBSTONESLUMP	19
-#define ZOMBIELUMP	20
-#define ANTLUMP		21
-#define SKELETONLUMP	22
-#define RGEMLUMP	23
-#define GGEMLUMP	24
-#define BGEMLUMP	25
-#define YGEMLUMP	26
-#define PGEMLUMP	27
-//#define RKEY2LUMP	28
-#define DRAGONLUMP	29
-#define OBJ_WARPLUMP	30
-#define EYELUMP		31
-#define REDDEMONLUMP	32
-//#define PITLUMP	33
-#define FTIMELUMP	34
-#define WATERCHESTLUMP	35
-#define TREELUMP        36
-#define ARCH1LUMP       37
-#define BUNNYLUMP       38
-#define ANTHILLLUMP     39
-#define COLUMNLUMP      40
-#define SULPHURGASLUMP  41
-#define FIREPOTLUMP     42
-//#define WHIRLPOOLLUMP	43
-#define FOUNTAINLUMP    44
-#define FORCEFIELDLUMP  45
-#define ARCH2LUMP       46
-#define ARCH3LUMP       47
-#define ARCH4LUMP       48
-#define ARCH5LUMP       49
-#define ARCH6LUMP       50
-#define SKELHANGLUMP    51
-//#define SKELPILELUMP	52
-#define ARCH7LUMP       53
-#define ARCH8LUMP       54
-#define ARCH9LUMP       55
-#define ARCH10LUMP      56
-#define ARCH11LUMP      57
-#define ARCH12LUMP	58
-#define ARCH13LUMP	59
+#define EYESTALKLUMP			0
+#define BLOBLUMP				1
+#define BOLTLUMP				2
+#define NUKELUMP				3
+#define POTIONLUMP			4
+#define RKEYLUMP				5
+#define YKEYLUMP				6
+#define GKEYLUMP				7
+#define BKEYLUMP				8
+#define RGEMLUMP				9
+#define GGEMLUMP				10
+#define BGEMLUMP				11
+#define YGEMLUMP				12
+#define PGEMLUMP				13
+#define CHESTLUMP				14
+#define PLAYERLUMP			15
+#define FTIMELUMP				16
+#define PORTALLUMP			17
+#define COLUMN1LUMP			18
+#define FIREPOTLUMP			19
+#define COLUMN2LUMP			20
+#define EYELUMP				21
+#define FUTUREMAGELUMP		22
+#define FORCEFIELDLUMP		23
+#define ROBOTANKLUMP			24
+#define RAMBONELUMP			25
+#define STOMPYLUMP			26
+#define TROLLLUMP				27
+#define WIZARDLUMP			28
+#define HEADLUMP				29
+#define INVISDUDELUMP		30
+#define BUGLUMP				31
+#define CYBORGLUMP			32
+#define WATERCHESTLUMP		33
+#define GRELLUMP				34
+#define RAYLUMP				35
+#define COLUMN3LUMP			36
+#define OLDCHESTLUMP			37
+#define OLDFIREPOTLUMP		38
+#define COLUMN4LUMP			39
+#define TOMB1LUMP				40
+#define TOMB2LUMP				41
+#define DEMONLUMP				42
+#define COLUMN5LUMP			43
 
 int     lumpstart[NUMLUMPS] = {
-SUCCUBUS_LUMP_START,
-FATDEMON_LUMP_START,
+EYESTALK_LUMP_START,
+BLOB_LUMP_START,
 BOLT_LUMP_START,
 NUKE_LUMP_START,
 POTION_LUMP_START,
@@ -110,65 +94,47 @@ RKEY_LUMP_START,
 YKEY_LUMP_START,
 GKEY_LUMP_START,
 BKEY_LUMP_START,
-0,
-//SCROLL_LUMP_START,
-CHEST_LUMP_START,
-PLAYER_LUMP_START,
-//WALL1_LUMP_START,
-//WALL2_LUMP_START,
-//BDOOR_LUMP_START,
-0,0,0,
-GODESS_LUMP_START,
-MAGE_LUMP_START,
-BAT_LUMP_START,
-GREL_LUMP_START,
-TOMBSTONES_LUMP_START,
-ZOMBIE_LUMP_START,
-ANT_LUMP_START,
-SKELDUDE_LUMP_START,
 RGEM_LUMP_START,
 GGEM_LUMP_START,
 BGEM_LUMP_START,
 YGEM_LUMP_START,
 PGEM_LUMP_START,
-0,					//RKEY2_LUMP_START,
-DRAGON_LUMP_START,
-OBJ_WARP_LUMP_START,
-EYE_LUMP_START,
-REDDEMON_LUMP_START,
-0,					//PIT_LUMP_START,
+CHEST_LUMP_START,
+PLAYER_LUMP_START,
 TIME_LUMP_START,
-O_WATER_CHEST_LUMP_START,
-TREE_LUMP_START,
-ARCH1_LUMP_START,
-BUNNY_LUMP_START,
-ANTHILL_LUMP_START,
-COLUMN_LUMP_START,
-SULPHURGAS_LUMP_START,
-FIREPOT_LUMP_START,
-0,					//WHIRLPOOL_LUMP_START,
-FOUNTAIN_LUMP_START,
+PORTAL_LUMP_START,
+COLUMN1_LUMP_START,
+FFIREPOT_LUMP_START,
+COLUMN2_LUMP_START,
+EYE_LUMP_START,
+FUTUREMAGE_LUMP_START,
 FORCEFIELD_LUMP_START,
-ARCH2_LUMP_START,
-ARCH3_LUMP_START,
-ARCH4_LUMP_START,
-ARCH5_LUMP_START,
-ARCH6_LUMP_START,
-SKELHANG_LUMP_START,
-0,					//SKELPILE_LUMP_START,
-ARCH7_LUMP_START,
-ARCH8_LUMP_START,
-ARCH9_LUMP_START,
-ARCH10_LUMP_START,
-ARCH11_LUMP_START,
-ARCH12_LUMP_START,
-ARCH13_LUMP_START,
+ROBOTANK_LUMP_START,
+RAMBONE_LUMP_START,
+STOMPY_LUMP_START,
+TROLL_LUMP_START,
+WIZARD_LUMP_START,
+HEAD_LUMP_START,
+INVISDUDE_LUMP_START,
+BUG_LUMP_START,
+CYBORG_LUMP_START,
+O_WATER_CHEST_LUMP_START,
+GREL_LUMP_START,
+RAY_LUMP_START,
+COLUMN3_LUMP_START,
+OLD_CHEST_LUMP_START,
+OFIREPOT_LUMP_START,
+COLUMN4_LUMP_START,
+TOMB1_LUMP_START,
+TOMB2_LUMP_START,
+DEMON_LUMP_START,
+COLUMN5_LUMP_START,
 };
 
 
 int     lumpend[NUMLUMPS] = {
-SUCCUBUS_LUMP_END,
-FATDEMON_LUMP_END,
+EYESTALK_LUMP_END,
+BLOB_LUMP_END,
 BOLT_LUMP_END,
 NUKE_LUMP_END,
 POTION_LUMP_END,
@@ -176,60 +142,43 @@ RKEY_LUMP_END,
 YKEY_LUMP_END,
 GKEY_LUMP_END,
 BKEY_LUMP_END,
-0,
-//SCROLL_LUMP_END,
-CHEST_LUMP_END,
-PLAYER_LUMP_END,
-0,0,0,
-GODESS_LUMP_END,
-MAGE_LUMP_END,
-BAT_LUMP_END,
-GREL_LUMP_END,
-TOMBSTONES_LUMP_END,
-ZOMBIE_LUMP_END,
-ANT_LUMP_END,
-SKELDUDE_LUMP_END,
 RGEM_LUMP_END,
 GGEM_LUMP_END,
 BGEM_LUMP_END,
 YGEM_LUMP_END,
 PGEM_LUMP_END,
-0,					//RKEY2_LUMP_END,
-DRAGON_LUMP_END,
-OBJ_WARP_LUMP_END,
-EYE_LUMP_END,
-REDDEMON_LUMP_END,
-0,					//PIT_LUMP_END,
+CHEST_LUMP_END,
+PLAYER_LUMP_END,
 TIME_LUMP_END,
-O_WATER_CHEST_LUMP_END,
-TREE_LUMP_END,
-ARCH1_LUMP_END,
-BUNNY_LUMP_END,
-ANTHILL_LUMP_END,
-COLUMN_LUMP_END,
-SULPHURGAS_LUMP_END,
-FIREPOT_LUMP_END,
-0,					//WHIRLPOOL_LUMP_END,
-FOUNTAIN_LUMP_END,
+PORTAL_LUMP_END,
+COLUMN1_LUMP_END,
+FFIREPOT_LUMP_END,
+COLUMN2_LUMP_END,
+EYE_LUMP_END,
+FUTUREMAGE_LUMP_END,
 FORCEFIELD_LUMP_END,
-ARCH2_LUMP_END,
-ARCH3_LUMP_END,
-ARCH4_LUMP_END,
-ARCH5_LUMP_END,
-ARCH6_LUMP_END,
-SKELHANG_LUMP_END,
-0,					//SKELPILE_LUMP_END,
-ARCH7_LUMP_END,
-ARCH8_LUMP_END,
-ARCH9_LUMP_END,
-ARCH10_LUMP_END,
-ARCH11_LUMP_END,
-ARCH12_LUMP_END,
-ARCH13_LUMP_END,
+ROBOTANK_LUMP_END,
+RAMBONE_LUMP_END,
+STOMPY_LUMP_END,
+TROLL_LUMP_END,
+WIZARD_LUMP_END,
+HEAD_LUMP_END,
+INVISDUDE_LUMP_END,
+BUG_LUMP_END,
+CYBORG_LUMP_END,
+O_WATER_CHEST_LUMP_END,
+GREL_LUMP_END,
+RAY_LUMP_END,
+COLUMN3_LUMP_END,
+OLD_CHEST_LUMP_END,
+OFIREPOT_LUMP_END,
+COLUMN4_LUMP_END,
+TOMB1_LUMP_END,
+TOMB2_LUMP_END,
+DEMON_LUMP_END,
+COLUMN5_LUMP_END,
 };
 
-
-//extern unsigned scolor,gcolor;
 
 
 /*
@@ -245,7 +194,6 @@ unsigned        tileoffsets[NUMTILE16];
 unsigned        textstarts[27];
 
 boolean splitscreen=false;
-
 /*
 =============================================================================
 
@@ -258,16 +206,6 @@ boolean lumpneeded[NUMLUMPS];
 
 
 //===========================================================================
-
-//==========================================================================
-//
-//
-//                                                      LOCAL PROTOTYPES
-//
-//
-//==========================================================================
-
-void CashPoints(void);
 
 
 
@@ -315,7 +253,6 @@ void ScanInfoPlane (void)
 					break;
 
 				case 0xfa:								// sky/ground color
-				case 0xf9:								// sky/ground 'strip'
 					x++;
 					tile = *start++;
 					hi = tile >> 8;
@@ -329,8 +266,6 @@ void ScanInfoPlane (void)
 							groundcolor = &gcolor;
 						break;
 
-						case 0xf9:			// sky / ground 'strip'
-						break;
 					}
 				break;
 			}
@@ -346,7 +281,7 @@ void ScanInfoPlane (void)
 			case 4:
 				lumpneeded[PLAYERLUMP] = true;
 				SpawnPlayer(x,y,NORTH+tile-1);
-				break;
+			break;
 
 			case 5:
 			case 6:
@@ -357,107 +292,141 @@ void ScanInfoPlane (void)
 			case 11:
 				lumpneeded[tile-5+BOLTLUMP] = true;
 				SpawnBonus(x,y,tile-5);
-				break;
+			break;
 
-#if 0
 			case 12:
+				lumpneeded[EYESTALKLUMP] = true;
+				SpawnAquaMan(x, y);
+			break;
+
+
 			case 13:
+				lumpneeded[BLOBLUMP] = true;
+				SpawnBlob(x, y);
+			break;
+
+
 			case 14:
+				lumpneeded[BUGLUMP] = true;
+				SpawnBug(x, y);
+			break;
+
 			case 15:
+				lumpneeded[CYBORGLUMP] = true;
+				SpawnCyborgDemon(x, y);
+			break;
+
 			case 16:
+				lumpneeded[EYELUMP] = true;
+				SpawnShooterEye(x, y);
+			break;
+
 			case 17:
+				lumpneeded[FUTUREMAGELUMP] = true;
+				SpawnFutureMage(x, y);
+			break;
+
 			case 18:
+				lumpneeded[INVISDUDELUMP] = true;
+				SpawnInvisDude(x, y);
+			break;
+
 			case 19:
-				lumpneeded[SCROLLLUMP] = true;
-				SpawnBonus(x,y,B_SCROLL1+tile-12);
-				break;
-#endif
+				lumpneeded[ROBOTANKLUMP] = true;
+				SpawnRoboTank(x, y);
+			break;
 
 			case 20:
-				lumpneeded[REDDEMONLUMP] = true;
-				SpawnRedDemon (x,y);
-				break;
-
-#if 0
-			case 20:        // goal
-				lumpneeded[GOALLUMP] = true;
-				SpawnBonus(x,y,B_GOAL);
-				break;
-#endif
+				lumpneeded[RAMBONELUMP] = true;
+				SpawnRamBone(x, y);
+			break;
 
 			case 21:
-				lumpneeded[GODESSLUMP] = true;
-				SpawnGodess (x,y);
-				break;
+				lumpneeded[STOMPYLUMP] = true;
+				SpawnStompy(x, y);
+			break;
 
 			case 22:
-				lumpneeded[FATDEMONLUMP] = true;
-				SpawnFatDemon (x,y);
-				break;
+				lumpneeded[TROLLLUMP] = true;
+				SpawnTroll(x, y);
+			break;
 
 			case 23:
-				lumpneeded[SUCCUBUSLUMP] = true;
-				SpawnSuccubus (x,y);
-				break;
+				lumpneeded[WIZARDLUMP] = true;
+				SpawnWizard(x, y);
+			break;
 
 			case 24:
-				lumpneeded[DRAGONLUMP] = true;
-				SpawnDragon(x,y);
-				break;
+				SpawnBounce(x, y, 0);
+			break;
 
 			case 25:
-				lumpneeded[BATLUMP] = true;
-				SpawnBat (x,y);
-				break;
+				SpawnBounce(x, y, 1);
+			break;
 
 			case 26:
-				lumpneeded[EYELUMP] = true;
-				SpawnEye(x,y);
-				break;
-
-			case 27:
-				lumpneeded[MAGELUMP] = true;
-				SpawnMage (x,y);
-				break;
-
-			case 28:
 				lumpneeded[RKEYLUMP] = lumpneeded[GRELLUMP] = true;
 				SpawnGrelminar (x,y);
-				break;
+			break;
+
+			case 27:
+				lumpneeded[EYELUMP] = true;
+				SpawnRunningEye(x,y);
+			break;
+
+			case 28:
+				lumpneeded[RAYLUMP] = true;
+				SpawnRay(x, y);
+			break;
+
+			case 29:
+				lumpneeded[HEADLUMP] = true;
+				SpawnEgyptianHead(x, y);
+			break;
 
 			case 30:
-				lumpneeded[ANTLUMP] = true;
-				SpawnAnt(x,y);
-				break;
+				lumpneeded[DEMONLUMP] = true;
+				SpawnDemon(x, y);
+			break;
 
 			case 31:
+				lumpneeded[COLUMN5LUMP] = true;
+				SpawnMiscObjects(x, y, 9);
+			break;
+
 			case 32:
+				SpawnInvisWallCntroller(x, y);
+			break;
+
 			case 33:
+			break;
+
 			case 34:
+			break;
+
 			case 35:
-				lumpneeded[OBJ_WARPLUMP] = true;
-				SpawnWarp (x,y,tile-30);
-				break;
+			break;
 
 			case 36:
-				lumpneeded[ZOMBIELUMP] = true;
-				SpawnZombie(x,y);
-				break;
+				lumpneeded[COLUMN1LUMP] = true;
+				SpawnMiscObjects(x, y, 1);
+			break;
 
 			case 37:
-				lumpneeded[SKELETONLUMP] = true;
-				SpawnSkeleton(x,y);
-				break;
+				lumpneeded[FIREPOTLUMP] = true;
+				SpawnMiscObjects(x, y, 4);
+			break;
 
 			case 38:
-				lumpneeded[SKELETONLUMP] = true;
-				SpawnWallSkeleton(x,y);
-				break;
+				lumpneeded[PORTALLUMP] = true;
+				SpawnWarp(x, y);
+			break;
 
 			case 39:
 				lumpneeded[FTIMELUMP] = true;
 				SpawnFTime(x,y);
-				break;
+			break;
+
 
 			case 40:
 			case 41:
@@ -469,18 +438,25 @@ void ScanInfoPlane (void)
 			break;
 
 			case 45:
-			case 46:
-			case 47:
-				lumpneeded[TOMBSTONESLUMP] = true;
-				SpawnTombstone(x,y,tile-45);
-				break;
+				lumpneeded[COLUMN2LUMP] = true;
+				SpawnMiscObjects(x, y, 2);
+			break;
 
-#if 0
+			case 46:
+				lumpneeded[COLUMN3LUMP] = true;
+				SpawnMiscObjects(x, y, 3);
+			break;
+
+			case 47:
+				lumpneeded[FORCEFIELDLUMP] = true;
+				SpawnForceField(x, y);
+			break;
+
 			case 48:
-				lumpneeded[PITLUMP]     = true;
-				SpawnWarp(x,y,0);
-				break;
-#endif
+				lumpneeded[OLDCHESTLUMP] = true;
+				SpawnBonus(x, y, B_OLDCHEST);
+			break;
+
 			case 49:        // chest
 				if (gcolor == 0x0101)
 					lumpneeded[WATERCHESTLUMP] = true;
@@ -490,115 +466,79 @@ void ScanInfoPlane (void)
 			break;
 
 			case 50:
-				lumpneeded[TREELUMP] = true;
-				SpawnTree(x,y);
-				break;
+				lumpneeded[COLUMN4LUMP] = true;
+				SpawnMiscObjects(x, y, 5);
+			break;
 
 			case 51:
-				lumpneeded[BUNNYLUMP] = true;
-				SpawnBunny(x,y);
-				break;
+				lumpneeded[OLDFIREPOTLUMP] = true;
+				SpawnMiscObjects(x, y, 6);
+			break;
 
 			case 52:
-				lumpneeded[ARCH1LUMP] = true;
-				SpawnArch(x,y,1);
-				break;
+				lumpneeded[TOMB1LUMP] = true;
+				SpawnMiscObjects(x, y, 7);
+			break;
 
 			case 53:
-				lumpneeded[ANTHILLLUMP] = true;
-				SpawnWarp(x,y,0);
-				break;
+				lumpneeded[TOMB2LUMP] = true;
+				SpawnMiscObjects(x, y, 8);
+			break;
 
 			case 54:
-				lumpneeded[COLUMNLUMP] = true;
-				SpawnMiscObjects(x,y,1);		//1=column,2=sulphur hole,3=fire pot,4=fountain
-				break;
+			break;
 
 			case 55:
-				lumpneeded[SULPHURGASLUMP] = true;
-				SpawnMiscObjects(x,y,2);
-				break;
+			break;
 
 			case 56:
-				lumpneeded[FIREPOTLUMP] = true;
-				SpawnMiscObjects(x,y,3);
-				break;
+			break;
 
 			case 57:
-				lumpneeded[ARCH13LUMP] = true;
-				SpawnArch(x,y,13);
-				break;
+			break;
 
 			case 58:
-				lumpneeded[FOUNTAINLUMP] = true;
-				SpawnMiscObjects(x,y,4);
-				break;
+			break;
 
 			case 59:
-				lumpneeded[FORCEFIELDLUMP] = true;
-				SpawnForceField(x,y);
-				break;
+			break;
 
 			case 60:
-				lumpneeded[ARCH2LUMP] = true;
-				SpawnArch(x,y,2);
-				break;
+			break;
 
 			case 61:
-				lumpneeded[ARCH3LUMP] = true;
-				SpawnArch(x,y,3);
-				break;
+			break;
 
 			case 62:
-				lumpneeded[ARCH4LUMP] = true;
-				SpawnArch(x,y,4);
-				break;
+			break;
 
 			case 63:
-				lumpneeded[ARCH5LUMP] = true;
-				SpawnArch(x,y,5);
-				break;
+			break;
 
 			case 64:
-				lumpneeded[ARCH6LUMP] = true;
-				SpawnArch(x,y,6);
-				break;
+			break;
 
 			case 65:
-				lumpneeded[SKELHANGLUMP] = true;
-				lumpneeded[SKELETONLUMP] = true;
-				SpawnSkeletonHanging(x,y);
-				break;
+			break;
 
 			case 66:
-				lumpneeded[ARCH12LUMP] = true;
-				SpawnArch(x,y,12);
-				break;
+			break;
 
 			case 67:
-				lumpneeded[ARCH7LUMP] = true;
-				SpawnArch(x,y,7);
-				break;
+			break;
 
 			case 68:
-				lumpneeded[ARCH8LUMP] = true;
-				SpawnArch(x,y,8);
-				break;
+			break;
 
 			case 69:
-				lumpneeded[ARCH9LUMP] = true;
-				SpawnArch(x,y,9);
-				break;
+			break;
 
 			case 70:
-				lumpneeded[ARCH10LUMP] = true;
-				SpawnArch(x,y,10);
-				break;
+			break;
 
 			case 71:
-				lumpneeded[ARCH11LUMP] = true;
-				SpawnArch(x,y,11);
-				break;
+			break;
+
 			}
 		}
 
@@ -692,18 +632,19 @@ static  char    *levelnames[] =
 				};
 #endif
 
-void DrawEnterScreen (void)
+void DrawEnterScreen ()
 {
 	int width;
 
 	bufferofs = displayofs = screenloc[screenpage];
 	VW_Bar(0,0,VIEWWIDTH,VIEWHEIGHT,0);
+
 //	width = strlen(levelnames[gamestate.mapon]);
-	width = strlen("You enter a new area ...");
+	width = strlen("A new challenge awaits you.");
 	if (width < 20)
 		width = 20;
 	CenterWindow(width,3);
-	US_CPrint("\nYou enter a new area ...\n");
+	US_CPrint("\nA new challenge awaits you.\n");
 //	US_CPrint(levelnames[gamestate.mapon]);
 }
 
@@ -893,7 +834,7 @@ void SetupGameLevel ()
 //
 // decide which graphics are needed and spawn actors
 //
-	zombie_base_delay = 0;  // (1*60) + random(1*60);
+	head_base_delay = 0;  // (1*60) + random(1*60);
 	ScanInfoPlane ();
 	_fmemset(wall_anim_pos,0,sizeof(wall_anim_pos));
 
@@ -1050,8 +991,8 @@ void Victory (boolean playsounds)
 		SD_WaitSoundDone ();
 		SD_PlaySound (GETKEYSND);
 		SD_WaitSoundDone ();
-		SD_PlaySound (GETSCROLLSND);
-		SD_WaitSoundDone ();
+//		SD_PlaySound (GETSCROLLSND);
+//		SD_WaitSoundDone ();
 		SD_PlaySound (GETPOINTSSND);
 	}
 
@@ -1069,6 +1010,7 @@ void Victory (boolean playsounds)
 	VW_DrawPic(0, 0, FINALEPIC);
 
 	VW_FadeIn();
+
 }
 
 //==========================================================================
@@ -1159,7 +1101,7 @@ void DrawPlayScreen (void)
 	grneeded[STATUSPIC] &= ~ca_levelbit;
 	MM_SetPurge(&grsegs[STATUSPIC],3);
 
-	RedrawStatusWindow ();
+//	RedrawStatusWindow ();
 	bufferofs = displayofs = screenloc[0];
 }
 

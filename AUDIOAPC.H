@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,13 +18,13 @@
 
 /////////////////////////////////////////////////
 //
-// MUSE Header for .ARM
-// Created Mon Jun 08 16:14:17 1992
+// MUSE Header for .APC
+// Created Mon Nov 02 15:09:16 1992
 //
 /////////////////////////////////////////////////
 
-#define NUMSOUNDS		35
-#define NUMSNDCHUNKS		106
+#define NUMSOUNDS		37
+#define NUMSNDCHUNKS		112
 
 //
 // Sound names & indexes
@@ -37,7 +37,7 @@ typedef enum {
 		GETNUKESND,              // 4
 		GETPOTIONSND,            // 5
 		GETKEYSND,               // 6
-		GETSCROLLSND,            // 7
+		PORTALSND,               // 7
 		GETPOINTSSND,            // 8
 		USEBOLTSND,              // 9
 		USENUKESND,              // 10
@@ -65,6 +65,8 @@ typedef enum {
 		TIMERETURNSND,           // 32
 		TICKSND,                 // 33
 		BODY_EXPLODESND,         // 34
+		LARGEMONSTERSND,         // 35
+		SMALLMONSTERSND,         // 36
 		LASTSOUND
 	     } soundnames;
 
@@ -72,9 +74,9 @@ typedef enum {
 // Base offsets
 //
 #define STARTPCSOUNDS		0
-#define STARTADLIBSOUNDS	35
-#define STARTDIGISOUNDS		70
-#define STARTMUSIC		105
+#define STARTADLIBSOUNDS	37
+#define STARTDIGISOUNDS		74
+#define STARTMUSIC		111
 
 //
 // Music names & indexes

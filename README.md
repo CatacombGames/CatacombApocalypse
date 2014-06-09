@@ -1,7 +1,7 @@
-The Catacomb Armageddon
+The Catacomb Apocalypse
 =======================
 
-This repository contains the source code for The Catacomb Armageddon. The
+This repository contains the source code for The Catacomb Apocalypse. The
 source code is designed for Borland C++ 2.0, but compiled fine with Borland C++
 3.1 at the time of this release.
 
@@ -12,5 +12,5 @@ need to legally acquire the game data in order to use the exe built from this
 source code.
 
 To run the executable, the following command must be used or the check must be
-disabled in C5_MAIN.C:
-    armgame.exe ^(a@&r`
+disabled in C6_MAIN.C:
+    apocgame.exe ^(a@&r`

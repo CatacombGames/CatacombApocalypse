@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1208,6 +1208,8 @@ SD_WaitSoundDone(void)
 		;
 }
 
+
+#if 0
 ///////////////////////////////////////////////////////////////////////////
 //
 //	SD_MusicOn() - turns on the sequencer
@@ -1317,3 +1319,5 @@ SD_MusicPlaying(void)
 	return(result);
 #endif
 }
+
+#endif

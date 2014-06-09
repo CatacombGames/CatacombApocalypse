@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -54,7 +54,7 @@
 */
 
 short colordelay=0;
-boolean autofire=false;
+//boolean autofire=false;
 int	maporgx;
 int	maporgy;
 enum {mapview,tilemapview,actoratview,visview,mapseg2,lastview}	viewtype;
@@ -277,10 +277,10 @@ int DebugKeys (void)
 		IN_Ack ();
 	}
 
-
+#endif
 	if (Keyboard[sc_Q])			// Q = Insta-Quit!
 		Quit("Insta-Quit!");
-
+#if 0
 	if (Keyboard[sc_Z])		// Z = freeze Time
 	{
 		if (FreezeTime)
@@ -524,7 +524,7 @@ int DebugKeys (void)
 	{
 		CenterWindow(26,3);
 		PrintY+=6;
-		US_Print("  Warp to which level(0-16):");
+		US_Print("  Warp to which level(0-17):");
 		VW_UpdateScreen();
 		esc = !US_LineInput (px,py,str,NULL,true,2,0);
 		if (!esc)

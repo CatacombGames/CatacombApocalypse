@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,7 +19,6 @@
 // C3_MAIN.C
 
 #define CATALOG
-
 
 #include <time.h>
 #include <stdarg.h>
@@ -46,6 +45,23 @@
 =============================================================================
 */
 
+typedef enum demo_screens {sc_logo,sc_title,sc_credits1,sc_credits2,sc_credits3,sc_credits4,sc_end} demo_screens;
+struct Shape   shape,
+					SdLogoShp,
+					TitleShp,
+					CreditBKShp,
+					Credit1Shp,
+					Credit2Shp,
+					Credit3Shp,
+					Credit4Shp,
+					Credit5Shp,
+					Credit6Shp,
+					Credit7Shp,
+					Credit8Shp,
+					Credit9Shp,
+					Credit10Shp;
+
+
 PresenterInfo MainHelpText;
 
 GameDiff restartgame;
@@ -60,8 +76,6 @@ gametype	gamestate;
 exittype	playstate;
 char	SlowMode = 0;
 int starting_level;
-
-//extern unsigned scolor,gcolor;					//NPM
 
 short NumGames=0;
 unsigned Flags=0;
@@ -398,9 +412,8 @@ void InitGame (void)
 #endif
 	US_Startup ();
 
-//	US_UpdateTextScreen();
-
 	CA_Startup ();
+
 	US_Setup ();
 
 	US_SetLoadSaveHooks(LoadTheGame,SaveTheGame,ResetGame);
@@ -576,13 +589,13 @@ void DisplayDepartment(char *text)
 	short temp;
 
 //	bufferofs = 0;
-	PrintY = 1;
-	WindowX = 0;
-	WindowW = 320;
+	PrintY = 5;
+	WindowX = 17;
+	WindowW = 168;
 
-	VW_Bar(WindowX,PrintY+1,WindowW,7,7);
+	VW_Bar(WindowX,PrintY+1,WindowW,7,0);
 	temp = fontcolor;
-	fontcolor = 2;
+	fontcolor = 10;
 	US_CPrintLine (text);
 	fontcolor = temp;
 }
@@ -596,6 +609,8 @@ void DisplayDepartment(char *text)
 =
 =====================
 */
+
+static	char *ParmStrings[] = {"easy","normal","hard",""};
 
 void	DemoLoop (void)
 {
@@ -647,7 +662,6 @@ void	DemoLoop (void)
 		GameLoop();
 }
 
-
 //-------------------------------------------------------------------------
 // DisplayIntroText()
 //-------------------------------------------------------------------------
@@ -690,12 +704,23 @@ void DisplayIntroText()
 	PrintX = 0;
 	WindowX = 0;
 	WindowW = 320;
-	US_Print ("         You stand before the gate leading into\n");
-	US_Print ("                 the Towne of Morbidity...\n");
+
+
+	US_Print ("      A chilling wind greets you at the entrance\n");
+	US_Print ("            to the Sanctuary of the Dead.\n");
 
 	PrintY = 180;
-	US_Print ("    Enter now boldly to defeat the evil Nemesis\n");
-	US_Print ("              deep inside the catacombs.\n");
+
+	fontcolor = 9;
+	US_Print ("                   Shall you proceed as\n");
+	fontcolor = 14;
+	US_Print ("                  N");
+	fontcolor = 9;
+	US_Print ("ovice   or");
+	fontcolor = 14;
+	US_Print ("   W");
+	fontcolor = 9;
+	US_Print ("arrior ?");
 
 #endif
 
@@ -920,12 +945,15 @@ void main (void)
 			case 4:
 				Flags |= (FL_HELPTEST|FL_QUICK);
 			break;
+
 		}
 	}
 
 	if (stricmp(_argv[1], "^(a@&r`"))
-		Quit("You must type CATARM to run CATACOMB ARMAGEDDON 3-D\n");
+		Quit("You must type CATAPOC to run CATACOMB APOCALYPSE\n");
 
+
+#if 0
 	MainHelpText.xl = 0;
 	MainHelpText.yl = 0;
 	MainHelpText.xh = 639;
@@ -933,6 +961,7 @@ void main (void)
 	MainHelpText.bgcolor = 7;
 	MainHelpText.ltcolor = 15;
 	MainHelpText.dkcolor = 8;
+#endif
 
 //	jabhack();
 
@@ -957,7 +986,7 @@ void main (void)
 //-------------------------------------------------------------------------
 // Display640()
 //-------------------------------------------------------------------------
-void Display640()
+void Display640(void)
 {
 // Can you believe it takes all this just to change to 640 mode!!???!
 //
@@ -973,7 +1002,7 @@ void Display640()
 //-------------------------------------------------------------------------
 // Display320()
 //-------------------------------------------------------------------------
-void Display320()
+void Display320(void)
 {
 // Can you believe it takes all this just to change to 320 mode!!???!
 //
@@ -983,6 +1012,7 @@ void Display320()
 	MoveScreen(0,0);
 	VW_Bar (0,0,320,200,0);
 	VW_SetScreenMode(EGA320GR);
+	VW_SetLineWidth(40);
 	BlackPalette();
 	VW_ScreenToScreen(FREESTART-STATUSLEN,0,40,80);
 }
@@ -1020,10 +1050,11 @@ void PrintHelp(void)
 	US_Print ("F4\n");
 	US_Print ("F5\n");
 	US_Print ("ESC\n\n");
-#ifndef CATALOG
 	fontcolor = (7 ^ 0);
+#ifndef CATALOG
 	US_Print ("          (See complete Instructions for more info)\n");
 #endif
+	US_Print ("\n           copyright (c) 1992-93 Softdisk Publishing\n");
 
 	fontcolor = (7 ^ 8);
 	PrintX = 400;

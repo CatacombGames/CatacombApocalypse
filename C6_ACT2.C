@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,27 +21,6 @@
 #include "DEF.H"
 #pragma hdrstop
 
-/*
-=============================================================================
-
-						 LOCAL CONSTANTS
-
-=============================================================================
-*/
-void SpawnSkeleton(int tilex, int tiley);
-
-#if 0
-#define MSHOTDAMAGE	2
-#define MSHOTSPEED	10000
-
-#define ESHOTDAMAGE	1
-#define ESHOTSPEED	5000
-
-#define SSHOTDAMAGE	3
-#define SSHOTSPEED	6500
-
-#define RANDOM_ATTACK 20
-#endif
 
 /*
 =============================================================================
@@ -54,6 +33,8 @@ void SpawnSkeleton(int tilex, int tiley);
 boolean ShootPlayer (objtype *ob, short obclass, short speed, statetype *state);
 void T_ShootPlayer(objtype *ob);
 
+short head_base_delay;
+
 /*
 =============================================================================
 
@@ -63,159 +44,38 @@ void T_ShootPlayer(objtype *ob);
 */
 
 
+void T_ShooterObj(objtype *ob);
+
+void SpawnRamBone(int tilex, int tiley);
+void T_SkeletonShoot(objtype *ob);
+void SpawnFutureMage (int tilex, int tiley);
+void T_FMageShoot(objtype *ob);
+void SpawnRoboTank(int tilex, int tiley);
+void T_RoboTankShoot(objtype *ob);
+void SpawnStompy(int tilex, int tiley);
+void T_StompyShoot(objtype *ob);
+void SpawnBug(int tilex, int tiley);
+void T_BugShoot(objtype *ob);
+void SpawnShooterEye(int tilex, int tiley);
+void T_EyeShootPlayer(objtype *ob);
+void SpawnRunningEye(int tilex, int tiley);
+void T_RunningEye(objtype *ob);
+
 
 /*
 =============================================================================
 
-								SKELETON IN WALL
+										LARGE SOUND
 
 =============================================================================
 */
-
-void T_WallSkeleton(objtype *ob);
-
-statetype s_wallskel = {0,40,T_WallSkeleton,&s_wallskel};
-statetype s_wallskel2 = {0,1,NULL,NULL};
-
-
-enum wskel_modes {ws_wall1,ws_wall2,ws_wall3,ws_exit};
-//enum wskel_modes {ws_wall1,ws_exit};
-
-#define wskel_mode	ob->temp1
-#define wskel_delay	ob->temp2
-#define wskel_base	ob->angle
-#define wskel_wallx	ob->hitpoints
-#define wskel_wally	ob->speed
-
-/*
-===============
-=
-= SpawnWallSkeleton
-=
-===============
-*/
-void SpawnWallSkeleton(int tilex, int tiley)
+void LargeSound (objtype *ob)
 {
-	char xofs[] = {0,0,-1,+1};
-	char yofs[] = {-1,+1,0,0};
-
-	objtype *ob;
-	int wallx=tilex,wally=tiley,wallbase,wallmode,loop;
-	unsigned tile,current_delay;
-
-	for (loop=0; loop<4; loop++)
+	if (ob->temp1 != SOUNDPLAYED)
 	{
-		tile = *(mapsegs[0]+farmapylookup[tiley+yofs[loop]]+tilex+xofs[loop]);
-		switch (tile)
-		{
-//			case WALL_SKELETON_CODE:
-//			case WALL_SKELETON_CODE+1:
-//			case WALL_SKELETON_CODE+2:
-//				wallmode = ws_wall1+(tile-WALL_SKELETON_CODE);
-//				wallbase = WALL_SKELETON_CODE;
-//				goto foundtile;
-//			break;
+		SD_PlaySound(LARGEMONSTERSND);
+		ob->temp1 = SOUNDPLAYED;
 
-			case 66:
-			case 68:
-//			case 21:
-				wallmode = ws_wall1+(tile-66);
-				wallbase = 66;
-				goto foundtile;
-//			break;
-
-			case 67:
-			case 69:
-				wallmode = ws_wall1+(tile-67);
-				wallbase = 67;
-				goto foundtile;
-//			break;
-		}
-	}
-
-	return;
-foundtile:;
-
-	wallx += xofs[loop];
-	wally += yofs[loop];
-
-	SpawnNewObj(tilex,tiley,&s_wallskel,PIXRADIUS*35);
-	ob = new;
-	new->obclass = wallskelobj;
-	new->speed = 1900;
-	new->flags &= ~of_shootable;
-	new->hitpoints = 12;
-
-//	new->tilex = wallx;
-//	new->tiley = wally;
-	wskel_wallx = wallx;
-	wskel_wally = wally;
-	wskel_base = wallbase;
-	new->active = no;
-
-	wskel_mode = wallmode;
-
-	tile = *(mapsegs[2]+farmapylookup[wally]+wallx);
-	if (tile)
-		wskel_delay = (tile>>8)*30;
-	else
-	{
-		current_delay = (2*60)+random(4*60);
-		wskel_delay = zombie_base_delay+current_delay;
-		zombie_base_delay += current_delay;
-		if (zombie_base_delay > 8*60)
-			zombie_base_delay = 0;
-	}
-}
-
-/*
-===============
-=
-= T_WallSkeleton
-=
-===============
-*/
-void T_WallSkeleton(objtype *ob)
-{
-	int x=wskel_wallx,y=wskel_wally;
-
-	wskel_delay -= realtics;
-	if (wskel_delay > 0)
-		return;
-
-	switch (wskel_mode)
-	{
-		case ws_wall2:
-			if ((wskel_base == 66) || (wskel_base == 67))
-				wskel_mode++;
-		case ws_wall1:
-		case ws_wall3:
-			(unsigned)actorat[x][y]
-				= tilemap[x][y]
-				= *(mapsegs[0]+farmapylookup[y]+x)
-				= wskel_base+(wskel_mode-ws_wall1);
-
-			wskel_mode++;
-			wskel_delay = (120);
-			ob->active = always;
-		break;
-
-		case ws_exit:
-			(unsigned)actorat[x][y]
-				= tilemap[x][y]
-				= *(mapsegs[0]+farmapylookup[y]+x)
-				= 21;
-//				= wskel_base;
-			ob->tilex = ob->x >> TILESHIFT;
-			ob->tiley = ob->y >> TILESHIFT;
-
-			ob->obclass = skeletonobj;
-			ob->speed = 2036;
-			ob->flags |= of_shootable;
-			ob->hitpoints = 12;
-			ob->state = &s_skel_1;
-			ob->ticcount = ob->state->tictime;
-		break;
 	}
 }
 
@@ -223,32 +83,53 @@ void T_WallSkeleton(objtype *ob)
 /*
 =============================================================================
 
-								SKELETONS
+										SMALL SOUND
+
+=============================================================================
+*/
+void SmallSound (objtype *ob)
+{
+	if (ob->temp1 != SOUNDPLAYED)
+	{
+		SD_PlaySound(SMALLMONSTERSND);
+		ob->temp1 = SOUNDPLAYED;
+
+	}
+}
+
+
+
+/*
+=============================================================================
+
+										RAMBONE
 
 =============================================================================
 */
 
-void T_Skeleton(objtype *ob);
 
+statetype s_skel_1 = {RAMBONEWALK1PIC, 10, &T_ShooterObj, &s_skel_2};
+statetype s_skel_2 = {RAMBONEWALK2PIC, 10, &T_ShooterObj, &s_skel_3};
+statetype s_skel_3 = {RAMBONEWALK3PIC, 10, &T_ShooterObj, &s_skel_4};
+statetype s_skel_4 = {RAMBONEWALK4PIC, 10, &T_ShooterObj, &s_skel_1};
 
+statetype s_skel_attack1 = {RAMBONEATTACK1PIC, 12, NULL, &s_skel_attack2};
+statetype s_skel_attack2 = {RAMBONEATTACK2PIC, 20, NULL, &s_skel_attack3};
+statetype s_skel_attack3 = {RAMBONEATTACK2PIC, -1, T_SkeletonShoot, &s_skel_attack4};
+statetype s_skel_attack4 = {RAMBONEATTACK3PIC, 20, NULL, &s_skel_ouch};
 
+statetype s_skel_ouch = {RAMBONEATTACK1PIC, 10, NULL, &s_skel_1};
 
-statetype s_skel_pause = {SKELETON_1PIC,40,NULL,&s_skel_2};
+statetype s_skel_die1 = {RAMBONEDEATH1PIC, 40, NULL, &s_skel_die2};
+statetype s_skel_die2 = {RAMBONEDEATH2PIC, 30, NULL, &s_skel_die3};
+statetype s_skel_die3 = {RAMBONEDEATH3PIC, 20, &LargeSound, NULL};
 
-statetype s_skel_1 = {SKELETON_1PIC,10,T_Skeleton,&s_skel_2};
-statetype s_skel_2 = {SKELETON_2PIC,10,T_Skeleton,&s_skel_3};
-statetype s_skel_3 = {SKELETON_3PIC,10,T_Skeleton,&s_skel_4};
-statetype s_skel_4 = {SKELETON_4PIC,10,T_Skeleton,&s_skel_1};
+statetype s_skel_shot1 = {RAMBONESHOT1PIC, 10, &T_ShootPlayer, &s_skel_shot2};
+statetype s_skel_shot2 = {RAMBONESHOT2PIC, 10, &T_ShootPlayer, &s_skel_shot1};
 
-statetype s_skel_attack1 = {SKELETON_ATTACK_1PIC,12,NULL,&s_skel_attack2};
-statetype s_skel_attack2 = {SKELETON_ATTACK_2PIC,12,NULL,&s_skel_attack3};
-statetype s_skel_attack3 = {SKELETON_ATTACK_3PIC,12,T_DoDamage,&s_skel_pause};
+#define shooter_mode		ob->temp1
+#define shooter_delay	ob->temp2
 
-statetype s_skel_ouch = {SKELETON_OUCHPIC,8,NULL,&s_skel_1};
-
-statetype s_skel_die1 = {SKELETON_OUCHPIC,18,NULL,&s_skel_die2};
-statetype s_skel_die2 = {SKELETON_DEATH_1PIC,18,NULL,&s_skel_die3};
-statetype s_skel_die3 = {SKELETON_DEATH_2PIC,18,NULL,&s_skel_die3};
 
 /*
 ===============
@@ -257,88 +138,341 @@ statetype s_skel_die3 = {SKELETON_DEATH_2PIC,18,NULL,&s_skel_die3};
 =
 ===============
 */
-void SpawnSkeleton(int tilex, int tiley)
+void SpawnRamBone(int tilex, int tiley)
 {
-	SpawnNewObj(tilex,tiley,&s_skel_1,PIXRADIUS*35);
-	new->obclass = skeletonobj;
-	new->speed = 2036;
-	new->flags |= of_shootable;
-	new->hitpoints = EasyHitPoints(12);
+	SpawnNewObj(tilex, tiley, &s_skel_1,PIXRADIUS*20);
+	new->obclass	= ramboneobj;
+	new->speed		= 2036;
+	new->flags		|= of_shootable;
+	new->hitpoints	= EasyHitPoints(12);
 }
 
 
 /*
-===============
+=================
 =
-= T_Skeleton
+= T_SkeletonShoot
 =
-===============
+=================
+*/
+void T_SkeletonShoot(objtype *ob)
+{
+	ShootPlayer(ob, rbshotobj, MSHOTSPEED, &s_skel_shot1);
+}
+
+
+
+/*
+=============================================================================
+
+										FUTURE MAGE
+
+=============================================================================
 */
 
-void T_Skeleton(objtype *ob)
+statetype s_fmage1 = {FMAGEWALK1PIC, 20, &T_ShooterObj, &s_fmage2};
+statetype s_fmage2 = {FMAGEWALK2PIC, 20, &T_ShooterObj, &s_fmage3};
+statetype s_fmage3 = {FMAGEWALK3PIC, 20, &T_ShooterObj, &s_fmage1};
+
+statetype s_fmageattack1 = {FMAGEATTACK1PIC, 20, NULL, &s_fmageattack2};
+statetype s_fmageattack2 = {FMAGEATTACK1PIC, -1, &T_FMageShoot, &s_fmageattack3};
+statetype s_fmageattack3 = {FMAGEATTACK2PIC, 30, NULL, &s_fmage1};
+
+statetype s_fmageouch = {FMAGEATTACK1PIC, 10, NULL, &s_fmage1};
+
+statetype s_fmagedie1 = {FMAGEDEATH1PIC, 40, NULL, &s_fmagedie2};
+statetype s_fmagedie2 = {FMAGEDEATH2PIC, 30, &SmallSound, &s_fmagedie3};
+statetype s_fmagedie3 = {FMAGEDEATH3PIC, 0, NULL, &s_fmagedie3};
+
+statetype s_fmshot1 = {FMAGESHOT1PIC, 8, &T_ShootPlayer, &s_fmshot2};
+statetype s_fmshot2 = {FMAGESHOT2PIC, 8, &T_ShootPlayer, &s_fmshot1};
+
+/*
+=================
+=
+= SpawnFutureMage
+=
+=================
+*/
+
+void SpawnFutureMage (int tilex, int tiley)
 {
-	if (Chase (ob,true) || (random(1000)<RANDOM_ATTACK))
+	SpawnNewObj(tilex, tiley, &s_fmage1, PIXRADIUS*15);
+	new->obclass	= fmageobj;
+	new->speed		= 3072;
+	new->flags		|= of_shootable;
+	new->hitpoints	= EasyHitPoints(12);
+}
+
+
+/*
+=================
+=
+= T_FMageShoot
+=
+=================
+*/
+void T_FMageShoot(objtype *ob)
+{
+	ShootPlayer(ob, fmshotobj, MSHOTSPEED, &s_fmshot1);
+}
+
+
+
+/*
+=============================================================================
+
+										ROBO TANK
+
+=============================================================================
+*/
+
+statetype s_robotank_walk1 = {ROBOTANKWALK1PIC, 15, &T_ShooterObj, &s_robotank_walk2};
+statetype s_robotank_walk2 = {ROBOTANKWALK2PIC, 15, &T_ShooterObj, &s_robotank_walk3};
+statetype s_robotank_walk3 = {ROBOTANKWALK3PIC, 15, &T_ShooterObj, &s_robotank_walk4};
+statetype s_robotank_walk4 = {ROBOTANKWALK4PIC, 15, &T_ShooterObj, &s_robotank_walk1};
+
+statetype s_robotank_attack1 = {ROBOTANKWALK1PIC, 15, NULL, &s_robotank_attack2};
+statetype s_robotank_attack2 = {ROBOTANKATTACK1PIC, 15, NULL, &s_robotank_attack3};
+statetype s_robotank_attack3 = {ROBOTANKATTACK1PIC, -1, &T_RoboTankShoot, &s_robotank_attack4};
+statetype s_robotank_attack4 = {ROBOTANKWALK1PIC, 15, NULL, &s_robotank_walk1};
+
+statetype s_robotank_death1 = {ROBOTANKDEATH1PIC, 8, NULL, &s_robotank_death2};
+statetype s_robotank_death2 = {ROBOTANKDEATH2PIC, 8, NULL, &s_robotank_death3};
+statetype s_robotank_death3 = {ROBOTANKDEATH2PIC, -1, &T_AlternateStates, &s_robotank_death1};
+statetype s_robotank_death4 = {ROBOTANKDEATH3PIC, 25, &ExplosionSnd, &s_robotank_death5};
+statetype s_robotank_death5 = {ROBOTANKDEATH4PIC, 20, NULL, &s_robotank_death5};
+
+statetype s_robotank_shot1 = {PSHOT1PIC, 10, &T_ShootPlayer, &s_robotank_shot2};
+statetype s_robotank_shot2 = {PSHOT2PIC, 10, &T_ShootPlayer, &s_robotank_shot1};
+
+
+/*
+=================
+=
+= SpawnRoboTank
+=
+=================
+*/
+void SpawnRoboTank(int tilex, int tiley)
+{
+	SpawnNewObj(tilex, tiley, &s_robotank_walk1, PIXRADIUS*35);
+	new->obclass	= robotankobj;
+	new->speed		= 1700;
+	new->flags		|= of_shootable;
+	new->hitpoints	= EasyHitPoints(25);
+}
+
+
+/*
+=================
+=
+= T_RoboTankShoot
+=
+=================
+*/
+void T_RoboTankShoot(objtype *ob)
+{
+	ShootPlayer(ob, rtshotobj, 7000, &s_robotank_shot1);
+}
+
+
+
+/*
+====================
+=
+= T_AlternateStates
+=
+====================
+*/
+void T_AlternateStates(objtype *ob)
+{
+	if (ob->temp1--)
 	{
-		ob->state = &s_skel_attack1;
-		ob->ticcount = ob->state->tictime;
-		return;
+		ob->state = ob->state->next;
 	}
+	else
+	{
+		if (ob->state == &s_robotank_death3)
+			ob->state = &s_robotank_death4;
+		else
+			ob->state = &s_aqua_die4;
+	}
+	ob->ticcount	= ob->state->tictime;
 }
+
+
+
+
+
 
 /*
 =============================================================================
 
-								EYE
+											STOMPY
 
 =============================================================================
 */
 
-void T_EyeMage (objtype *ob);
-boolean T_EyeShoot (objtype *ob, boolean eyeshot);
-void T_EyeShootPlayer (objtype *ob);
+statetype s_stompy_walk1 = {STOMPYWALK1PIC, 15, &T_ShooterObj, &s_stompy_walk2};
+statetype s_stompy_walk2 = {STOMPYWALK2PIC, 15, &T_ShooterObj, &s_stompy_walk3};
+statetype s_stompy_walk3 = {STOMPYWALK3PIC, 15, &T_ShooterObj, &s_stompy_walk4};
+statetype s_stompy_walk4 = {STOMPYWALK4PIC, 15, &T_ShooterObj, &s_stompy_walk1};
 
-extern statetype s_eye_shootplayer_1;
-extern statetype s_eye_shootplayer_2;
+statetype s_stompy_attack1 = {STOMPYATTACK1PIC, 10, NULL, &s_stompy_attack2};
+statetype s_stompy_attack2 = {STOMPYATTACK2PIC, 15, NULL, &s_stompy_attack3};
+statetype s_stompy_attack3 = {STOMPYATTACK2PIC, -1, T_StompyShoot, &s_stompy_attack4};
+statetype s_stompy_attack4 = {STOMPYATTACK1PIC, 10, NULL, &s_stompy_walk1};
+
+statetype s_stompy_ouch = {STOMPYATTACK1PIC, 10, NULL, &s_stompy_walk2};
+
+statetype s_stompy_death1 = {STOMPYDEATH1PIC, 45, &ExplosionSnd, &s_stompy_death2};
+statetype s_stompy_death2 = {STOMPYDEATH2PIC, 30, NULL, &s_stompy_death3};
+statetype s_stompy_death3 = {STOMPYDEATH3PIC, 25, NULL, &s_stompy_death4};
+statetype s_stompy_death4 = {STOMPYDEATH4PIC, 20, NULL, NULL};
+
+statetype s_stompy_shot1 = {STOMPYSHOT1PIC, 6, &T_ShootPlayer, &s_stompy_shot2};
+statetype s_stompy_shot2 = {STOMPYSHOT2PIC, 6, &T_ShootPlayer, &s_stompy_shot3};
+statetype s_stompy_shot3 = {STOMPYSHOT1PIC, 6, &T_ShootPlayer, &s_stompy_shot4};
+statetype s_stompy_shot4 = {STOMPYSHOT3PIC, 6, &T_ShootPlayer, &s_stompy_shot5};
+statetype s_stompy_shot5 = {STOMPYSHOT4PIC, 6, &T_ShootPlayer, &s_stompy_shot4};
+
+
+/*
+=================
+=
+= SpawnStompy
+=
+=================
+*/
+void SpawnStompy(int tilex, int tiley)
+{
+	SpawnNewObj(tilex, tiley, &s_stompy_walk1, PIXRADIUS*25);
+	new->obclass	= stompyobj;
+	new->speed		= 1800;
+	new->flags		|= of_shootable;
+	new->hitpoints	= EasyHitPoints(20);
+}
+
+
+/*
+=================
+=
+= T_StompyShoot
+=
+=================
+*/
+void T_StompyShoot(objtype *ob)
+{
+	ShootPlayer(ob, syshotobj, 8500, &s_stompy_shot1);
+}
+
+
+
+/*
+=============================================================================
+
+												BUG
+
+=============================================================================
+*/
+
+statetype s_bug_walk1 = {BUG_WALK1PIC, 15, &T_ShooterObj, &s_bug_walk2};
+statetype s_bug_walk2 = {BUG_WALK2PIC, 15, &T_ShooterObj, &s_bug_walk3};
+statetype s_bug_walk3 = {BUG_WALK3PIC, 15, &T_ShooterObj, &s_bug_walk1};
+
+statetype s_bug_attack1 = {BUG_ATTACK1PIC, 20, NULL, &s_bug_attack2};
+statetype s_bug_attack2 = {BUG_ATTACK2PIC, 20, NULL, &s_bug_attack3};
+statetype s_bug_attack3 = {BUG_ATTACK2PIC, -1, &T_BugShoot, &s_bug_attack4};
+statetype s_bug_attack4 = {BUG_ATTACK1PIC, 15, NULL, &s_bug_walk1};
+
+statetype s_bug_ouch = {BUG_WALK1PIC, 10, NULL, &s_bug_walk2};
+
+statetype s_bug_death1 = {BUG_DEATH1PIC, 35, &SmallSound, &s_bug_death2};
+statetype s_bug_death2 = {BUG_DEATH2PIC, 10, NULL, &s_bug_death2};
+
+statetype s_bug_shot1 = {BUG_SHOT1PIC, 10, &T_ShootPlayer, &s_bug_shot2};
+statetype s_bug_shot2 = {BUG_SHOT2PIC, 10, &T_ShootPlayer, &s_bug_shot1};
+
+
+/*
+=================
+=
+= SpawnBug
+=
+=================
+*/
+void SpawnBug(int tilex, int tiley)
+{
+	SpawnNewObj(tilex, tiley, &s_bug_walk1, PIXRADIUS*20);
+	new->obclass	= bugobj;
+	new->speed		= 1500;
+	new->flags		|= of_shootable;
+	new->hitpoints	= EasyHitPoints(10);
+}
+
+
+/*
+=================
+=
+= T_BugShoot
+=
+=================
+*/
+void T_BugShoot(objtype *ob)
+{
+	ShootPlayer(ob, bgshotobj, 8000, &s_bug_shot1);
+}
+
+
+
+
+
+/*
+=============================================================================
+
+									MEC EYE
+
+=============================================================================
+*/
+
+void T_EyeShootPlayer (objtype *ob);
 
 statetype s_eye_pause = {EYE_WALK1PIC,40,NULL,&s_eye_2};
 
-statetype s_eye_1 = {EYE_WALK1PIC,20,T_EyeMage,&s_eye_2};
-statetype s_eye_2 = {EYE_WALK2PIC,20,T_EyeMage,&s_eye_3};
-statetype s_eye_3 = {EYE_WALK3PIC,20,T_EyeMage,&s_eye_4};
-statetype s_eye_4 = {EYE_WALK2PIC,20,T_EyeMage,&s_eye_1};
-statetype s_eye_shootplayer_1 = {EYE_SCOWLPIC,1,T_EyeShootPlayer,&s_eye_shootplayer_2};
-statetype s_eye_shootplayer_2 = {EYE_SCOWLPIC,20,NULL,&s_eye_1};
+statetype s_eye_1 = {EYE_WALK1PIC,20,T_ShooterObj,&s_eye_2};
+statetype s_eye_2 = {EYE_WALK2PIC,20,T_ShooterObj,&s_eye_3};
+statetype s_eye_3 = {EYE_WALK3PIC,20,T_ShooterObj,&s_eye_4};
+statetype s_eye_4 = {EYE_WALK2PIC,20,T_ShooterObj,&s_eye_1};
+statetype s_eye_shootplayer_1 = {EYE_WALK1PIC,1,T_EyeShootPlayer,&s_eye_shootplayer_2};
+statetype s_eye_shootplayer_2 = {EYE_WALK1PIC,20,NULL,&s_eye_1};
 
 statetype s_eye_ouch = {EYE_OUCH1PIC,8,NULL,&s_eye_ouch2};
 statetype s_eye_ouch2 = {EYE_OUCH2PIC,8,NULL,&s_eye_1};
 
 statetype s_eye_die1 = {EYE_DEATH1PIC,22,NULL,&s_eye_die2};
-statetype s_eye_die2 = {EYE_DEATH2PIC,22,NULL,&s_eye_die3};
-statetype s_eye_die3 = {EYE_DEATH2PIC,22,NULL,NULL};
-
-extern statetype s_eshot2;
+statetype s_eye_die2 = {EYE_DEATH2PIC,22,&SmallSound,&s_eye_die3};
+statetype s_eye_die3 = {EYE_DEATH3PIC,22,NULL,&s_eye_die4};
+statetype s_eye_die4 = {EYE_DEATH4PIC,22,NULL,&s_eye_die4};
 
 statetype s_eshot1 = {EYE_SHOT1PIC,8,&T_ShootPlayer,&s_eshot2};
 statetype s_eshot2 = {EYE_SHOT2PIC,8,&T_ShootPlayer,&s_eshot1};
-
-#define eye_mode	ob->temp1
-#define eye_delay	ob->temp2
 
 
 //-------------------------------------------------------------------------
 // SpawnEye()
 //-------------------------------------------------------------------------
-void SpawnEye(int tilex, int tiley)
+void SpawnShooterEye(int tilex, int tiley)
 {
 	objtype *ob;
 
-	SpawnNewObj(tilex,tiley,&s_eye_1,PIXRADIUS*35);
+	SpawnNewObj(tilex,tiley,&s_eye_1,PIXRADIUS*10);
 	ob = new;
 	new->obclass = eyeobj;
-	new->speed = 1200;
+	new->speed = 3000;
 	new->flags |= of_shootable;
 	new->hitpoints = EasyHitPoints(15);
-	eye_mode = em_other1;
+	shooter_mode = sm_other1;
 }
 
 
@@ -347,169 +481,33 @@ void SpawnEye(int tilex, int tiley)
 //---------------------------------------------------------------------------
 void T_EyeShootPlayer (objtype *ob)
 {
-	ShootPlayer(ob,eshotobj,ESHOTSPEED,&s_eshot1);
-}
-
-
-/*
-=============================================================================
-
-					SUCCUBUS
-
-=============================================================================
-*/
-
-void T_Succubus (objtype *ob);
-void T_SuccubusShot (objtype *ob);
-
-extern statetype s_succubus_pause;
-extern statetype s_succubus_walk1;
-extern statetype s_succubus_walk2;
-extern statetype s_succubus_walk3;
-extern statetype s_succubus_walk4;
-extern statetype s_succubus_shot1;
-extern statetype s_succubus_attack1;
-extern statetype s_succubus_attack2;
-extern statetype s_succubus_attack3;
-extern statetype s_succubus_death1;
-extern statetype s_succubus_death2;
-
-statetype s_succubus_pause = {SUCCUBUS_WALK2PIC,10,NULL,&s_succubus_walk3};
-
-statetype s_succubus_walk1 = {SUCCUBUS_WALK1PIC,10,T_EyeMage,&s_succubus_walk2};
-statetype s_succubus_walk2 = {SUCCUBUS_WALK2PIC,10,T_EyeMage,&s_succubus_walk3};
-statetype s_succubus_walk3 = {SUCCUBUS_WALK3PIC,10,T_EyeMage,&s_succubus_walk4};
-statetype s_succubus_walk4 = {SUCCUBUS_WALK4PIC,10,T_EyeMage,&s_succubus_walk1};
-
-statetype s_succubus_attack1 = {SUCCUBUS_ATTACK1PIC,15,NULL,&s_succubus_attack2};
-statetype s_succubus_attack2 = {SUCCUBUS_ATTACK1PIC,-1,T_SuccubusShot,&s_succubus_attack3};
-statetype s_succubus_attack3 = {SUCCUBUS_ATTACK2PIC,15,NULL,&s_succubus_pause};
-
-statetype s_succubus_ouch = {SUCCUBUS_OUCHPIC,15,NULL,&s_succubus_walk1};
-
-statetype s_succubus_death1 = {SUCCUBUS_DEATH1PIC,55,NULL,&s_succubus_death2};
-statetype s_succubus_death2 = {SUCCUBUS_DEATH2PIC,20,NULL,&s_succubus_death2};
-
-statetype s_succubus_shot1 = {SUCCUBUS_SHOT1PIC,12,&T_ShootPlayer,&s_succubus_shot1};
-
-/*
-===============
-=
-= SpawnSuccubus
-=
-===============
-*/
-
-void SpawnSuccubus (int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_succubus_walk1,PIXRADIUS*30);
-	new->obclass = succubusobj;
-	new->speed = 2500;
-	new->flags |= of_shootable;
-	new->hitpoints = EasyHitPoints(12);
-}
-
-/*
-===============
-=
-= T_SuccubusShot
-=
-===============
-*/
-
-void T_SuccubusShot (objtype *ob)
-{
-	ShootPlayer(ob,sshotobj,ob->temp1 ? MSHOTSPEED : SSHOTSPEED,&s_succubus_shot1);
-//	ob->state = &s_succubus_attack3;
-//	ob->ticcount = ob->temp1 ? 7 : ob->state->tictime;
-}
-
-
-/*
-=============================================================================
-
-							MAGE
-
-=============================================================================
-*/
-
-
-void T_MageShoot (objtype *ob);
-
-extern	statetype s_magepause;
-
-extern	statetype s_mage1;
-extern	statetype s_mage2;
-
-extern	statetype s_mageattack1;
-extern	statetype s_mageattack2;
-extern	statetype s_mageattack3;
-
-extern	statetype s_mageouch;
-
-extern	statetype s_magedie1;
-extern	statetype s_magedie2;
-
-
-statetype s_magepause = {MAGE1PIC,10,NULL,&s_mage2};
-
-statetype s_mage1 = {MAGE1PIC,20,T_EyeMage,&s_mage2};
-statetype s_mage2 = {MAGE2PIC,20,T_EyeMage,&s_mage1};
-
-//statetype s_mageattack1 = {MAGEATTACKPIC,20,NULL,&s_mageattack2};
-//statetype s_mageattack2 = {MAGEATTACKPIC,-1,T_MageShoot,&s_mageattack3};
-statetype s_mageattack3 = {MAGEATTACKPIC,30,NULL,&s_magepause};
-
-statetype s_mageouch = {MAGEOUCHPIC,10,NULL,&s_mage1};
-
-statetype s_magedie1 = {MAGEDIE1PIC,20,NULL,&s_magedie2};
-statetype s_magedie2 = {MAGEDIE2PIC,0,NULL,&s_magedie2};
-
-
-statetype s_mshot1 = {PSHOT1PIC,8,&T_ShootPlayer,&s_mshot2};
-statetype s_mshot2 = {PSHOT2PIC,8,&T_ShootPlayer,&s_mshot1};
-
-/*
-===============
-=
-= SpawnMage
-=
-===============
-*/
-
-void SpawnMage (int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_mage1,PIXRADIUS*35);
-	new->obclass = mageobj;
-	new->speed = 3072;
-	new->flags |= of_shootable;
-	new->hitpoints = EasyHitPoints(12);
+	ShootPlayer(ob, eshotobj, ESHOTSPEED, &s_eshot1);
 }
 
 
 /*
 ===============
 =
-= T_EyeMage
+= T_ShooterObj
 =
 = **********
-= ***NOTE*** This routine controls the thinks for the Eye, Mage, and Succubus.
-= **********
+= ***NOTE*** This routine controls the thinks for the RamBone, RoboTank,
+= **********	Stompy, Future Mage, Bug, and Old Mage
 =
 ===============
 */
 
-void T_EyeMage (objtype *ob)
+void T_ShooterObj(objtype *ob)
 {
 	fixed tempx,tempy;
 	unsigned temp_tilex,temp_tiley;
 	int angle;
 
-	eye_delay -= realtics;
-	if (eye_delay < 0)
+	shooter_delay -= realtics;
+	if (shooter_delay < 0)
 	{
-		eye_mode = random(em_dummy);
-		eye_delay = (10*60);
+		shooter_mode = random(sm_dummy);
+		shooter_delay = random(10*60)+random(50);
 	}
 
 	tempx = player->x;
@@ -518,310 +516,376 @@ void T_EyeMage (objtype *ob)
 	temp_tiley = player->tiley;
 
 
-	switch (eye_mode)
+	switch (shooter_mode)
 	{
-		case em_other1:
-		case em_other2:
-		case em_other3:
-		case em_other4:
-			player->x = ((long)other_x[eye_mode]<<TILESHIFT)+TILEGLOBAL/2;
-			player->y = ((long)other_y[eye_mode]<<TILESHIFT)+TILEGLOBAL/2;
-			player->tilex = other_x[eye_mode];
-			player->tiley = other_y[eye_mode];
+		case sm_other1:
+		case sm_other2:
+		case sm_other3:
+		case sm_other4:
+			player->x = ((long)other_x[shooter_mode]<<TILESHIFT)+TILEGLOBAL/2;
+			player->y = ((long)other_y[shooter_mode]<<TILESHIFT)+TILEGLOBAL/2;
+			player->tilex = other_x[shooter_mode];
+			player->tiley = other_y[shooter_mode];
 		break;
 	}
 
 	if (Chase(ob,true))
-		eye_delay = 0;
+		shooter_delay = 0;
 
 	player->x = tempx;
 	player->y = tempy;
 	player->tilex = temp_tilex;
 	player->tiley = temp_tiley;
 
+	angle = AngleNearPlayer(ob);
 
-	if (ob->obclass == mageobj)					// do the mage shot
+
+  // Handle shooting for the different characters controlled by this think.
+	switch (ob->obclass)
 	{
-		if (!random(10))
-			if (ShootPlayer(ob,mshotobj,MSHOTSPEED,&s_mshot1))
+		case ramboneobj:
+			if (!random(2) && (angle != -1))
 			{
-				ob->state = &s_mageattack3;
+				ob->state = &s_skel_attack1;
 				ob->ticcount = ob->state->tictime;
 			}
-	}
-	else
-		if (ob->obclass == succubusobj)				// do the succubus shot
-		{
-			angle = AngleNearPlayer(ob);        // make sure angle is correct
-															//	    - see AngleNearPlayer
-			if (!random(5) && (angle != -1))   // if correct angle and random # attack
+		break;
+
+		case fmageobj:
+			if (!random(8) && (angle != -1))
 			{
-				ob->state = &s_succubus_attack1;    // change state to attack
-				ob->ticcount = ob->state->tictime;	// init ticcount - otherwise
-			}													//  object may get hung in a
-		}														//  endless state
+				ob->state = &s_fmageattack1;
+				ob->ticcount = ob->state->tictime;
+			}
+		break;
 
-		else
-		{
-			angle = AngleNearPlayer(ob);			// do the eye shot
+		case robotankobj:
+			if (!random(15) && (angle != -1))
+			{
+				ob->state = &s_robotank_attack1;
+				ob->ticcount = ob->state->tictime;
+			}
+		break;
 
+		case stompyobj:
+			if (angle != -1)
+			{
+				ob->state = &s_stompy_attack1;
+				ob->ticcount = ob->state->tictime;
+			}
+		break;
+
+		case bugobj:
+			if (!random(5) && (angle != -1))
+			{
+				ob->state = &s_bug_attack1;
+				ob->ticcount = ob->state->tictime;
+			}
+		break;
+
+		case eyeobj:
 			if (!random(2) && (angle != -1))
 			{
 				ob->state = &s_eye_shootplayer_1;
 				ob->ticcount = ob->state->tictime;
 			}
-		}
+		break;
+	}
+}
 
+
+
+
+
+
+/*
+=============================================================================
+
+										RUNNING EYE
+
+=============================================================================
+*/
+
+statetype s_reye_1 = {EYE_WALK1PIC, 20, &T_RunningEye, &s_reye_2};
+statetype s_reye_2 = {EYE_WALK2PIC, 20, &T_RunningEye, &s_reye_3};
+statetype s_reye_3 = {EYE_WALK3PIC, 20, &T_RunningEye, &s_reye_4};
+statetype s_reye_4 = {EYE_WALK2PIC, 20, &T_RunningEye, &s_reye_1};
+
+statetype s_reye_ouch = {EYE_OUCH1PIC, 8, NULL, &s_reye_ouch2};
+statetype s_reye_ouch2 = {EYE_OUCH2PIC, 8, NULL, &s_reye_1};
+
+statetype s_reye_die1 = {EYE_DEATH1PIC, 22, NULL, &s_reye_die2};
+statetype s_reye_die2 = {EYE_DEATH2PIC, 22, &SmallSound, &s_reye_die3};
+statetype s_reye_die3 = {EYE_DEATH3PIC, 22, NULL, &s_reye_die4};
+statetype s_reye_die4 = {EYE_DEATH4PIC, 22, NULL, &s_reye_die4};
+
+/*
+====================
+=
+= SpawnRunningEye()
+=
+====================
+*/
+void SpawnRunningEye(int tilex, int tiley)
+{
+	SpawnNewObj(tilex,tiley,&s_reye_1,PIXRADIUS*25);
+	new->obclass = reyeobj;
+	new->speed = 3500;
+	new->flags |= of_shootable;
+	new->hitpoints = EasyHitPoints(15);
+	new->temp2 = (*(mapsegs[2]+farmapylookup[tiley+1]+tilex))>>8;
+	*(mapsegs[2]+farmapylookup[tiley+1]+tilex) = 0;
+
+	new->temp1 = 2;
+
+	if (!new->temp2)
+		Quit("Initialize the running eye!\n");
+}
+
+
+/*
+====================
+=
+= T_RunningEye
+=
+====================
+*/
+void T_RunningEye(objtype *ob)
+{
+	int x, y, dir_num, switch_num;
+	fixed tempx,tempy;
+	unsigned temp_tilex,temp_tiley;
+
+	dir_num = *(mapsegs[2]+farmapylookup[ob->tiley]+ob->tilex);
+	dir_num = dir_num>>8;
+
+	if (!dir_num)
+		dir_num = ob->temp2;
+
+	if (dir_num == 5)
+	{
+		if (ob->temp1)
+		{
+			ob->temp1--;
+		}
+		else
+		{
+			ob->temp1 = 2;
+			actorat[ob->tilex][ob->tiley] = 0;
+			switch (ob->temp2)
+			{
+				case 1:
+					ob->tiley = ob->tiley-1;
+					ob->y = ((long)(ob->tiley)<<TILESHIFT)+TILEGLOBAL/2;
+				break;
+
+				case 2:
+					ob->tilex = ob->tilex+1;
+					ob->x = ((long)(ob->tilex)<<TILESHIFT)+TILEGLOBAL/2;
+				break;
+
+				case 3:
+					ob->tiley = ob->tiley+1;
+					ob->y = ((long)(ob->tiley)<<TILESHIFT)+TILEGLOBAL/2;
+				break;
+
+				case 0:
+				case 4:
+					ob->tilex = ob->tilex-1;
+					ob->x = ((long)(ob->tilex)<<TILESHIFT)+TILEGLOBAL/2;
+				break;
+			}
+			CalcBounds (ob);
+			ChaseThink(ob,false);
+			actorat[ob->tilex][ob->tiley] = ob;
+			return;
+		}
+	}
+
+	tempx = player->x;
+	tempy = player->y;
+	temp_tilex = player->tilex;
+	temp_tiley = player->tiley;
+
+	if (dir_num == 5)
+		switch_num = ob->temp2;
+	else
+		switch_num = dir_num;
+
+	switch (switch_num)
+	{
+		case 1:
+			player->x = ((long)ob->tilex<<TILESHIFT)+TILEGLOBAL/2;
+			player->y = ((long)(ob->tiley-2)<<TILESHIFT)+TILEGLOBAL/2;
+			player->tilex = ob->tilex;
+			player->tiley = ob->tiley-2;
+		break;
+
+		case 2:
+			player->x = ((long)(ob->tilex+2)<<TILESHIFT)+TILEGLOBAL/2;
+			player->y = ((long)ob->tiley<<TILESHIFT)+TILEGLOBAL/2;
+			player->tilex = ob->tilex+2;
+			player->tiley = ob->tiley;
+		break;
+
+		case 3:
+			player->x = ((long)ob->tilex<<TILESHIFT)+TILEGLOBAL/2;
+			player->y = ((long)(ob->tiley+2)<<TILESHIFT)+TILEGLOBAL/2;
+			player->tilex = ob->tilex;
+			player->tiley = ob->tiley+2;
+		break;
+
+		case 0:
+		case 4:
+			player->x = ((long)(ob->tilex-2)<<TILESHIFT)+TILEGLOBAL/2;
+			player->y = ((long)ob->tiley<<TILESHIFT)+TILEGLOBAL/2;
+			player->tilex = ob->tilex-2;
+			player->tiley = ob->tiley;
+		break;
+	}
+
+	Chase(ob, false);
+
+	player->x = tempx;
+	player->y = tempy;
+	player->tilex = temp_tilex;
+	player->tiley = temp_tiley;
+
+	if (dir_num != 5)
+		ob->temp2 = dir_num;
 }
 
 
 /*
 =============================================================================
 
-					BUNNY
+										EGYPTIAN HEAD
 
 =============================================================================
 */
 
-void T_HarmlessBunnyWalk(objtype *ob);
-void T_Bunny(objtype *ob);
+void T_Head(objtype *ob);
 
-extern statetype s_bunny_left1;
-extern statetype s_bunny_left2;
-extern statetype s_bunny_left3;
-extern statetype s_bunny_right1;
-extern statetype s_bunny_right2;
-extern statetype s_bunny_right3;
-extern statetype s_bunny_meta1;
-extern statetype s_bunny_meta2;
-extern statetype s_bunny_walk1;
-extern statetype s_bunny_walk2;
-extern statetype s_bunny_attack1;
-extern statetype s_bunny_attack2;
-extern statetype s_bunny_pause;
-extern statetype s_bunny_death1;
-extern statetype s_bunny_death2;
-extern statetype s_bunny_death3;
+statetype s_head = {HEADPIC, 20, &T_Head, &s_head};
 
-statetype s_bunny_left1 = {BUNNY_LEFT1PIC, 55, NULL, &s_bunny_left2};
-statetype s_bunny_left2 = {BUNNY_LEFT1PIC, 10, T_HarmlessBunnyWalk, &s_bunny_left1};
-statetype s_bunny_left3 = {BUNNY_LEFT2PIC, 30, NULL, &s_bunny_left1};
+statetype s_head_shot1 = {PSHOT1PIC, 10, &T_ShootPlayer, &s_head_shot2};
+statetype s_head_shot2 = {PSHOT2PIC, 10, &T_ShootPlayer, &s_head_shot1};
 
-statetype s_bunny_right1 = {BUNNY_RIGHT1PIC, 55, NULL, &s_bunny_right2};
-statetype s_bunny_right2 = {BUNNY_RIGHT1PIC, 10, T_HarmlessBunnyWalk, &s_bunny_right1};
-statetype s_bunny_right3 = {BUNNY_RIGHT2PIC, 30, NULL, &s_bunny_right1};
-
-statetype s_bunny_meta1 = {BUNNY_META1PIC, 30, NULL, &s_bunny_meta2};
-statetype s_bunny_meta2 = {BUNNY_META2PIC, 30, NULL, &s_bunny_walk1};
-
-statetype s_bunny_walk1 = {BUNNY_WALK1PIC, 25, T_Bunny, &s_bunny_walk2};
-statetype s_bunny_walk2 = {BUNNY_WALK2PIC, 25, T_Bunny, &s_bunny_walk1};
-
-statetype s_bunny_attack1 = {BUNNY_WALK1PIC, 25, NULL, &s_bunny_attack2};
-statetype s_bunny_attack2 = {BUNNY_WALK2PIC, 25, T_DoDamage, &s_bunny_walk1};
-
-statetype s_bunny_ouch = {BUNNY_OUCHPIC, 30, NULL, &s_bunny_pause};
-statetype s_bunny_pause = {BUNNY_WALK1PIC, 50, T_Bunny, &s_bunny_walk2};
-
-statetype s_bunny_death1 = {BUNNY_OUCHPIC, 40, NULL, &s_bunny_death2};
-statetype s_bunny_death2 = {BUNNY_DEATH1PIC, 50, NULL, &s_bunny_death3};
-statetype s_bunny_death3 = {BUNNY_DEATH2PIC, 20, NULL, &s_bunny_death3};
-
-
-#define bunny_dir_hop	ob->temp1
-#define bunny_delay	ob->temp2
-#define LEFTSIDE	0x8             // 1=left 0=right --side showing
 
 /*
-===============
+===================
 =
-= SpawnBunny
+= SpawnEgyptianHead
 =
-===============
+===================
 */
 
-void SpawnBunny (int tilex, int tiley)
+void SpawnEgyptianHead (int tilex, int tiley)
 {
-	SpawnNewObj(tilex,tiley,&s_bunny_left1,PIXRADIUS*35);
-	new->obclass =	hbunnyobj;
-	new->speed = 1947;
-	new->temp1 = (random(3))+2;
-	new->temp2 = random(30);
-	new->flags &= ~of_shootable;
-	new->flags |= LEFTSIDE;				//left side showing}
+	objtype *ob;
+	short current_head_delay;
+	unsigned tile;
+
+	SpawnNewObj(tilex, tiley, &s_head, PIXRADIUS*35);
+	ob = new;
+	head_mode = h_wait_to_rise;
+
+	tile = *(mapsegs[2]+farmapylookup[tiley+1]+tilex);
+	if (tile)
+		head_delay = (tile>>8)*30;
+	else
+	{
+		current_head_delay = (3*60)+random(3*60);
+		head_delay = head_base_delay+current_head_delay;
+		head_base_delay += current_head_delay;
+		if (head_base_delay > 8*60)
+			head_base_delay = 0;
+	}
+
+	new->obclass	= realsolidobj;
+	new->speed		= 3000;
+	new->flags	  |= of_shootable;
 }
 
-/*
-===============
-=
-= T_HarmlessBunnyWalk
-=
-===============
-*/
 
 
-void T_HarmlessBunnyWalk(objtype *ob)
+//--------------------------------------------------------------------------
+// T_Head()
+//--------------------------------------------------------------------------
+void T_Head(objtype *ob)
 {
-	int valid_dir[8][2] = {{6,5}, {7,6}, {4,7}, {5,4}, {3,2}, {0,3}, {1,0}, {2,1}};
-	long move;
-	dirtype player_dir;
-	fixed old_x, old_y;
-	unsigned old_tilex, old_tiley;
-	long old_distance;
+	fixed tempx,tempy;
+	unsigned temp_tilex,temp_tiley;
+	int angle;
 
-
-	ob->temp2 -= realtics;
-	if (ob->temp2 <= 0)
+	switch (head_mode)
 	{
-		if (CheckHandAttack(ob))
-		{
-			ob->temp2 = -1;
-			return;
-		}
-
-		actorat[ob->tilex][ob->tiley] = 0;
-		ob->x = ((long)ob->tilex<<TILESHIFT)+TILEGLOBAL/2;
-		ob->y = ((long)ob->tiley<<TILESHIFT)+TILEGLOBAL/2;
-		ob->distance = TILEGLOBAL;
-		ob->state = &s_bunny_meta1;
-		ob->ticcount = ob->state->tictime;
-		ob->obclass = bunnyobj;
-		ob->flags |= of_shootable;
-		ob->hitpoints = EasyHitPoints(10);
-		ob->dir = nodir;
-		ChaseThink(ob,true);					// JTR - testing..
-		return;
-	}
-
-	// The direction of the player isn't updated so it must be
-	// calculated.  This is done so the correct side (left/right)
-	// of the bunny will be showed.
-
-	if ((player->angle > 337) || (player->angle <= 22))
-		player_dir = east;
-	else
-		if (player->angle <= 67)
-			player_dir = northeast;
-		else
-			if (player->angle <= 112)
-		 player_dir = north;
-			else
-		 if (player->angle <= 157)
-			 player_dir = northwest;
-		 else
-			 if (player->angle <= 202)
-				 player_dir = west;
-			 else
-				 if (player->angle <= 247)
-			  player_dir = southwest;
-				 else
-			 if (player->angle <= 292)
-				 player_dir = south;
-			 else
-				 if (player->angle <= 337)
-					 player_dir = southeast;
-	if (ob->temp1)
-		ob->temp1--;
-	else
-		ob->temp1 = (random(3))+2;
-	if (ob->flags & LEFTSIDE)
-	{
-		if (ob->temp1)
-		{
-			if (valid_dir[player_dir][0] != ob->dir)
+		case h_wait_to_rise:
+			if (head_delay < 0)
 			{
-				ob->dir = valid_dir[player_dir][0];
-			}
-		}
-		else
-		{
-			ob->state = &s_bunny_right1;
-			ob->ticcount = ob->state->tictime;
-			ob->flags &= ~LEFTSIDE;
-			ob->dir = valid_dir[player_dir][1];
-			return;
-		}
-	}
-	else
-	{
-		if (ob->temp1)
-		{
-			if (valid_dir[player_dir][1] != ob->dir)
-			{
-				ob->dir = valid_dir[player_dir][1];
-			}
-		}
-		else
-		{
-			ob->state = &s_bunny_left1;
-			ob->ticcount = ob->state->tictime;
-			ob->flags |= LEFTSIDE;
-			ob->dir = valid_dir[player_dir][2];
-			return;
-		}
-	}
+				if ((ob->tilex == player->tilex) && (ob->tiley == player->tiley))
+					break;
+				if (CheckHandAttack(ob))
+					break;
 
-	move = ob->speed*tics;
-
-	do
-	{
-		old_distance	= ob->distance;
-		old_x		= ob->x;
-		old_y		= ob->y;
-		old_tilex	= ob->tilex;
-		old_tiley	= ob->tiley;
-
-		MoveObj (ob, move);
-
-		ob->tilex = ob->x >> TILESHIFT;
-		ob->tiley = ob->y >> TILESHIFT;
-
-		if (ob->tilex == old_tilex && ob->tiley == old_tiley)
-		{
-			break;
-		}
-		else
-			if (actorat[ob->tilex][ob->tiley] == 0)
-			{
-				actorat[old_tilex][old_tiley] = 0;
-				actorat[ob->tilex][ob->tiley] = ob;
-				ob->distance = TILEGLOBAL;
+				ob->obclass	= headobj;
+				ob->active	= always;
+				head_mode	= h_active;
+				head_delay 	= random(100)+random(60);
+				ob->hitpoints = EasyHitPoints(16);
 			}
 			else
+				head_delay -= tics;
+
+		break;
+
+		case h_player1:
+		case h_player2:
+		case h_player3:
+		case h_player4:
+		case h_active:
+			Chase (ob,true);
+
+			if (!random(2) && (angle != -1))
+				ShootPlayer(ob, hshotobj, 10000, &s_head_shot1);
+
+			head_delay -= tics;
+			if (head_delay < 0)
 			{
-				ob->distance	= old_distance;
-				ob->x		= old_x;
-				ob->y		= old_y;
-				ob->tilex	= old_tilex;
-				ob->tiley	= old_tiley;
-				return;
+				head_mode = random(h_other4)+1;
+				head_delay = random(10*60)+random(50);
 			}
+		break;
 
-	 } while (0);
+		case h_other1:
+		case h_other2:
+		case h_other3:
+		case h_other4:
 
-	CalcBounds (ob);
+			tempx = player->x;
+			tempy = player->y;
+			temp_tilex = player->tilex;
+			temp_tiley = player->tiley;
 
-	if (ob->flags & LEFTSIDE)
-		ob->state = &s_bunny_left3;
-	else
-		ob->state = &s_bunny_right3;
-	ob->ticcount = ob->state->tictime;
-}
+			player->x = ((long)other_x[head_mode]<<TILESHIFT)+TILEGLOBAL/2;
+			player->y = ((long)other_y[head_mode]<<TILESHIFT)+TILEGLOBAL/2;
+			player->tilex = other_x[head_mode];
+			player->tiley = other_y[head_mode];
 
-/*
-===============
-=
-= T_Bunny
-=
-===============
-*/
+			if (Chase(ob,true))
+				head_delay = 0;
 
-void T_Bunny(objtype *ob)
-{
-	if (Chase (ob, true) || (random(1000)<RANDOM_ATTACK))
-	{
-		ob->state = &s_bunny_attack1;
-		ob->ticcount = ob->state->tictime;
-		return;
+			player->x = tempx;
+			player->y = tempy;
+			player->tilex = temp_tilex;
+			player->tiley = temp_tiley;
+
+			head_delay -= tics;
+			if (head_delay <= 0)
+			{
+				head_mode = h_active;
+				head_delay = random(10*60)+random(50);
+			}
+		break;
 	}
 }

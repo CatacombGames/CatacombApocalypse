@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -29,19 +29,6 @@
 =============================================================================
 */
 
-#if 0
-#define MSHOTDAMAGE	2
-#define MSHOTSPEED	10000
-
-#define ESHOTDAMAGE	1
-#define ESHOTSPEED	5000
-
-#define SSHOTDAMAGE	3
-#define SSHOTSPEED	6500
-
-#define RANDOM_ATTACK 20
-#endif
-
 /*
 =============================================================================
 
@@ -61,107 +48,377 @@ void T_ShootPlayer(objtype *ob);
 =============================================================================
 */
 
+
+
+
+
 /*
 =============================================================================
 
-						RED DEMON
+							DEMON
 
 =============================================================================
 */
 
-void T_RedDemon (objtype *ob);
-void T_RedDemonCheckCnt (objtype *ob);
+void T_TrollDemon (objtype *ob);
 
-extern	statetype s_red_demonpause;
+statetype s_demonpause = {DEMON1PIC,40,NULL,&s_demon2};
 
-extern	statetype s_red_demon1;
-extern	statetype s_red_demon2;
-extern	statetype s_red_demon3;
-extern	statetype s_red_demon4;
+statetype s_demon1 = {DEMON1PIC,20,&T_TrollDemon,&s_demon2};
+statetype s_demon2 = {DEMON2PIC,20,&T_TrollDemon,&s_demon3};
+statetype s_demon3 = {DEMON3PIC,20,&T_TrollDemon,&s_demon4};
+statetype s_demon4 = {DEMON4PIC,20,&T_TrollDemon,&s_demon1};
 
-extern	statetype s_red_demonattack1;
-extern	statetype s_red_demonattack2;
-extern	statetype s_red_demonattack3;
+statetype s_demonattack1 = {DEMONATTACK1PIC,20,NULL,&s_demonattack2};
+statetype s_demonattack2 = {DEMONATTACK2PIC,20,NULL,&s_demonattack3};
+statetype s_demonattack3 = {DEMONATTACK3PIC,30,&T_DoDamage,&s_demonpause};
 
-extern	statetype s_red_demonouch;
+statetype s_demonouch = {DEMONOUCHPIC,15,&T_TrollDemon,&s_demon1};
 
-extern	statetype s_red_demondie1;
-extern	statetype s_red_demondie2;
-extern	statetype s_red_demondie3;
-extern	statetype s_red_demondie4;
+statetype s_demondie1 = {DEMONDIE1PIC,40,NULL,&s_demondie2};
+statetype s_demondie2 = {DEMONDIE2PIC,30,&LargeSound,&s_demondie3};
+statetype s_demondie3 = {DEMONDIE3PIC,0,NULL,&s_demondie3};
 
-statetype s_red_demonpause = {RED_DEMON1PIC,30,NULL,&s_red_demon2};
-
-statetype s_red_demon1 = {RED_DEMON1PIC,20,T_RedDemon,&s_red_demon2};
-statetype s_red_demon2 = {RED_DEMON2PIC,20,T_RedDemon,&s_red_demon3};
-statetype s_red_demon3 = {RED_DEMON3PIC,20,T_RedDemon,&s_red_demon4};
-statetype s_red_demon4 = {RED_DEMON4PIC,20,T_RedDemon,&s_red_demon1};
-
-statetype s_red_demonattack1 = {RED_DEMONATTACK1PIC,20,NULL,&s_red_demonattack2};
-statetype s_red_demonattack2 = {RED_DEMONATTACK2PIC,20,NULL,&s_red_demonattack3};
-statetype s_red_demonattack3 = {RED_DEMONATTACK3PIC,30,T_DoDamage,&s_red_demon2};
-
-statetype s_red_demonouch = {RED_DEMONOUCHPIC,30,NULL,&s_red_demon1};
-
-statetype s_red_demondie1 = {RED_DEMONOUCHPIC,9,NULL,&s_red_demondie2};
-statetype s_red_demondie2 = {RED_DEMONDIE1PIC,9,T_RedDemonCheckCnt,&s_red_demondie1};
-statetype s_red_demondie3 = {RED_DEMONDIE2PIC,20,NULL,&s_red_demondie4};
-statetype s_red_demondie4 = {RED_DEMONDIE3PIC,10,NULL,&s_red_demondie4};
 
 
 /*
 ===============
 =
-= SpawnRedDemon
+= SpawnDemon
 =
 ===============
 */
 
-void SpawnRedDemon (int tilex, int tiley)
+void SpawnDemon (int tilex, int tiley)
 {
-	SpawnNewObj(tilex,tiley,&s_red_demon1,PIXRADIUS*35);
-	new->obclass = reddemonobj;
+	SpawnNewObj(tilex,tiley,&s_demon1,PIXRADIUS*35);
+	new->obclass = demonobj;
 	new->speed = 2048;
 	new->flags |= of_shootable;
-	new->hitpoints = EasyHitPoints(50);
-	new->temp1 = 25;
+	new->hitpoints = EasyHitPoints(30);
+}
+
+
+/*
+=============================================================================
+
+										TROLL
+
+=============================================================================
+*/
+
+statetype s_trollpause = {TROLL1PIC, 30, &T_DoDamage, &s_troll2};
+
+statetype s_troll1 = {TROLL1PIC, 13, &T_TrollDemon, &s_troll2};
+statetype s_troll2 = {TROLL2PIC, 13, &T_TrollDemon, &s_troll3};
+statetype s_troll3 = {TROLL3PIC, 13, &T_TrollDemon, &s_troll4};
+statetype s_troll4 = {TROLL4PIC, 13, &T_TrollDemon, &s_troll1};
+
+statetype s_trollattack1 = {TROLLATTACK1PIC, 15, NULL, &s_trollattack2};
+statetype s_trollattack2 = {TROLLATTACK2PIC, 20, NULL, &s_trollpause};
+
+statetype s_trollouch = {TROLLOUCHPIC, 14, &T_TrollDemon, &s_troll1};
+
+statetype s_trolldie1 = {TROLLDIE1PIC, 18, NULL, &s_trolldie2};
+statetype s_trolldie2 = {TROLLDIE2PIC, 15, &LargeSound, &s_trolldie3};
+statetype s_trolldie3 = {TROLLDIE3PIC, 0, NULL, &s_trolldie3};
+
+
+/*
+===============
+=
+= SpawnTroll
+=
+===============
+*/
+
+void SpawnTroll (int tilex, int tiley)
+{
+	SpawnNewObj(tilex,tiley,&s_troll1,35*PIXRADIUS);
+	new->speed = 2500;
+	new->obclass = trollobj;
+	new->flags |= of_shootable;
+	new->hitpoints = EasyHitPoints(15);
+}
+
+
+/*
+=============================================================================
+
+										CYBORG DEMON
+
+=============================================================================
+*/
+
+void T_Demon (objtype *ob);
+
+statetype s_cyborg_demon1 = {CYBORG1PIC, 20, T_TrollDemon, &s_cyborg_demon2};
+statetype s_cyborg_demon2 = {CYBORG2PIC, 20, T_TrollDemon, &s_cyborg_demon3};
+statetype s_cyborg_demon3 = {CYBORG3PIC, 20, T_TrollDemon, &s_cyborg_demon4};
+statetype s_cyborg_demon4 = {CYBORG4PIC, 20, T_TrollDemon, &s_cyborg_demon1};
+
+statetype s_cyborg_demonattack1 = {CYBORGATTACK1PIC, 20, NULL, &s_cyborg_demonattack2};
+statetype s_cyborg_demonattack2 = {CYBORGATTACK2PIC, 20, NULL, &s_cyborg_demonattack3};
+statetype s_cyborg_demonattack3 = {CYBORGATTACK3PIC, 30, T_DoDamage, &s_cyborg_demon2};
+
+statetype s_cyborg_demonouch = {CYBORGOUCHPIC, 30, NULL, &s_cyborg_demon1};
+
+statetype s_cyborg_demondie1 = {CYBORGOUCHPIC, 40, NULL, &s_cyborg_demondie2};
+statetype s_cyborg_demondie2 = {CYBORGDIE1PIC, 30, &LargeSound, &s_cyborg_demondie3};
+statetype s_cyborg_demondie3 = {CYBORGDIE2PIC, 20, NULL, &s_cyborg_demondie3};
+
+/*
+===============
+=
+= SpawnCyborgDemon
+=
+===============
+*/
+
+void SpawnCyborgDemon (int tilex, int tiley)
+{
+	SpawnNewObj(tilex, tiley, &s_cyborg_demon1, PIXRADIUS*35);
+	new->obclass	= cyborgdemonobj;
+	new->speed = 2048;
+	new->flags |= of_shootable;
+	new->hitpoints = EasyHitPoints(30);
 }
 
 
 /*
 ===============
 =
-= T_RedDemon
+= T_TrollDemon
 =
 ===============
 */
 
-void T_RedDemon (objtype *ob)
+void T_TrollDemon (objtype *ob)
 {
 	if (Chase (ob,true) || (random(1000)<RANDOM_ATTACK))
 	{
-		ob->state = &s_red_demonattack1;
+		if (ob->obclass == cyborgdemonobj)
+			ob->state = &s_cyborg_demonattack1;
+		else
+			if (ob->obclass == trollobj)
+				ob->state = &s_trollattack1;
+			else
+				ob->state = &s_demonattack1;
 		ob->ticcount = ob->state->tictime;
-		return;
 	}
 }
+
+
+
+
+
+/*
+=============================================================================
+
+										INVISIBLE DUDE!
+
+=============================================================================
+*/
+
+void T_InvisibleDude (objtype *ob);
+
+statetype s_invis_fizz1 = {INVIS_FIZZ1PIC, 8, &T_InvisibleDude, &s_invis_fizz2};
+statetype s_invis_fizz2 = {INVIS_FIZZ2PIC, 8, &T_InvisibleDude, &s_invis_fizz3};
+statetype s_invis_fizz3 = {INVIS_FIZZ3PIC, 8, &T_InvisibleDude, &s_invis_walk};
+
+statetype s_invis_walk = {0, 25, &T_InvisibleDude, &s_invis_walk};
+statetype s_invis_attack = {0, -1, &T_DoDamage, &s_invis_pause};
+statetype s_invis_pause = {0, 40, NULL, &s_invis_walk};
+
+statetype s_invis_flash1 = {INVIS_FIZZ1PIC, 8, &T_InvisibleDude, &s_invis_walk};
+statetype s_invis_flash2 = {INVIS_FIZZ2PIC, 8, &T_InvisibleDude, &s_invis_walk};
+statetype s_invis_flash3 = {INVIS_FIZZ3PIC, 8, &T_InvisibleDude, &s_invis_walk};
+
+statetype s_invis_death1 = {INVIS_DEATH1PIC, 40, NULL, &s_invis_death2};
+statetype s_invis_death2 = {INVIS_DEATH2PIC, 30, &LargeSound, &s_invis_death3};
+statetype s_invis_death3 = {INVIS_DEATH3PIC, 20, NULL, &s_invis_death3};
 
 /*
 ===============
 =
-= T_RedDemonCheckCnt
+= SpawnInvisDude
+=
+===============
+*/
+void SpawnInvisDude(int tilex, int tiley)
+{
+	SpawnNewObj(tilex, tiley, &s_invis_walk, PIXRADIUS*20);
+	new->obclass	= invisdudeobj;
+	new->speed		= 2048;
+	new->flags		|= of_shootable;
+	new->hitpoints	= EasyHitPoints(20);
+	new->temp1		= 0;		// for random flashing of pictures
+}
+
+
+/*
+===============
+=
+= T_InvisibleDude
+=
+===============
+*/
+void T_InvisibleDude (objtype *ob)
+{
+	if (!random(100))
+	{
+		switch (ob->temp1++)
+		{
+			case 0:
+				ob->state = &s_invis_flash1;
+			break;
+
+			case 1:
+				ob->state = &s_invis_flash2;
+			break;
+
+			case 2:
+				ob->state = &s_invis_flash3;
+				ob->temp1 = 0;
+			break;
+		}
+		ob->ticcount = ob->state->tictime;
+	}
+
+
+	if (Chase (ob,true))
+	{
+		ob->state = &s_invis_attack;
+		ob->ticcount = ob->state->tictime;
+	}
+
+}
+
+
+
+/*
+=============================================================================
+
+											BOUNCE
+
+temp2 = set when hit player, reset when hit wall
+
+=============================================================================
+*/
+
+#define SPDBOUNCE	4096
+#define DMGBOUNCE	10
+
+void T_Bounce (objtype *ob);
+void T_Bounce_Death (objtype *ob);
+
+statetype s_bounce1 = {PSHOT1PIC, 8, &T_Bounce, &s_bounce2};
+statetype s_bounce2 = {PSHOT2PIC, 8, &T_Bounce, &s_bounce1};
+
+/*
+===============
+=
+= SpawnBounce
 =
 ===============
 */
 
-void T_RedDemonCheckCnt (objtype *ob)
+void SpawnBounce (int tilex, int tiley, boolean towest)
 {
-	ob->temp1--;
-	if (!ob->temp1)
+	SpawnNewObj(tilex, tiley, &s_bounce1, 24*PIXRADIUS);
+	new->obclass = bounceobj;
+	new->hitpoints = EasyHitPoints(10);
+	new->flags |= of_shootable;
+	if (towest)
+		new->dir = west;
+	else
+		new->dir = north;
+}
+
+
+/*
+===============
+=
+= T_Bounce
+=
+===============
+*/
+
+void T_Bounce (objtype *ob)
+{
+	long move;
+	long deltax,deltay,size;
+
+	move = SPDBOUNCE*tics;
+	size = (long)ob->size + player->size + move;
+
+	while (move)
 	{
-		ob->state = &s_red_demondie3;
-		ob->ticcount = ob->state->tictime;
+		deltax = ob->x - player->x;
+		deltay = ob->y - player->y;
+
+		if (deltax <= size && deltax >= -size
+		&& deltay <= size && deltay >= -size && !ob->temp2)
+		{
+			ob->temp2 = 1;
+			TakeDamage (DMGBOUNCE);
+		}
+
+		if (move < ob->distance)
+		{
+			MoveObj (ob,move);
+			break;
+		}
+		actorat[ob->tilex][ob->tiley] = 0;	// pick up marker from goal
+
+		ob->x = ((long)ob->tilex<<TILESHIFT)+TILEGLOBAL/2;
+		ob->y = ((long)ob->tiley<<TILESHIFT)+TILEGLOBAL/2;
+		move -= ob->distance;
+
+		//
+		// bounce if hit wall
+		//
+		switch (ob->dir)
+		{
+		case north:
+			if (tilemap[ob->tilex][--ob->tiley])
+			{
+				ob->dir = south;
+				ob->tiley+=2;
+				ob->temp2 = 0;
+			}
+			break;
+		case east:
+			if (tilemap[++ob->tilex][ob->tiley])
+			{
+				ob->dir = west;
+				ob->tilex-=2;
+				ob->temp2 = 0;
+			}
+			break;
+		case south:
+			if (tilemap[ob->tilex][++ob->tiley])
+			{
+				ob->dir = north;
+				ob->tiley-=2;
+				ob->temp2 = 0;
+			}
+			break;
+		case west:
+			if (tilemap[--ob->tilex][ob->tiley])
+			{
+				ob->dir = east;
+				ob->tilex+=2;
+				ob->temp2 = 0;
+			}
+			break;
+		}
+
+		ob->distance = TILEGLOBAL;
+
+		actorat[ob->tilex][ob->tiley] = ob;	// set down a new goal marker
 	}
+	CalcBounds (ob);
 }
 
 
@@ -178,33 +435,11 @@ void T_Grelminar (objtype *ob);
 void T_GrelminarShoot (objtype *ob);
 void T_Grelm_DropKey(objtype *ob);
 
-extern	statetype s_grelpause;
-
-extern	statetype s_grel1;
-extern	statetype s_grel2;
-
-extern	statetype s_grelattack1;
-extern	statetype s_grelattack2;
-extern	statetype s_grelattack3;
-
-extern	statetype s_grelouch;
-
-extern	statetype s_greldie1;
-extern	statetype s_greldie2;
-extern	statetype s_greldie3;
-extern	statetype s_greldie4;
-extern	statetype s_greldie5;
-extern 	statetype s_greldie5a;
-extern	statetype s_greldie6;
-
-
 statetype s_grelpause = {GREL1PIC,50,NULL,&s_grel2};
 
 statetype s_grel1 = {GREL1PIC,20,T_Grelminar,&s_grel2};
 statetype s_grel2 = {GREL2PIC,20,T_Grelminar,&s_grel1};
 
-//statetype s_grelattack1 = {GRELATTACKPIC,20,NULL,&s_grelattack2};
-//statetype s_grelattack2 = {GRELATTACKPIC,-1,T_GrelminarShoot,&s_grelattack3};
 statetype s_grelattack3 = {GRELATTACKPIC,30,NULL,&s_grelpause};
 
 statetype s_grelouch = {GRELHITPIC,6,NULL,&s_grel1};
@@ -214,11 +449,8 @@ statetype s_greldie2 = {GRELDIE2PIC,22,NULL,&s_greldie3};
 statetype s_greldie3 = {GRELDIE3PIC,22,NULL,&s_greldie4};
 statetype s_greldie4 = {GRELDIE4PIC,22,NULL,&s_greldie5};
 statetype s_greldie5 = {GRELDIE5PIC,22,NULL,&s_greldie5a};
-statetype s_greldie5a = {GRELDIE5PIC,1,T_Grelm_DropKey,&s_greldie6};
+statetype s_greldie5a = {GRELDIE5PIC,-1,T_Grelm_DropKey,&s_greldie6};
 statetype s_greldie6 = {GRELDIE6PIC,0,NULL,&s_greldie6};
-
-
-extern statetype s_gshot1;
 
 statetype s_gshot1 = {SKULL_SHOTPIC,8,T_ShootPlayer,&s_gshot1};
 
@@ -235,7 +467,7 @@ void SpawnGrelminar (int tilex, int tiley)
 	unsigned Grel_Hard;
 	unsigned DropKey;
 
-	SpawnNewObj(tilex,tiley,&s_grel1,PIXRADIUS*35);
+	SpawnNewObj(tilex,tiley,&s_grel1,PIXRADIUS*25);
 	new->obclass = grelmobj;
 	new->speed = 2048;
 	new->flags |= of_shootable;
@@ -264,7 +496,10 @@ void SpawnGrelminar (int tilex, int tiley)
 		new->hitpoints = EasyHitPoints((new->temp2 * 10));
 	}
 	else
+	{
 		new->hitpoints = EasyHitPoints(100);
+		new->temp2 = 10;
+	}
 }
 
 
@@ -310,710 +545,6 @@ void T_Grelm_DropKey(objtype *ob)
 	ob->temp1 = false;
 }
 
-/*
-=============================================================================
-
-							BAT
-
-=============================================================================
-*/
-
-void T_Bat (objtype *ob);
-void T_BatPast (objtype *ob);
-
-extern	statetype s_bat1;
-extern	statetype s_bat2;
-extern	statetype s_bat3;
-extern	statetype s_bat4;
-
-extern	statetype s_batdie1;
-extern	statetype s_batdie2;
-
-
-statetype s_bat1 = {BAT1PIC,6,T_Bat,&s_bat2};
-statetype s_bat2 = {BAT2PIC,6,T_Bat,&s_bat3};
-statetype s_bat3 = {BAT3PIC,6,T_Bat,&s_bat4};
-statetype s_bat4 = {BAT4PIC,6,T_Bat,&s_bat1};
-
-statetype s_batpast = {BAT4PIC,80,T_BatPast,&s_bat1};
-
-statetype s_batdie1 = {BATDIE1PIC,18,NULL,&s_batdie2};
-statetype s_batdie2 = {BATDIE2PIC,18,NULL,NULL};
-
-
-/*
-===============
-=
-= SpawnBat
-=
-===============
-*/
-
-void SpawnBat (int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_bat1,PIXRADIUS*35);
-	new->obclass = batobj;
-	new->flags |= of_shootable;
-
-	new->hitpoints = 1;
-	new->speed = 2000;
-}
-
-
-/*
-==================================
-=
-= BatChaseThink
-=
-==================================
-*/
-
-void BatChaseThink (objtype *obj)
-{
-	int deltax,deltay;
-
-	deltax=player->tilex - obj->tilex;
-	deltay=player->tiley - obj->tiley;
-
-	if (deltax>0)
-		deltax = 2;
-	else if (deltax<0)
-		deltax = 0;
-	else deltax = 1;
-
-	if (deltay>0)
-		deltay = 2;
-	else if (deltay<0)
-		deltay = 0;
-	else deltay = 1;
-
-	obj->dir = dirtable[deltay*3+deltax];
-	if (Walk(obj))
-		return;
-
-	obj->dir = dirtable[3+deltax];
-	if (Walk(obj))
-		return;
-
-	obj->dir = dirtable[deltay*3+1];
-	if (Walk(obj))
-		return;
-
-	obj->dir = nodir;
-}
-
-
-void BatRunThink (objtype *obj)
-{
-	int deltax,deltay;
-
-	deltax=player->tilex - obj->tilex;
-	deltay=player->tiley - obj->tiley;
-
-	if (deltax>=0)
-		deltax = 0;
-	else
-		deltax = 2;
-
-	if (deltay>=0)
-		deltay = 0;
-	else
-		deltay = 2;
-
-	obj->dir = dirtable[deltay*3+deltax];
-	if (Walk(obj))
-		return;
-
-	obj->dir = dirtable[3+deltax];
-	if (Walk(obj))
-		return;
-
-	obj->dir = dirtable[deltay*3+1];
-	Walk(obj);
-}
-
-
-
-/*
-===============
-=
-= T_Bat
-=
-===============
-*/
-
-void T_Bat (objtype *ob)
-{
-	long move;
-	long deltax,deltay,size;
-
-	move = ob->speed*tics;
-	size = (long)ob->size + player->size + move;
-
-
-	do
-	{
-		deltax = ob->x - player->x;
-		deltay = ob->y - player->y;
-
-		if (deltax <= size && deltax >= -size
-		&& deltay <= size && deltay >= -size && !ob->temp1)
-		{
-			TakeDamage (4);
-			ob->temp1 = 2;
-		}
-
-		if (move < ob->distance)
-		{
-			MoveObj (ob,move);
-			break;
-		}
-
-		actorat[ob->tilex][ob->tiley] = 0;	// pick up marker from goal
-		if (ob->dir == nodir)
-			ob->dir = north;
-
-		ob->x = ((long)ob->tilex<<TILESHIFT)+TILEGLOBAL/2;
-		ob->y = ((long)ob->tiley<<TILESHIFT)+TILEGLOBAL/2;
-		move -= ob->distance;
-
-		if (ob->temp1)
-		{
-			Walk (ob);				// go straight
-			if (!--ob->temp1)
-			{
-				ob->state = &s_batpast;
-				ob->ticcount = ob->state->tictime;
-			}
-		}
-		else
-			BatChaseThink (ob);		// head towards player
-
-		actorat[ob->tilex][ob->tiley] = ob;	// set down a new goal marker
-	} while (0);	// just once
-	CalcBounds (ob);
-}
-
-
-/*
-===============
-=
-= T_BatPast
-=
-===============
-*/
-
-void T_BatPast (objtype *ob)
-{
-	long move;
-	long deltax,deltay,size;
-
-	move = ob->speed*tics;
-
-	do
-	{
-		if (move < ob->distance)
-		{
-			MoveObj (ob,move);
-			break;
-		}
-		actorat[ob->tilex][ob->tiley] = 0;	// pick up marker from goal
-
-		ob->x = ((long)ob->tilex<<TILESHIFT)+TILEGLOBAL/2;
-		ob->y = ((long)ob->tiley<<TILESHIFT)+TILEGLOBAL/2;
-		move -= ob->distance;
-
-		BatRunThink (ob);
-
-		actorat[ob->tilex][ob->tiley] = ob;	// set down a new goal marker
-	} while (0);	//(move)
-	CalcBounds (ob);
-}
-
-
-void T_ChaseThink(objtype *obj);
-void T_AwakeThink(objtype *obj);
-
-
-
-/*
-=============================================================================
-
-							GODESS
-
-=============================================================================
-*/
-
-void T_Godess (objtype *ob);
-
-
-extern	statetype s_godesspause;
-
-extern	statetype s_godess_statue1;
-extern	statetype s_godess_statue2;
-
-extern	statetype s_godess1;
-extern	statetype s_godess2;
-extern	statetype s_godess3;
-
-extern	statetype s_godessattack1;
-extern	statetype s_godessattack2;
-extern	statetype s_godessattack3;
-
-extern	statetype s_godessouch;
-
-extern	statetype s_godessdie1;
-extern	statetype s_godessdie2;
-extern	statetype s_godessdie3;
-
-
-statetype s_godesspause = {GODESS_WALK1PIC,25,NULL,&s_godess2};
-
-statetype s_godess_statue1 = {GODESS_STATUEPIC,20,T_ChaseThink,&s_godess_statue1};
-statetype s_godess_statue2 = {GODESS_STATUEPIC,1,T_AwakeThink,&s_godess1};
-
-statetype s_godess1 = {GODESS_WALK1PIC,20,T_ChaseThink,&s_godess2};
-statetype s_godess2 = {GODESS_WALK2PIC,20,T_ChaseThink,&s_godess3};
-statetype s_godess3 = {GODESS_WALK3PIC,20,T_ChaseThink,&s_godess1};
-
-statetype s_godessattack1 = {GODESS_ATTACK1PIC,10,NULL,&s_godessattack2};//20
-statetype s_godessattack2 = {GODESS_ATTACK2PIC,8,NULL,&s_godessattack3};//20
-statetype s_godessattack3 = {GODESS_ATTACK3PIC,10,T_DoDamage,&s_godesspause};//30
-
-statetype s_godessouch = {GODESS_OUCHPIC,10,NULL,&s_godess1};
-
-statetype s_godessdie1 = {GODESS_DEATH1PIC,65,NULL,&s_godessdie2};
-statetype s_godessdie2 = {GODESS_DEATH2PIC,30,NULL,&s_godessdie2};
-
-
-
-/*
-===============
-=
-= SpawnGodess
-=
-===============
-*/
-
-void SpawnGodess (int tilex, int tiley)
-{
-	objtype *ob;
-	short current_zombie_delay;
-	unsigned tile;
-
-	SpawnNewObj(tilex,tiley,&s_godess_statue1,PIXRADIUS*35);
-	ob = new;
-	zombie_mode = zm_wait_for_dark;
-
-	tile = *(mapsegs[2]+farmapylookup[tiley+1]+tilex);
-	if (tile)
-		zombie_delay = (tile>>8)*30;
-	else
-	{
-		current_zombie_delay = (2*60)+random(4*60);
-		zombie_delay = zombie_base_delay+current_zombie_delay;
-		zombie_base_delay += current_zombie_delay;
-		if (zombie_base_delay > 8*60)
-			zombie_base_delay = 0;
-	}
-
-	new->obclass = realsolidobj;//godessobj;
-	new->speed = 3000;
-	new->flags |= of_shootable;
-	new->flags &= ~of_tree;
-//	new->hitpoints = EasyHitPoints(10);
-}
-
-
-
-
-/*
-=============================================================================
-
-					ANT
-
-=============================================================================
-*/
-
-void T_Ant(objtype *ob);
-
-statetype s_ant_wait = {ANT_EGG1PIC,10,T_ChaseThink,&s_ant_wait};
-
-statetype s_ant_egg = {ANT_EGG2PIC,45,T_AwakeThink,&s_ant_walk1};
-
-statetype s_ant_walk1 = {ANT_WALK1PIC,20,T_ChaseThink,&s_ant_walk2};
-statetype s_ant_walk2 = {ANT_WALK2PIC,20,T_ChaseThink,&s_ant_walk3};
-statetype s_ant_walk3 = {ANT_WALK3PIC,20,T_ChaseThink,&s_ant_walk1};
-
-statetype s_ant_attack1 = {ANT_ATTACKPIC,20,NULL,&s_ant_pause};
-
-statetype s_ant_pause  = {ANT_WALK2PIC,15,T_DoDamage,&s_ant_walk1};
-
-statetype s_ant_ouch = {ANT_WALK1PIC,15,NULL,&s_ant_walk1};
-
-statetype s_ant_die1 = {ANT_DEATH1PIC,40,NULL,&s_ant_die2};
-statetype s_ant_die2 = {ANT_DEATH2PIC,10,NULL,&s_ant_die3};
-statetype s_ant_die3 = {ANT_DEATH3PIC,10,NULL,&s_ant_die2};
-
-#define ant_mode	ob->temp1
-#define ant_delay	ob->temp2
-
-/*
-===============
-=
-= SpawnAnt
-=
-===============
-*/
-void SpawnAnt(int tilex, int tiley)
-{
-	objtype *ob;
-	unsigned tile;
-	SpawnNewObj(tilex,tiley,&s_ant_wait,PIXRADIUS*35);
-	ob = new;
-
-	tile = *(mapsegs[2]+farmapylookup[tiley+1]+tilex);
-	if (tile)
-		ant_delay = (tile>>8)*30;
-	else
-		ant_delay = 2*60+random(5*60);
-
-	ant_mode = zm_wait_for_dark;
-
-	new->obclass = antobj;
-	new->speed = 1900;
-	new->flags &= ~of_shootable;
-	new->hitpoints = EasyHitPoints(15);
-}
-
-
-
-/*
-=============================================================================
-
-							ZOMBIE
-
-=============================================================================
-*/
-
-extern statetype s_zombie_rise1;
-extern statetype s_zombie_rise2;
-extern statetype s_zombie_rise3;
-extern statetype s_zombie_rise4;
-
-extern statetype s_zombie_alive1;
-extern statetype s_zombie_alive2;
-extern statetype s_zombie_alive3;
-
-//extern statetype s_zombie_attack1;
-
-extern statetype s_zombie_death1;
-extern statetype s_zombie_death2;
-extern statetype s_zombie_death3;
-
-void T_Zombie (objtype *ob);
-void T_ZombieRisen(objtype *obj);
-
-statetype s_zombie_risen = {ZOMB_WALK3PIC,1,T_AwakeThink,&s_zombie_alive1};
-
-statetype s_zombie_pause = {ZOMB_WALK1PIC,20,NULL,&s_zombie_alive1};
-
-statetype s_zombie_inground = {0,13,T_ChaseThink,&s_zombie_inground};
-
-statetype s_zombie_rise1 = {ZOMB_APPEAR1PIC,24,NULL,&s_zombie_rise2};
-statetype s_zombie_rise2 = {ZOMB_APPEAR2PIC,24,NULL,&s_zombie_rise3};
-statetype s_zombie_rise3 = {ZOMB_APPEAR3PIC,24,NULL,&s_zombie_rise4};
-statetype s_zombie_rise4 = {ZOMB_APPEAR4PIC,24,NULL,&s_zombie_risen};
-
-statetype s_zombie_alive1 = {ZOMB_WALK1PIC,13,T_ChaseThink,&s_zombie_alive2};
-statetype s_zombie_alive2 = {ZOMB_WALK2PIC,13,T_ChaseThink,&s_zombie_alive3};
-statetype s_zombie_alive3 = {ZOMB_WALK3PIC,13,T_ChaseThink,&s_zombie_alive1};
-
-statetype s_zombie_death1 = {ZOMB_DIE1PIC,16,NULL,&s_zombie_death2};
-statetype s_zombie_death2 = {ZOMB_DIE2PIC,16,NULL,&s_zombie_death3};
-statetype s_zombie_death3 = {ZOMB_DIE3PIC,16,NULL,&s_zombie_death3};
-
-statetype s_zombie_attack  = {ZOMB_ATTACKPIC,15,T_DoDamage,&s_zombie_pause};
-//statetype s_zombie_attack1 = {ZOMB_ATTACKPIC,15,NULL,&s_zombie_pause};
-
-statetype s_zombie_ouch = {ZOMB_OUCHPIC,15,NULL,&s_zombie_alive1};
-
-
-//--------------------------------------------------------------------------
-// SpawnZombie()
-//--------------------------------------------------------------------------
-void SpawnZombie (int tilex, int tiley)
-{
-	objtype *ob;
-	short current_zombie_delay;
-	unsigned tile;
-
-	SpawnNewObj(tilex,tiley,&s_zombie_inground,35*PIXRADIUS);
-	ob = new;
-	zombie_mode = zm_wait_for_dark;
-
-	tile = *(mapsegs[2]+farmapylookup[tiley+1]+tilex);
-	if (tile)
-		zombie_delay = (tile>>8)*30;
-	else
-	{
-		current_zombie_delay = (2*60)+random(4*60);
-		zombie_delay = zombie_base_delay+current_zombie_delay;
-		zombie_base_delay += current_zombie_delay;
-		if (zombie_base_delay > 8*60)
-			zombie_base_delay = 0;
-	}
-
-	new->speed = 2500;
-	new->obclass = zombieobj;
-	new->hitpoints = EasyHitPoints(8);
-	new->active = yes;
-	new->flags &= ~of_shootable;
-}
-
-
-/*
-=============================================================================
-
-					TREE
-
-=============================================================================
-*/
-
-extern statetype s_tree_pause;
-extern statetype s_tree_idle;
-extern statetype s_tree_awakening1;
-extern statetype s_tree_awakening2;
-extern statetype s_tree_walk1;
-extern statetype s_tree_walk2;
-extern statetype s_tree_walk3;
-extern statetype s_tree_death1;
-extern statetype s_tree_death2;
-extern statetype s_tree_death3;
-extern statetype s_tree_death4;
-extern statetype s_tree_death5;
-extern statetype s_tree_attack1;
-extern statetype s_tree_attack2;
-extern statetype s_tree_attack3;
-extern statetype s_tree_ouch;
-
-void T_Tree (objtype *ob);
-void T_DeathThink(objtype *ob);
-
-statetype s_tree_pause = {TREE_WALK1PIC,25,NULL,&s_tree_walk2};
-
-statetype s_tree_idle = {TREE_IDLEPIC,13,T_ChaseThink,&s_tree_idle};
-
-statetype s_tree_awakening1 = {TREE_AWAKENINGPIC,1,T_AwakeThink,&s_tree_awakening2};
-statetype s_tree_awakening2 = {TREE_AWAKENINGPIC,50,NULL,&s_tree_walk1};
-
-statetype s_tree_walk1 = {TREE_WALK1PIC,13,T_ChaseThink,&s_tree_walk2};
-statetype s_tree_walk2 = {TREE_WALK2PIC,13,T_ChaseThink,&s_tree_walk1};
-
-statetype s_tree_death1 = {TREE_DEATH1PIC,45,NULL,&s_tree_death2};
-statetype s_tree_death2 = {TREE_DEATH2PIC,25,NULL,&s_tree_death3};
-statetype s_tree_death3 = {TREE_DEATH1PIC,15,T_DeathThink,&s_tree_death4};
-statetype s_tree_death4 = {TREE_DEATH2PIC,15,T_DeathThink,&s_tree_death5};
-statetype s_tree_death5 = {TREE_DEATH3PIC,15,T_DeathThink,&s_tree_death3};
-
-statetype s_tree_attack1  = {TREE_ATTACK1PIC,15,T_DoDamage,&s_tree_attack2};
-statetype s_tree_attack2  = {TREE_ATTACK2PIC,15,T_DoDamage,&s_tree_attack3};
-statetype s_tree_attack3  = {TREE_ATTACK3PIC,15,T_DoDamage,&s_tree_pause};
-
-statetype s_tree_ouch = {TREE_AWAKENINGPIC,15,NULL,&s_tree_walk1};
-
-
-#define zombie_mode	ob->temp1
-#define zombie_delay	ob->temp2
-
-
-//--------------------------------------------------------------------------
-// SpawnTree()
-//--------------------------------------------------------------------------
-void SpawnTree(int tilex, int tiley)
-{
-	objtype *ob;
-	short current_zombie_delay;
-	unsigned tile;
-
-	SpawnNewObj(tilex,tiley,&s_tree_idle,35*PIXRADIUS);
-	ob = new;
-	zombie_mode = zm_wait_for_dark;
-
-	tile = *(mapsegs[2]+farmapylookup[tiley+1]+tilex);
-	if (tile)
-		zombie_delay = (tile>>8)*30;
-	else
-	{
-		current_zombie_delay = (2*60)+random(4*60);
-		zombie_delay = zombie_base_delay+current_zombie_delay;
-		zombie_base_delay += current_zombie_delay;
-		if (zombie_base_delay > 8*60)
-			zombie_base_delay = 0;
-	}
-
-	new->speed = 2500;
-	new->obclass = realsolidobj;
-//	new->hitpoints = EasyHitPoints(12);
-	new->active = yes;
-	new->flags |= of_shootable;
-	new->flags |= of_tree;
-}
-
-//--------------------------------------------------------------------------
-// T_DeathThink()
-//--------------------------------------------------------------------------
-void T_DeathThink(objtype *ob)
-{
-	char num;
-
-	if ((ob->ticcount - realtics) <= 0)
-	{
-		num = random(2);
-		switch (ob->temp1)
-		{
-			case 3:
-				if (num)
-					ob->state = &s_tree_death4;
-				else
-					ob->state = &s_tree_death5;
-				ob->temp1++;
-			break;
-
-			case 4:
-				if (num)
-					ob->state = &s_tree_death3;
-				else
-					ob->state = &s_tree_death5;
-				ob->temp1++;
-			break;
-
-			case 5:
-				if (num)
-					ob->state = &s_tree_death3;
-				else
-					ob->state = &s_tree_death4;
-				ob->temp1 = 3;
-			break;
-		}
-		ob->ticcount = ob->state->tictime;
-	}
-
-
-
-	if (CheckHandAttack(ob))
-		TakeDamage (1);
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-//
-//     GENERAL THINK ROUTINES USED BY THE ZOMBIE, TREE, ANT, AND GODESS
-//             ----trying to cut down on the code size----
-//
-//////////////////////////////////////////////////////////////////////////
-
-
-//--------------------------------------------------------------------------
-// T_ChaseThink()
-//--------------------------------------------------------------------------
-void T_ChaseThink(objtype *ob)
-{
-	switch (zombie_mode)
-	{
-		case zm_wait_for_dark:
-#if 0
-			if (gamestate.mapon == 0)
-			{
-				if (BGFLAGS & BGF_NIGHT)
-					zombie_mode = zm_wait_to_rise;
-			}
-			else
-#endif
-				zombie_mode = zm_wait_to_rise;
-		break;
-
-		case zm_wait_to_rise:
-			if (zombie_delay < 0)
-			{
-				if ((ob->tilex == player->tilex) && (ob->tiley == player->tiley))
-					break;
-				if (CheckHandAttack(ob))
-					break;
-
-				ob->active = always;
-				switch (ob->obclass)
-				{
-					case zombieobj:
-						ob->state = &s_zombie_rise1;
-					break;
-
-					case antobj:
-						ob->state = &s_ant_egg;
-					break;
-
-					case realsolidobj:	//tree and godess
-						if (ob->flags & of_tree)
-							ob->state = &s_tree_awakening1;
-						else
-							ob->state = &s_godess_statue2;
-					break;
-				}
-				ob->ticcount = ob->state->tictime;
-				zombie_mode = zm_active;
-			}
-			else
-				zombie_delay -= tics;
-
-		break;
-
-		case zm_active:
-			if (Chase (ob,true) || (random(1000)<RANDOM_ATTACK))
-			{
-				switch (ob->obclass)
-				{
-					case zombieobj:
-						ob->state = &s_zombie_attack;
-					break;
-
-					case antobj:
-						ob->state = &s_ant_attack1;
-					break;
-
-					case treeobj:
-						ob->state = &s_tree_attack1;
-					break;
-
-					case godessobj:
-						ob->state = &s_godessattack1;
-					break;
-				}
-				ob->ticcount = ob->state->tictime;
-				return;
-			}
-		break;
-	}
-}
-
-//--------------------------------------------------------------------------
-// T_AwakeThink()
-//--------------------------------------------------------------------------
-void T_AwakeThink(objtype *obj)
-{
-	if (obj->obclass == realsolidobj)
-	{
-		if (obj->flags & of_tree)
-			obj->obclass = treeobj;
-		else
-			obj->obclass = godessobj;
-		obj->hitpoints = EasyHitPoints(12);
-	}
-	else
-		obj->flags |= of_shootable;
-}
-
-
-
 
 
 //--------------------------------------------------------------------------
@@ -1026,7 +557,7 @@ boolean ShootPlayer(objtype *ob, short obclass, short speed, statetype *state)
 	if (angle == -1)
 		return(false);
 
-	DSpawnNewObjFrac (ob->x,ob->y,state,PIXRADIUS*35);
+	DSpawnNewObjFrac (ob->x,ob->y,state,PIXRADIUS*14);
 	new->obclass = obclass;
 	new->active = always;
 	new->angle = angle;
@@ -1077,7 +608,7 @@ void T_ShootPlayer(objtype *ob)
 //
 	if (tilemap[ob->tilex][ob->tiley])
 	{
-		SD_PlaySound (SHOOTWALLSND);
+//		SD_PlaySound (SHOOTWALLSND);
 		ob->state = &s_pshot_exp1;
 		ob->ticcount = s_pshot_exp1.tictime;
 		return;
@@ -1094,25 +625,50 @@ void T_ShootPlayer(objtype *ob)
 	{
 		switch (ob->obclass)
 		{
-			case eshotobj:
-				TakeDamage (ESHOTDAMAGE);
+			case wshotobj:						// Wizard's shot
+				TakeDamage (7);
 			break;
 
-			case mshotobj:
-				TakeDamage (MSHOTDAMAGE);
+			case hshotobj:						// Egyptian Head's shot
+				TakeDamage (5);
+			break;
+
+			case bshotobj:						// Blob's shot
+				TakeDamage (5);
+			break;
+
+			case rshotobj:						// Ray's shot
+				TakeDamage (5);
+			break;
+
+			case rbshotobj:					// RamBone's shot
+				TakeDamage(7);
+			break;
+
+			case fmshotobj:					// Future Mage's shot
+				TakeDamage(7);
+			break;
+
+			case rtshotobj:					// RoboTank's shot
+				TakeDamage(15);
+			break;
+
+			case syshotobj:					// Stompy's shot
+				TakeDamage(7);
+			break;
+
+			case bgshotobj:					// Bug's shot
+				TakeDamage(7);
+			break;
+
+			case eshotobj:						// Eye's shot
+				TakeDamage(5);
 			break;
 
 			case gshotobj:
 				TakeDamage (ob->temp1);		// the damage of Grelminar's shot -
 			break;								//   see Grelminar's spawning
 
-			case sshotobj:
-				TakeDamage(SSHOTDAMAGE);
-			break;
-
-			case dshotobj:
-				TakeDamage(7);
-			break;
 		}
 		ob->state = NULL;
 		return;
@@ -1135,7 +691,7 @@ void T_ShootPlayer(objtype *ob)
 // check for collision with player
 //
 	for (check = player->next; check; check=check->next)
-		if ((ob->flags & of_shootable) && ob->obclass != mageobj
+		if ((ob->flags & of_shootable)
 		&& ob->xl <= check->xh
 		&& ob->xh >= check->xl
 		&& ob->yl <= check->yh
@@ -1143,12 +699,45 @@ void T_ShootPlayer(objtype *ob)
 		{
 			switch (ob->obclass)
 			{
-				case eshotobj:
-					ShootActor (check,ESHOTDAMAGE);
+// APOCALYPSE
+				case wshotobj:						// Wizard's shot
+					ShootActor (check, 3);
 				break;
 
-				case mshotobj:
-					ShootActor (check,MSHOTDAMAGE);
+				case hshotobj:						// Egyptian Head's shot
+					ShootActor (check, 5);
+				break;
+
+				case bshotobj:						// Blob's shot
+					ShootActor (check, 2);
+				break;
+
+				case rshotobj:						// Ray's shot
+					ShootActor (check, 5);
+				break;
+
+				case rbshotobj:					// RamBone's shot
+					ShootActor (check, 5);
+				break;
+
+				case fmshotobj:					// Future Mage's shot
+					ShootActor (check, 5);
+				break;
+
+				case rtshotobj:					// RoboTank's shot
+					ShootActor (check, 15);
+				break;
+
+				case syshotobj:					// Stompy's shot
+					ShootActor (check, 5);
+				break;
+
+				case bgshotobj:					// Bug's shot
+					ShootActor (check, 3);
+				break;
+
+				case eshotobj:						// Eye's shot
+					ShootActor (check, 2);
 				break;
 
 				case gshotobj:
@@ -1159,13 +748,6 @@ void T_ShootPlayer(objtype *ob)
 					ShootActor (check,25);
 				break;
 
-				case sshotobj:
-					ShootActor(check, SSHOTDAMAGE);
-				break;
-
-				case dshotobj:
-					ShootActor(check, 7);
-				break;
 			}
 			ob->state = &s_pshot_exp1;
 			ob->ticcount = s_pshot_exp1.tictime;
@@ -1216,3 +798,5 @@ int AngleNearPlayer(objtype *ob)
 
 	return(angle);
 }
+
+

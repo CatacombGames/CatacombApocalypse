@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,19 +32,19 @@
 
 ////////#define NUMSCROLLS	8
 
-#define	SHOWITEMS	9
+#define	SHOWITEMS		9
 
-#define	NUKETIME	40
-#define NUMBOLTS	10
-#define BOLTTICS	6
+#define NUKETIME			40
+#define NUMBOLTS			10
+#define BOLTTICS			6
 
-#define STATUSCOLOR	8
-#define TEXTCOLOR	14
+#define STATUSCOLOR		1
+#define TEXTCOLOR			14
 
-#define SIDEBARWIDTH	5
+#define SIDEBARWIDTH		5
 
-#define BODYLINE    8
-#define POWERLINE	80
+#define BODYLINE			8
+#define POWERLINE			80
 
 #define SPECTILESTART	0			// 18
 
@@ -53,24 +53,24 @@
 #define BIGSHOTDAMAGE	3
 
 
-#define PLAYERSPEED	5120
-#define RUNSPEED	(8192<<1)
+#define PLAYERSPEED		5120
+#define RUNSPEED			(8192<<1)
 
-#define SHOTSPEED	10000
+#define SHOTSPEED			10000
 
-//#define LASTWALLTILE	47
+//#define LASTWALLTILE		47
 //#define LASTSPECIALTILE	37
 
-#define LASTTILE  (LASTWALLPIC-FIRSTWALLPIC)							// 47
+#define LASTTILE		(LASTWALLPIC-FIRSTWALLPIC)							// 47
 
-#define FIRETIME	2
+#define FIRETIME		2
 
-#define HANDPAUSE	60
+#define HANDPAUSE		30
 
 #define	RIGHTEDGE 	205;
 #define	LEFTEDGE  	95;
-#define	PRNY    	32;
-#define	WINX		10;
+#define	PRNY			32;
+#define	WINX			10;
 #define	WINY   		32;
 
 /*
@@ -602,9 +602,12 @@ void DrawHealth()
 */
 void DrawFreezeTime()
 {
+	short temp =  fontcolor;
 	long percentage;
 	percentage = PERCENTAGE(100,MAXFREEZETIME,(long)FreezeTime,7);
+	fontcolor = 1 ^ 14;
 	DrawNum(23,70,percentage,3);
+	fontcolor = temp;
 }
 
 //===========================================================================
@@ -744,6 +747,14 @@ void DrawText (boolean draw_text_whether_it_needs_it_or_not)
 	lasttext = number;
 
 	text = (char _seg *)grsegs[LEVEL1TEXT+mapon]+textstarts[number];
+
+	if (text[0] == '@')
+	{
+		bordertime = 20;//FLASHTICS;
+		bcolor = 15;
+		VW_ColorBorder (15 | 56);
+		text++;
+	}
 
 	_fmemcpy (str,text,80);
 	DisplayMsg(str,NULL);
@@ -1091,7 +1102,7 @@ statetype s_pshot_exp3 = {PSHOT_EXP3PIC,7,NULL,NULL};
 
 void SpawnPShot (void)
 {
-	DSpawnNewObjFrac (player->x,player->y,&s_pshot1,PIXRADIUS*7);
+	DSpawnNewObjFrac (player->x,player->y,&s_pshot1,PIXRADIUS*2);
 	new->obclass = pshotobj;
 	new->speed = SHOTSPEED;
 	new->angle = player->angle;
@@ -1154,7 +1165,7 @@ boolean JimsShotClipMove (objtype *ob, long xmove, long ymove)
 			ob->x -= xmove;
 			ob->y -= ymove;
 
-			if (check->obclass != solidobj && check->obclass != hbunnyobj)
+			if (check->obclass != solidobj)
 			{
 				if (PlayMonsterSound(check->obclass))
 					SD_PlaySound (SHOOTMONSTERSND);
@@ -1281,7 +1292,7 @@ void T_Pshot (objtype *ob)
 		&& ob->yh >= check->yl)
 		{
 
-			if (check->obclass != solidobj && check->obclass != hbunnyobj)
+			if (check->obclass != solidobj)
 			{
 				if (PlayMonsterSound(check->obclass))
 					SD_PlaySound (SHOOTMONSTERSND);
@@ -1521,7 +1532,7 @@ void ContinueBolt (void)
 
 void CastNuke (void)
 {
-	extern boolean autofire;
+//	extern boolean autofire;
 
 	int	angle;
 
@@ -1531,7 +1542,7 @@ void CastNuke (void)
 		return;
 	}
 
-	if (!autofire)
+//	if (!autofire)
 		TakeNuke ();
 	lastnuke = TimeCount;
 
@@ -1778,8 +1789,7 @@ void TakeDamage (int points)
 	if (!gamestate.body || (bordertime && bcolor==FLASHCOLOR) || godmode)
 		return;
 
-	if (points != 1)
-		points = EasyDoDamage(points);
+	points = EasyDoDamage(points);
 
 	if (points >= gamestate.body)
 	{
@@ -1937,29 +1947,29 @@ boolean HitSpecialTile (unsigned x, unsigned y, unsigned tile)
 	short keyspot;
 	unsigned	temp,spot,curmap=gamestate.mapon,newlevel;
 	char *key_colors[] = {"a RED key",
-			      "a YELLOW key",
-			      "a GREEN key",
-			      "a BLUE key"};
+					"a YELLOW key",
+					"a GREEN key",
+					"a BLUE key"};
 
 	switch (tile)
 	{
-		case 65:
+		case 44:
 			playstate = ex_victorious;
 		break;
 
-		case 9:
-		case 15:
-		case 27:
+		case 17:
 		case 30:
-		case 40:
-		case 42:
-		case 43:
-		case 45:
+		case 31:
+		case 35:
 		case 46:
 		case 47:
+		case 48:
 		case 49:
-		case 76:
-		case 77:
+		case 57:
+		case 58:
+		case 71:
+		case 85:
+		case 94:
 
 			if (!playstate && !FreezeTime)
 			{
@@ -2117,6 +2127,7 @@ boolean TouchActor (objtype *ob, objtype *check)
 				case B_SCROLL8:	GiveScroll (check->temp1-B_SCROLL1,true);	break;
 #endif
 
+				case B_OLDCHEST:
 				case B_CHEST:		GiveChest (); 		break;
 
 				case B_RGEM:
@@ -2144,10 +2155,6 @@ boolean TouchActor (objtype *ob, objtype *check)
 			(unsigned)actorat[check->tilex][check->tiley] = 0;
 			RemoveObj(check);
 			return(false);
-
-		case cloudobj:
-			TakeDamage(2);
-			return false;
 	}
 
 	return	true;
@@ -2528,7 +2535,7 @@ boolean ShotClipMove (objtype *ob, long xmove, long ymove)
 					case bigpshotobj:
 						ExplodeWall (x,y);
 						goto blockmove;
-					break;
+//					break;
 				}
 
 			tile = *(mapsegs[0]+farmapylookup[y]+x);
@@ -2540,7 +2547,8 @@ boolean ShotClipMove (objtype *ob, long xmove, long ymove)
 
 blockmove:
 
-	SD_PlaySound (SHOOTWALLSND);
+	if (ob->obclass == pshotobj)
+		SD_PlaySound (SHOOTWALLSND);
 
 	moveok = false;
 
@@ -2806,7 +2814,7 @@ void ControlMovement (objtype *ob)
 
 void	T_Player (objtype *ob)
 {
-	extern boolean autofire;
+//	extern boolean autofire;
 
 	int	angle,speed,scroll,loop;
 	unsigned	text,tilex,tiley;
@@ -2842,7 +2850,7 @@ void	T_Player (objtype *ob)
 			if (!button0down)
 				Shoot();
 
-			if (!autofire)
+//			if (!autofire)
 				button0down=true;
 		}
 		else
@@ -2897,7 +2905,7 @@ void	T_Player (objtype *ob)
 	if (Keyboard[sc_Z] && !boltsleft)
 		CastBolt ();
 
-	if ( (Keyboard[sc_Enter] || Keyboard[sc_X]) && ((TimeCount-lastnuke > NUKETIME) || (autofire)))
+	if ( (Keyboard[sc_Enter] || Keyboard[sc_X]) && ((TimeCount-lastnuke > NUKETIME))) //|| (autofire)))
 		CastNuke ();
 
 #if 0
@@ -3142,45 +3150,90 @@ void FaceAngle(short DestAngle)
 								RadarXY[objnum++][2]=15;
 							break;
 
-					// RED GEM
-					//
-							case godessobj:
-								if (gamestate.gems[B_RGEM-B_RGEM])
-									if (obj->active == always)
-										RadarXY[objnum++][2]=12;
+						// RED GEM
+						//
+							// STOMPY										(DK RED)
+							//
+							case invisdudeobj:
+							case stompyobj:
+								RadarXY[objnum++][2]=4;
 							break;
 
-					// GREEN GEM
-					//
-							case fatdemonobj:
-								if (gamestate.gems[B_GGEM-B_RGEM])
-									if (obj->active == always)
-										RadarXY[objnum++][2]=10;
+							// BLOB											(LT RED)
+							//
+							case blobobj:
+								RadarXY[objnum++][2]=12;
 							break;
 
-					// YELLOW GEM
-					//
-							case skeletonobj:
-								if (gamestate.gems[B_YGEM-B_RGEM])
-									if (obj->active == always)
-										RadarXY[objnum++][2]=14;
+						// BLUE GEM
+						//
+							// ROBOTANK										(LT BLUE)
+							//
+							case robotankobj:
+							case fmageobj:
+								RadarXY[objnum++][2]=9;
 							break;
 
-					// BLUE GEM
-					//
-							case mageobj:
-							case wetobj:
-								if (gamestate.gems[B_BGEM-B_RGEM])
-									if (obj->active == always)
-										RadarXY[objnum++][2]=9;
+#if 1
+							// BLUE DEMON									(DK BLUE)
+							//
+							case demonobj:
+								RadarXY[objnum++][2]=1;
+							break;
+#endif
+
+						// GREEN GEM
+						//
+							// WIZARD										(LT GREEN)
+							//
+							case wizardobj:
+								RadarXY[objnum++][2]=10;
 							break;
 
-					// PURPLE GEM
-					//
-							case zombieobj:
-								if (gamestate.gems[B_PGEM-B_RGEM])
-									if (obj->active == always)
-										RadarXY[objnum++][2]=13;
+							// AQUA MAN										(DK GREEN)
+							//
+							case aquamanobj:
+								RadarXY[objnum++][2]=2;
+							break;
+
+						// YELLOW GEM
+						//
+							// EQYPTIAN HEAD								(BROWN)
+							//
+							case headobj:
+								RadarXY[objnum++][2]=6;
+							break;
+
+							//	RAMBONE										(YELLOW)
+							//	TROLL
+							case ramboneobj:
+							case trollobj:
+								RadarXY[objnum++][2]=14;
+							break;
+
+							//	BUG											(LIGHT GRAY)
+							case bugobj:
+								RadarXY[objnum++][2]=7;
+							break;
+
+							//	RAY											(DARK GRAY)
+							case rayobj:
+								RadarXY[objnum++][2]=8;
+							break;
+
+						// PURPLE GEM
+						//
+							// MEC DEMON									(PURPLE)
+							//
+							case cyborgdemonobj:
+								RadarXY[objnum++][2]=5;
+							break;
+
+							// EYE											(LT PURPLE)
+							//
+							case eyeobj:
+							case reyeobj:
+								RadarXY[objnum++][2]=13;
 							break;
 						}
 					}

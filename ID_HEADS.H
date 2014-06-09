@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -36,13 +36,13 @@
 
 //--------------------------------------------------------------------------
 
-#define	EXT	"ARM"
+#define	EXT	"APC"
 
 extern	char far introscn;
 
-#include "GFXE_ARM.H"
-#include "AUDIOARM.H"
-#include "MAPSARM.H"
+#include "GFXE_APC.H"
+#include "AUDIOAPC.H"
+#include "MAPSAPC.H"
 
 //--------------------------------------------------------------------------
 

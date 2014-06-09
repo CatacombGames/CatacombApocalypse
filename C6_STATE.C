@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -151,31 +151,29 @@ void T_DoDamage (objtype *ob)
 
 		switch (ob->obclass)
 		{
-		case zombieobj:
-		case fatdemonobj:
-			points = 8;
-			break;
-		case reddemonobj:
-		case godessobj:
-			points = 15;
-			break;
-		case antobj:
-			points = 2;
-			break;
-		case skeletonobj:
-			points = 6;
-			break;
+		case aquamanobj:
+			points = 7;
+		break;
 
-		case wetobj:
+		case wizardobj:
 			points = 7;
-			break;
-		case treeobj:
-			points = 7;
-			break;
-		case bunnyobj:
-			points = 4;
-			break;
+		break;
+
+		case trollobj:
+			points = 10;
+		break;
+
+		case invisdudeobj:
+			points = 10;
+		break;
+
+		case demonobj:
+		case cyborgdemonobj:
+			points = 15;
+		break;
+
 		}
+		points = EasyDoDamage(points);
 		TakeDamage (points);
 		ob->flags |= of_damagedone;
 	}
@@ -348,6 +346,12 @@ void ChaseThink (objtype *obj, boolean diagonal)
 		}
 	}
 
+	// Kluge to make the running eye stay in place if blocked, ie, not divert
+	// from path
+	if (obj->obclass == reyeobj)
+		return;
+
+
 /* there is no direct path to the player, so pick another direction */
 
 	obj->dir=olddir;
@@ -465,11 +469,21 @@ boolean Chase (objtype *ob, boolean diagonal)
 			return true;
 		}
 
-		if (move < ob->distance)
-		{
+		if (move < ob->distance)		//ob->distance - distance before you move
+		{                             //               over into next tile
 			MoveObj (ob,move);
 			break;
 		}
+		else
+			if (ob->obclass == reyeobj)	// Kludge for the "running eye"
+			{
+				if (ob->temp1 < 2)
+				{
+					MoveObj(ob, ob->distance/2);
+					ob->temp1 = 0;
+				}
+			}
+
 		actorat[ob->tilex][ob->tiley] = 0;	// pick up marker from goal
 		if (ob->dir == nodir)
 			ob->dir = north;
@@ -478,7 +492,7 @@ boolean Chase (objtype *ob, boolean diagonal)
 		ob->y = ((long)ob->tiley<<TILESHIFT)+TILEGLOBAL/2;
 		move -= ob->distance;
 
-		ChaseThink (ob,diagonal);
+		ChaseThink (ob, diagonal);
 		if (!ob->distance)
 			break;			// no possible move
 		actorat[ob->tilex][ob->tiley] = ob;	// set down a new goal marker
@@ -500,79 +514,108 @@ boolean Chase (objtype *ob, boolean diagonal)
 
 void ShootActor (objtype *ob, unsigned damage)
 {
+
 	ob->hitpoints -= damage;
 
 	if (ob->hitpoints<=0)
 	{
 		switch (ob->obclass)
 		{
-		case reddemonobj:
-			ob->state = &s_red_demondie1;
-			break;
-		case succubusobj:
-			ob->state = &s_succubus_death1;
-			break;
-		case fatdemonobj:
-			ob->state = &s_fatdemon_blowup1;
-			break;
-		case godessobj:
-			ob->state = &s_godessdie1;
-			break;
-		case mageobj:
-			ob->state = &s_magedie1;
-			break;
-		case batobj:
-			ob->state = &s_batdie1;
-#if USE_INERT_LIST
-			ob->obclass = solidobj;		// don't add this obj to inert list
-#endif
-			break;
-		case grelmobj:
-			ob->state = &s_greldie1;
-			break;
 
-		case zombieobj:
-			ob->state = &s_zombie_death1;
+		case headobj:
+			ob->state = &s_pshot_exp1;
+			ob->obclass = expobj;
+			ob->ticcount = ob->state->tictime;
+			SpawnBigExplosion(ob->x,ob->y,12,(16l<<16L));
 		break;
 
-		case skeletonobj:
+		case aquamanobj:
+			ob->state = &s_aqua_die1;
+			ob->temp1 = 10;
+		break;
+
+		case wizardobj:
+			ob->state = &s_wizard_die1;
+		break;
+
+		case trollobj:
+			ob->state = &s_trolldie1;
+		break;
+
+		case blobobj:
+			ob->state = &s_blob_die1;
+		break;
+
+		case rayobj:
+			ob->state = &s_ray_die1;
+		break;
+
+		case ramboneobj:
 			ob->state = &s_skel_die1;
 		break;
 
-		case antobj:
-			ob->state = &s_ant_die1;
+		case fmageobj:
+			ob->state = &s_fmagedie1;
 		break;
 
-		case wetobj:
-			ob->state = &s_wet_die1;
-#if USE_INERT_LIST
-			ob->obclass = solidobj;		// don't add this obj to inert list
-#endif
+		case robotankobj:
+			ob->state = &s_robotank_death1;
+			ob->temp1 = 10;
+		break;
+
+		case stompyobj:
+			ob->state = &s_stompy_death1;
+		break;
+
+		case bugobj:
+			ob->state = &s_bug_death1;
+		break;
+
+		case demonobj:
+			ob->state = &s_demondie1;
+		break;
+
+		case cyborgdemonobj:
+			ob->state = &s_cyborg_demondie1;
+		break;
+
+		case invisdudeobj:
+			ob->state = &s_invis_death1;
+		break;
+
+		case grelmobj:
+			ob->state = &s_greldie1;
 		break;
 
 		case eyeobj:
 			ob->state = &s_eye_die1;
 		break;
 
-		case sshotobj:
+		case reyeobj:
+			ob->state = &s_reye_die1;
+		break;
+
+		case bounceobj:
+			ob->state = &s_pshot_exp1;
+			ob->obclass = expobj;
+			ob->ticcount = ob->state->tictime;
+			SpawnBigExplosion(ob->x,ob->y,12,(16l<<16L));
+		break;
+
+		case rshotobj:
 		case eshotobj:
-		case mshotobj:
+		case wshotobj:
+		case hshotobj:
+		case bshotobj:
+		case rbshotobj:
+		case fmshotobj:
+		case rtshotobj:
+		case syshotobj:
+		case bgshotobj:
 			ob->state = &s_bonus_die;
 #if USE_INERT_LIST
 			ob->obclass = solidobj;		// don't add these objs to inert list
 #endif
-		break;
-
-		case treeobj:
-			ob->state = &s_tree_death1;
-			ob->obclass = solidobj;
-			ob->temp1 = 3;
-			ob->flags &= ~of_damagedone;
-			CalcBounds(ob);
-		break;
-
-		case bunnyobj:
-			ob->state = &s_bunny_death1;
 		break;
 
 		case bonusobj:
@@ -580,6 +623,7 @@ void ShootActor (objtype *ob, unsigned damage)
 			switch (ob->temp1)
 			{
 				case B_POTION:
+				case B_OLDCHEST:
 				case B_CHEST:
 				case B_NUKE:
 				case B_BOLT:
@@ -599,7 +643,6 @@ void ShootActor (objtype *ob, unsigned damage)
 			ob->obclass = solidobj;		// don't add this obj to inert list
 #endif
 		break;
-
 		}
 
 		if (ob->obclass != solidobj && ob->obclass != realsolidobj)
@@ -624,58 +667,69 @@ void ShootActor (objtype *ob, unsigned damage)
 	{
 		switch (ob->obclass)
 		{
-		case reddemonobj:
-			if (!(random(8)))
-				ob->state = &s_red_demonouch;
+		case wizardobj:
+			ob->state = &s_wizard_ouch;
+		break;
+
+		case trollobj:
+			if (!random(5))
+				ob->state = &s_trollouch;
 			else
 				return;
-			break;
-		case succubusobj:
-			ob->state = &s_succubus_ouch;
-			break;
-		case fatdemonobj:
-			ob->state = &s_fatdemon_ouch;
-			break;
-		case godessobj:
-			ob->state = &s_godessouch;
-			break;
-		case mageobj:
-			ob->state = &s_mageouch;
-			break;
+		break;
+
+		case blobobj:
+			ob->state = &s_blob_ouch;
+		break;
+
+		case ramboneobj:
+			ob->state = &s_skel_ouch;
+		break;
+
+		case fmageobj:
+			ob->state = &s_fmageouch;
+		break;
+
+		case stompyobj:
+			ob->state = &s_stompy_ouch;
+		break;
+
+		case bugobj:
+			ob->state = &s_bug_ouch;
+		break;
+
+		case cyborgdemonobj:
+			if (!(random(8)))
+				ob->state = &s_cyborg_demonouch;
+			else
+				return;
+		break;
+
+		case demonobj:
+			if (!(random(8)))
+				ob->state = &s_demonouch;
+			else
+				return;
+		break;
+
+		case invisdudeobj:
+			ob->state = &s_invis_fizz1;
+		break;
 
 		case grelmobj:
 			ob->state = &s_grelouch;
-			break;
-
-		case zombieobj:
-			ob->state = &s_zombie_ouch;
 		break;
-
-		case antobj:
-			ob->state = &s_ant_ouch;
-			break;
-
-		case skeletonobj:
-			ob->state = &s_skel_ouch;
-			break;
-
-		case wetobj:
-			ob->state = &s_wet_ouch;
-			break;
 
 		case eyeobj:
 			ob->state = &s_eye_ouch;
 		break;
 
-		case treeobj:
-			ob->state = &s_tree_ouch;
-		break;
-
-		case bunnyobj:
-			ob->state = &s_bunny_ouch;
+		case reyeobj:
+			ob->state = &s_reye_ouch;
 		break;
 		}
 	}
+
 	ob->ticcount = ob->state->tictime;
 }
 

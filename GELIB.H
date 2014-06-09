@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,9 +31,9 @@
 #define SAVEVER_DATA "0.01"
 #define FILENAME_LEN 15
 
-#define  GAMENAME		"CATACOMB ARMAGEDDON 3-D"
-#define	VERSION		"V1.02"
-#define  REVISION		"  rev 1 "
+#define  GAMENAME		"CATACOMB  APOCALYPSE 3-D"
+#define	VERSION		"1.01"
+#define  REVISION		"(rev 1)"
 
 //#define BOBLIST 1                          //SP - Undefine if not using BOBList
 

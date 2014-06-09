@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@
 //
 // SOFTLIB GFX FILENAME
 //
-#define 	SLIB_GFX			"ARM_SLIB."EXT
+#define 	SLIB_GFX			"APC_SLIB."EXT
 
 
 #define USE_INERT_LIST false
@@ -125,11 +125,10 @@
 
 #define MOUSEINT	0x33
 
-#define EXPWALLSTART	8
 #define NUMEXPWALLS	7
 #define WALLEXP		59
-#define WATEREXP	62
-#define NUMFLOORS	80	//71
+#define WATEREXP		62
+#define NUMFLOORS		100
 
 #define NUMLATCHPICS	 (FIRSTWALLPIC-FIRSTLATCHPIC) //+5
 #define NUMSCALEPICS	 (FIRSTWALLPIC-FIRSTSCALEPIC) //+5
@@ -137,7 +136,7 @@
 
 
 #define FLASHCOLOR	12
-#define FLASHTICS	4
+#define FLASHTICS		4
 
 
 #define NUMLEVELS	32		//21
@@ -194,9 +193,8 @@
 
 #define STATUSLINES		(200-VIEWHEIGHT)
 
-enum bonusnumbers {B_BOLT,B_NUKE,B_POTION,B_RKEY,B_YKEY,B_GKEY,B_BKEY,B_SCROLL1,
- B_SCROLL2,B_SCROLL3,B_SCROLL4,B_SCROLL5,B_SCROLL6,B_SCROLL7,B_SCROLL8,
- B_GOAL,B_CHEST,B_RGEM,B_GGEM,B_BGEM,B_YGEM,B_PGEM};
+enum bonusnumbers {B_BOLT,B_NUKE,B_POTION,B_RKEY,B_YKEY,B_GKEY,B_BKEY,
+ B_GOAL,B_CHEST,B_OLDCHEST,B_RGEM,B_GGEM,B_BGEM,B_YGEM,B_PGEM};
 
 
 #define MAX_DOOR_STORAGE 5
@@ -205,20 +203,20 @@ enum bonusnumbers {B_BOLT,B_NUKE,B_POTION,B_RKEY,B_YKEY,B_GKEY,B_BKEY,B_SCROLL1,
 
 #define ROTATE_SPEED		(6)
 
-#define WALL_SKELETON_CODE 6
+#define MAXREALTICS		(2*60)
 
-#define MAXREALTICS (2*60)
+#define MAXFREEZETIME	(100*30)				// 50 secs (100 half)
 
-#define MAXFREEZETIME			(100*30)				// 50 secs (100 half)
-
-#define INVISIBLEWALL			0x46
+#define INVISIBLEWALL	0x46
 
 #define USE_STRIPS		FALSE
+
+#define SOUNDPLAYED		888
 
 /*
 =============================================================================
 
-						   GLOBAL TYPES
+							GLOBAL TYPES
 
 =============================================================================
 */
@@ -239,14 +237,25 @@ typedef struct
 } walltype;
 
 typedef enum
-  {nothing,playerobj,bonusobj,succubusobj,batobj,skeletonobj,fatdemonobj,godessobj,
-  mageobj,pshotobj,bigpshotobj,mshotobj,inertobj,bounceobj,grelmobj,sshotobj,
-  gateobj,zombieobj,antobj,wetobj,expobj,eyeobj,wallskelobj,eshotobj,treeobj,
-  gshotobj,reddemonobj,freezeobj,solidobj,cloudobj,dshotobj,hbunnyobj,bunnyobj,
-  realsolidobj} classtype;
+  {nothing,		playerobj,	bonusobj,	aquamanobj,	wizardobj,		trollobj,
+	wshotobj,	blobobj,		bshotobj,	fmageobj,	ramboneobj,		robotankobj,
+	rtshotobj,	stompyobj,	syshotobj,	fmshotobj,	rbshotobj,		bugobj,
+	bgshotobj,	cyborgdemonobj,			invisdudeobj,					bounceobj,
+	eyeobj,		reyeobj,		rayobj,		rshotobj,	headobj,			hshotobj,
+	demonobj,	pshotobj,	grelmobj,	freezeobj,	solidobj,		inertobj,
+	gateobj,		realsolidobj,				expobj,		bigpshotobj,	eshotobj,
+	gshotobj,
+
+
+//	sshotobj,
+
+
+//  dshotobj
+  } classtype;
 
 typedef enum {north,east,south,west,northeast,southeast,southwest,
 		  northwest,nodir} dirtype;		// a catacombs 2 carryover
+
 
 typedef struct	statestruct
 {
@@ -258,11 +267,10 @@ typedef struct	statestruct
 
 #define statetype statetypestruct far
 
+
 #define of_shootable		0x01
 #define of_damagedone	0x02
 #define of_forcefield	0x40		// defines a solid object as a forcefield???????????
-#define of_tree			0x80		// used to identify between a tree and a statue --
-											//			last minute changes for Greg
 
 typedef struct objstruct
 {
@@ -317,10 +325,10 @@ typedef	enum	{ex_stillplaying,ex_died,ex_warped,ex_resetgame
 	,ex_loadedgame,ex_victorious,ex_turning,ex_abort} exittype;
 
 
-typedef enum {S_NONE,     S_HELP,    S_SND,     S_SAVING,   S_RESTORING,
-			S_JOYSTICK, S_RETREAT, S_ADVANCE, S_SIDESTEP, S_QTURN,
-			S_MISSLE,   S_ZAPPER,  S_XTER,    S_CURING,   S_READ,
-			S_VIEWING,  S_ITEMDES,  S_DAMAGE,  S_TURN,    S_TIMESTOP} status_flags;
+typedef enum {	S_NONE,     S_HELP,    S_SND,     S_SAVING,   S_RESTORING,
+					S_JOYSTICK, S_RETREAT, S_ADVANCE, S_SIDESTEP, S_QTURN,
+					S_MISSLE,   S_ZAPPER,  S_XTER,    S_CURING,   S_READ,
+					S_VIEWING,  S_ITEMDES, S_DAMAGE,  S_TURN,     S_TIMESTOP} status_flags;
 
 typedef struct {
 	char x,y;
@@ -356,7 +364,7 @@ typedef	struct
 =============================================================================
 */
 
-extern	char inlevel[][2];
+extern char inlevel[][2];
 extern	char		str[80],str2[20];
 extern	unsigned	tedlevelnum;
 extern	boolean		tedlevel;
@@ -364,8 +372,11 @@ extern	gametype	gamestate;
 extern	exittype	playstate;
 extern 	char SlowMode;
 extern   unsigned Flags;
-extern	boolean LoadShapes;
 extern	boolean EASYMODEON;
+
+void ExplosionSnd(objtype *ob);
+void LargeSound(objtype *ob);
+void SmallSound(objtype *ob);
 
 
 void NewGame (void);
@@ -531,7 +542,7 @@ extern	boolean	aborttrace;
 =============================================================================
 */
 
-#define MAXWALLS	50
+#define MAXWALLS		50
 #define DANGERHIGH	45
 
 #define	MIDWALL		(MAXWALLS/2)
@@ -717,15 +728,14 @@ void SpawnBigExplosion(fixed x, fixed y, short Delay, fixed Range);
 =============================================================================
 */
 
-int EasyHitPoints(int NrmHitPts);
-int EasyDoDamage(int Damage);
+#define head_mode		ob->temp1
+#define head_delay	ob->temp2
 
-#define zombie_mode	ob->temp1
-#define zombie_delay	ob->temp2
+enum head_modes {h_wait_to_rise, h_active, h_other1, h_player1, h_other2,
+					  h_player2, h_other3, h_player3, h_other4, h_player4};
 
-enum zombie_modes {zm_wait_for_dark,zm_wait_to_rise,zm_active};
-
-enum eye_modes {em_other1,em_player1,em_other2,em_player2,em_other3,em_player3,em_other4,em_player4,em_dummy};
+enum shooter_modes {sm_other1, sm_player1, sm_other2, sm_player2, sm_other3,
+						  sm_player3, sm_other4, sm_player4, sm_dummy};
 
 #define MSHOTDAMAGE	2
 #define MSHOTSPEED	10000
@@ -740,46 +750,125 @@ enum eye_modes {em_other1,em_player1,em_other2,em_player2,em_other3,em_player3,e
 
 extern dirtype dirtable[];
 extern short other_x[],	other_y[];
-extern short zombie_base_delay;
+extern short head_base_delay;
 
-extern statetype s_fatdemon_ouch;
-extern statetype s_fatdemon_blowup1;
+void T_AlternateStates(objtype *ob);
+int EasyHitPoints(int NrmHitPts);
+int EasyDoDamage(int Damage);
 
-extern statetype s_succubus_ouch;
-extern statetype s_succubus_death1;
+////////////////////////////////////////////////////////////////////////////
+//
+// New monsters added for Apocalypse
+//
+////////////////////////////////////////////////////////////////////////////
 
-extern	statetype s_godessouch;
-extern	statetype s_godessdie1;
+//
+// Bonus states
+//
+extern statetype s_boltbonus;
+extern statetype s_boltbonus2;
+extern statetype s_boltbonus3;
+extern statetype s_nukebonus;
+extern statetype s_nukebonus2;
+extern statetype s_nukebonus3;
+extern statetype s_potionbonus;
+extern statetype s_rkeybonus;
+extern statetype s_ykeybonus;
+extern statetype s_gkeybonus;
+extern statetype s_bkeybonus;
+extern statetype s_chestbonus;
+extern statetype s_oldchestbonus;
+extern statetype s_waterchestbonus1;
+extern statetype s_waterchestbonus2;
+extern statetype s_waterchestbonus3;
+extern statetype s_rgem1bonus;
+extern statetype s_ygem1bonus;
+extern statetype s_ggem1bonus;
+extern statetype s_bgem1bonus;
+extern statetype s_pgem1bonus;
+extern statetype s_bonus_die;
 
-extern	statetype s_mageouch;
-extern	statetype s_magedie1;
+//
+// AquaMan states
+//
+extern statetype s_aqua_under1;
+extern statetype s_aqua_under2;
+extern statetype s_aqua_under3;
+extern statetype s_aqua_left;
+extern statetype s_aqua_right;
+extern statetype s_aqua_rise1;
+extern statetype s_aqua_rise2;
+extern statetype s_aqua_sink1;
+extern statetype s_aqua_sink2;
+extern statetype s_aqua_walk1;
+extern statetype s_aqua_walk2;
+extern statetype s_aqua_attack1;
+extern statetype s_aqua_attack2;
+extern statetype s_aqua_die1;
+extern statetype s_aqua_die2;
+extern statetype s_aqua_die3;
+extern statetype s_aqua_die4;
+extern statetype s_aqua_die5;
+extern statetype s_aqua_die6;
+extern statetype s_aqua_die7;
 
-extern	statetype s_grelouch;
-extern	statetype s_greldie1;
+//
+// Wizard states
+//
+extern statetype s_wizard_walk1;
+extern statetype s_wizard_walk2;
+extern statetype s_wizard_walk3;
+extern statetype s_wizard_walk4;
+extern statetype s_wizard_attack1;
+extern statetype s_wizard_attack2;
+extern statetype s_wizard_ouch;
+extern statetype s_wizard_die1;
+extern statetype s_wizard_die2;
+extern statetype s_wizard_die3;
+extern statetype s_wizard_die4;
+extern statetype s_wizard_shoot1;
+extern statetype s_wizard_shoot2;
+extern statetype s_wizard_shoot3;
+extern statetype s_wizard_shot1;
+extern statetype s_wizard_shot2;
 
-extern	statetype s_batdie1;
+//
+// Troll states
+//
+extern	statetype s_trollpause;
+extern	statetype s_troll1;
+extern	statetype s_troll2;
+extern	statetype s_troll3;
+extern	statetype s_troll4;
+extern	statetype s_trollattack1;
+extern	statetype s_trollattack2;
+extern	statetype s_trollouch;
+extern	statetype s_trolldie1;
+extern	statetype s_trolldie2;
+extern	statetype s_trolldie3;
 
-extern	statetype s_zombie_death1;
-extern	statetype s_zombie_ouch;
+//
+// Blob states
+//
+extern statetype s_blob_gnd1;
+extern statetype s_blob_gnd2;
+extern statetype s_blob_rise1;
+extern statetype s_blob_rise2;
+extern statetype s_blob_sink1;
+extern statetype s_blob_sink2;
+extern statetype s_blob_walk1;
+extern statetype s_blob_walk2;
+extern statetype s_blob_walk3;
+extern statetype s_blob_ouch;
+extern statetype s_blob_die1;
+extern statetype s_blob_die2;
+extern statetype s_blob_die3;
+extern statetype s_blob_shot1;
+extern statetype s_blob_shot2;
 
-extern statetype s_zombie_rise1;
-extern statetype s_zombie_rise2;
-extern statetype s_zombie_rise3;
-extern statetype s_zombie_rise4;
-
-extern statetype s_ant_wait;
-extern statetype s_ant_egg;
-extern statetype s_ant_walk1;
-extern statetype s_ant_walk2;
-extern statetype s_ant_walk3;
-extern statetype s_ant_attack1;
-extern statetype s_ant_pause;
-extern statetype s_ant_ouch;
-extern statetype s_ant_die1;
-extern statetype s_ant_die2;
-extern statetype s_ant_die3;
-
-extern statetype s_skel_pause;
+//
+// RamBone states
+//
 extern statetype s_skel_1;
 extern statetype s_skel_2;
 extern statetype s_skel_3;
@@ -787,79 +876,248 @@ extern statetype s_skel_4;
 extern statetype s_skel_attack1;
 extern statetype s_skel_attack2;
 extern statetype s_skel_attack3;
+extern statetype s_skel_attack4;
 extern statetype s_skel_ouch;
 extern statetype s_skel_die1;
 extern statetype s_skel_die2;
 extern statetype s_skel_die3;
+extern statetype s_skel_shot1;
+extern statetype s_skel_shot2;
 
-extern statetype s_wet_pause;
+//
+// Future Mage states
+//
+extern statetype s_fmage1;
+extern statetype s_fmage2;
+extern statetype s_fmage3;
+extern statetype s_fmageattack1;
+extern statetype s_fmageattack2;
+extern statetype s_fmageattack3;
+extern statetype s_fmageouch;
+extern statetype s_fmagedie1;
+extern statetype s_fmagedie2;
+extern statetype s_fmagedie3;
+extern statetype s_fmshot1;
+extern statetype s_fmshot2;
 
-extern statetype s_wet_bubbles1;
-extern statetype s_wet_bubbles2;
-extern statetype s_wet_bubbles3;
-extern statetype s_wet_bubbles4;
+//
+// Robo Tank states
+//
+extern statetype s_robotank_walk1;
+extern statetype s_robotank_walk2;
+extern statetype s_robotank_walk3;
+extern statetype s_robotank_walk4;
+extern statetype s_robotank_attack1;
+extern statetype s_robotank_attack2;
+extern statetype s_robotank_attack3;
+extern statetype s_robotank_attack4;
+extern statetype s_robotank_death1;
+extern statetype s_robotank_death2;
+extern statetype s_robotank_death3;
+extern statetype s_robotank_death4;
+extern statetype s_robotank_death5;
+extern statetype s_robotank_shot1;
+extern statetype s_robotank_shot2;
 
-extern statetype s_wet_peek;
+//
+// Stompy states
+//
+extern statetype s_stompy_walk1;
+extern statetype s_stompy_walk2;
+extern statetype s_stompy_walk3;
+extern statetype s_stompy_walk4;
+extern statetype s_stompy_attack1;
+extern statetype s_stompy_attack2;
+extern statetype s_stompy_attack3;
+extern statetype s_stompy_attack4;
+extern statetype s_stompy_ouch;
+extern statetype s_stompy_death1;
+extern statetype s_stompy_death2;
+extern statetype s_stompy_death3;
+extern statetype s_stompy_death4;
+extern statetype s_stompy_shot1;
+extern statetype s_stompy_shot2;
+extern statetype s_stompy_shot3;
+extern statetype s_stompy_shot4;
+extern statetype s_stompy_shot5;
+extern statetype s_stompy_shot6;
 
-extern statetype s_wet_rise1;
-extern statetype s_wet_rise2;
-extern statetype s_wet_rise3;
-extern statetype s_wet_rise4;
-extern statetype s_wet_rise5;
+//
+// Bug states
+//
+extern statetype s_bug_walk1;
+extern statetype s_bug_walk2;
+extern statetype s_bug_walk3;
+extern statetype s_bug_attack1;
+extern statetype s_bug_attack2;
+extern statetype s_bug_attack3;
+extern statetype s_bug_attack4;
+extern statetype s_bug_ouch;
+extern statetype s_bug_death1;
+extern statetype s_bug_death2;
+extern statetype s_bug_shot1;
+extern statetype s_bug_shot2;
 
-extern statetype s_wet_sink1;
-extern statetype s_wet_sink2;
-extern statetype s_wet_sink3;
+//
+// Cyborg states
+//
+extern statetype s_cyborg_demon1;
+extern statetype s_cyborg_demon2;
+extern statetype s_cyborg_demon3;
+extern statetype s_cyborg_demon4;
+extern statetype s_cyborg_demonattack1;
+extern statetype s_cyborg_demonattack2;
+extern statetype s_cyborg_demonattack3;
+extern statetype s_cyborg_demonouch;
+extern statetype s_cyborg_demondie1;
+extern statetype s_cyborg_demondie2;
+extern statetype s_cyborg_demondie3;
 
-extern statetype s_wet_walk1;
-extern statetype s_wet_walk2;
-extern statetype s_wet_walk3;
-extern statetype s_wet_walk4;
+//
+// Invisible Dude
+//
+extern statetype s_invis_fizz1;
+extern statetype s_invis_fizz2;
+extern statetype s_invis_fizz3;
+extern statetype s_invis_walk;
+extern statetype s_invis_attack;
+extern statetype s_invis_pause;
+extern statetype s_invis_flash1;
+extern statetype s_invis_flash2;
+extern statetype s_invis_flash3;
+extern statetype s_invis_death1;
+extern statetype s_invis_death2;
+extern statetype s_invis_death3;
 
-extern statetype s_wet_attack1;
-extern statetype s_wet_attack2;
-extern statetype s_wet_attack3;
-extern statetype s_wet_attack4;
+//
+// Bounce
+//
+extern statetype s_bounce1;
+extern statetype s_bounce2;
 
-extern statetype s_wet_ouch;
+//
+// Grelminar or Nemesis
+//
+extern statetype s_grelpause;
+extern statetype s_grel1;
+extern statetype s_grel2;
+extern statetype s_grelattack3;
+extern statetype s_grelouch;
+extern statetype s_greldie1;
+extern statetype s_greldie2;
+extern statetype s_greldie3;
+extern statetype s_greldie4;
+extern statetype s_greldie5;
+extern statetype s_greldie5a;
+extern statetype s_greldie6;
+extern statetype s_gshot1;
 
-extern statetype s_wet_die1;
-extern statetype s_wet_die2;
-extern statetype s_wet_die3;
-extern statetype s_wet_die4;
-extern statetype s_wet_die5;
-
-extern	statetype s_obj_gate1;
-extern	statetype s_obj_gate2;
-extern	statetype s_obj_gate3;
-extern	statetype s_obj_gate4;
-
+//
+// Eye states - shooting eye
+//
 extern statetype s_eye_pause;
-
 extern statetype s_eye_1;
 extern statetype s_eye_2;
 extern statetype s_eye_3;
 extern statetype s_eye_4;
-
+extern statetype s_eye_shootplayer_1;
+extern statetype s_eye_shootplayer_2;
 extern statetype s_eye_ouch;
 extern statetype s_eye_ouch2;
-
 extern statetype s_eye_die1;
 extern statetype s_eye_die2;
 extern statetype s_eye_die3;
+extern statetype s_eye_die4;
+extern statetype s_eshot1;
+extern statetype s_eshot2;
 
-extern	statetype s_mshot1;
-extern	statetype s_mshot2;
+//
+// Running Eye states
+//
+extern statetype s_reye_1;
+extern statetype s_reye_2;
+extern statetype s_reye_3;
+extern statetype s_reye_4;
+extern statetype s_reye_ouch;
+extern statetype s_reye_ouch2;
+extern statetype s_reye_die1;
+extern statetype s_reye_die2;
+extern statetype s_reye_die3;
+extern statetype s_reye_die4;
 
-extern statetype s_bonus_die;
+//
+// Ray states
+//
+extern statetype s_ray_under;
+extern statetype s_ray_rise;
+extern statetype s_ray_sink;
+extern statetype s_ray_fly1;
+extern statetype s_ray_fly2;
+extern statetype s_ray_fly3;
+extern statetype s_ray_fly4;
+extern statetype s_ray_attack1;
+extern statetype s_ray_attack2;
+extern statetype s_ray_attack3;
+extern statetype s_ray_die1;
+extern statetype s_ray_die2;
+extern statetype s_ray_shot1;
+extern statetype s_ray_shot2;
 
-extern	statetype s_red_demonouch;
-extern	statetype s_red_demondie1;
+//
+// Portal states
+//
+extern statetype s_portal1;
+extern statetype s_portal2;
+extern statetype s_portal3;
+extern statetype s_portal4;
+extern statetype s_portal5;
+extern statetype s_portal6;
 
-extern statetype s_bunny_death1;
-extern statetype s_bunny_ouch;
+//
+// Misc states
+//
+extern statetype s_column1;
+extern statetype s_column2;
+extern statetype s_column3;
+extern statetype s_column4;
+extern statetype s_column5;
+extern statetype s_ffire_pot;
+extern statetype s_ofire_pot1;
+extern statetype s_ofire_pot2;
+extern statetype s_tomb1;
+extern statetype s_tomb2;
+extern statetype s_tomb3;
 
-extern statetype s_tree_death1;
-extern statetype s_tree_ouch;
-
+//
+// Force Field states
+//
+extern statetype s_force_field_1;
+extern statetype s_force_field_2;
+extern statetype s_force_field_3;
+extern statetype s_force_field_4;
 extern statetype s_force_field_die;
+extern statetype s_force_field_die1;
+
+//
+// Egyptian head states
+//
+extern statetype s_head;
+extern statetype s_head_shot1;
+extern statetype s_head_shot2;
+
+
+//
+//	Blue Demon states
+//
+extern statetype s_demonpause;
+extern statetype s_demon1;
+extern statetype s_demon2;
+extern statetype s_demon3;
+extern statetype s_demon4;
+extern statetype s_demonattack1;
+extern statetype s_demonattack2;
+extern statetype s_demonattack3;
+extern statetype s_demonouch;
+extern statetype s_demondie1;
+extern statetype s_demondie2;
+extern statetype s_demondie3;

@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -79,11 +79,6 @@ dirtype dirtable[9] = {northwest,north,northeast,west,nodir,east,
 =============================================================================
 */
 
-extern statetype	s_boltbonus2;
-extern statetype	s_nukebonus2;
-extern statetype	s_boltbonus3;
-extern statetype	s_nukebonus3;
-
 statetype s_boltbonus = {BOLTOBJPIC,8,NULL,&s_boltbonus2};
 statetype s_boltbonus2 = {BOLT2OBJPIC,8,NULL,&s_boltbonus3};
 statetype s_boltbonus3 = {BOLT3OBJPIC,8,NULL,&s_boltbonus};
@@ -93,36 +88,22 @@ statetype s_nukebonus2 = {NUKE2OBJPIC,8,NULL,&s_nukebonus3};
 statetype s_nukebonus3 = {NUKE3OBJPIC,8,NULL,&s_nukebonus};
 
 statetype s_potionbonus = {POTIONOBJPIC,0,NULL,&s_potionbonus};
-//statetype s_rkey2bonus = {RKEY2PIC,0,NULL,&s_rkey2bonus};
 statetype s_rkeybonus = {RKEYOBJPIC,0,NULL,&s_rkeybonus};
 statetype s_ykeybonus = {YKEYOBJPIC,0,NULL,&s_ykeybonus};
 statetype s_gkeybonus = {GKEYOBJPIC,0,NULL,&s_gkeybonus};
 statetype s_bkeybonus = {BKEYOBJPIC,0,NULL,&s_bkeybonus};
-//////////////////////////statetype s_scrollbonus = {SCROLLOBJPIC,0,NULL,&s_scrollbonus};
 statetype s_chestbonus = {CHESTOBJPIC,0,NULL,&s_chestbonus};
-//statetype s_goalbonus = {NEMESISPIC,0,NULL,&s_goalbonus};
+statetype s_oldchestbonus = {OLD_CHESTPIC,0,NULL,&s_oldchestbonus};
 
-extern statetype s_waterchestbonus2;
-statetype s_waterchestbonus1 = {O_WATER_CHEST1PIC,8,NULL,&s_waterchestbonus2};
-statetype s_waterchestbonus2 = {O_WATER_CHEST2PIC,8,NULL,&s_waterchestbonus1};
+statetype s_waterchestbonus1 = {O_WATER_CHEST1PIC, 10, NULL, &s_waterchestbonus2};
+statetype s_waterchestbonus2 = {O_WATER_CHEST2PIC, 10, NULL, &s_waterchestbonus3};
+statetype s_waterchestbonus3 = {O_WATER_CHEST3PIC, 10, NULL, &s_waterchestbonus1};
 
-extern statetype s_rgem2bonus;
-extern statetype s_ygem2bonus;
-extern statetype s_ggem2bonus;
-extern statetype s_bgem2bonus;
-extern statetype s_pgem2bonus;
-
-statetype s_rgem1bonus = {RGEM1PIC,30,NULL,&s_rgem2bonus};
-statetype s_ygem1bonus = {YGEM1PIC,30,NULL,&s_ygem2bonus};
-statetype s_ggem1bonus = {GGEM1PIC,30,NULL,&s_ggem2bonus};
-statetype s_bgem1bonus = {BGEM1PIC,30,NULL,&s_bgem2bonus};
-statetype s_pgem1bonus = {PGEM1PIC,30,NULL,&s_pgem2bonus};
-
-statetype s_rgem2bonus = {RGEM2PIC,30,NULL,&s_rgem1bonus};
-statetype s_ygem2bonus = {YGEM2PIC,30,NULL,&s_ygem1bonus};
-statetype s_ggem2bonus = {GGEM2PIC,30,NULL,&s_ggem1bonus};
-statetype s_bgem2bonus = {BGEM2PIC,30,NULL,&s_bgem1bonus};
-statetype s_pgem2bonus = {PGEM2PIC,30,NULL,&s_pgem1bonus};
+statetype s_rgem1bonus = {RGEM1PIC,30,NULL,&s_rgem1bonus};
+statetype s_ygem1bonus = {YGEM1PIC,30,NULL,&s_ygem1bonus};
+statetype s_ggem1bonus = {GGEM1PIC,30,NULL,&s_ggem1bonus};
+statetype s_bgem1bonus = {BGEM1PIC,30,NULL,&s_bgem1bonus};
+statetype s_pgem1bonus = {PGEM1PIC,30,NULL,&s_pgem1bonus};
 
 statetype s_bonus_die = {0,8,NULL,NULL};
 
@@ -164,18 +145,8 @@ void SpawnBonus (int tilex, int tiley, int number)
 				state = &s_chestbonus;
 		break;
 
-#if 0
-		case B_SCROLL1:
-		case B_SCROLL2:
-		case B_SCROLL3:
-		case B_SCROLL4:
-		case B_SCROLL5:
-		case B_SCROLL6:
-		case B_SCROLL7:
-		case B_SCROLL8:			state = &s_scrollbonus;		break;
-#endif
+		case B_OLDCHEST:		state = &s_oldchestbonus;	break;
 
-//		case B_RKEY2:			state = &s_rkey2bonus;		break;
 
 		default:
 			Quit("SpawnBonus(): INVALID BONUS");
@@ -183,13 +154,13 @@ void SpawnBonus (int tilex, int tiley, int number)
 	}
 
 	SpawnNewObj (tilex,tiley,state,TILEGLOBAL/2);
-//	new->tileobject = true;
 	new->temp1 = number;
 	new->obclass = bonusobj;
 
 	switch (number)
 	{
 		case B_POTION:
+		case B_OLDCHEST:
 		case B_CHEST:
 		case B_BOLT:
 		case B_NUKE:
@@ -202,28 +173,6 @@ void SpawnBonus (int tilex, int tiley, int number)
 	}
 }
 
-
-/*
-===============
-=
-= SpawnTombstone
-=
-===============
-*/
-
-statetype s_tombs[3] = {{TOMB1PIC,8,NULL,&s_tombs[0]},
-								{TOMB2PIC,8,NULL,&s_tombs[1]},
-								{TOMB3PIC,8,NULL,&s_tombs[2]}};
-
-void SpawnTombstone (int tilex, int tiley, int shape)
-{
-	statetype *state=&s_tombs[shape];
-
-	SpawnNewObj (tilex,tiley,state,TILEGLOBAL/2);
-//	new->tileobject = true;
-	new->obclass = realsolidobj;
-	new->flags |= of_shootable;
-}
 
 
 /*
@@ -362,35 +311,62 @@ void T_WallDie (objtype *ob)
 */
 
 void T_Gate (objtype *ob);
+void T_Gate_Wait (objtype *ob);
 
-extern	statetype s_obj_gate1;
-extern	statetype s_obj_gate2;
-extern	statetype s_obj_gate3;
-extern	statetype s_obj_gate4;
+extern statetype s_portal_wait;
+statetype s_portal_wait = {0, 10, &T_Gate_Wait, &s_portal_wait};
 
-statetype s_obj_gate1 = {OBJ_WARP1PIC,10,T_Gate,&s_obj_gate2};
-statetype s_obj_gate2 = {OBJ_WARP2PIC,10,T_Gate,&s_obj_gate3};
-statetype s_obj_gate3 = {OBJ_WARP3PIC,10,T_Gate,&s_obj_gate4};
-statetype s_obj_gate4 = {OBJ_WARP4PIC,10,T_Gate,&s_obj_gate1};
-
-extern statetype s_anthill;
-statetype s_anthill = {ANT_HILLPIC, 20, T_Gate, &s_anthill};
+statetype s_portal1 = {PORTAL1PIC, 6, &T_Gate, &s_portal2};
+statetype s_portal2 = {PORTAL2PIC, 6, &T_Gate, &s_portal3};
+statetype s_portal3 = {PORTAL3PIC, 6, &T_Gate, &s_portal4};
+statetype s_portal4 = {PORTAL4PIC, 6, &T_Gate, &s_portal5};
+statetype s_portal5 = {PORTAL5PIC, 6, &T_Gate, &s_portal6};
+statetype s_portal6 = {PORTAL6PIC, 6, &T_Gate, &s_portal1};
 
 //---------------------------------------------------------------------------
 //	SpawnWarp()
-//
-// TYPE : Type param is the gate number (1-what ever) will link you to
-//			 gate of that type.
 //---------------------------------------------------------------------------
-void SpawnWarp (int tilex, int tiley, int type)
+void SpawnWarp (int tilex, int tiley)
 {
+	unsigned spot;
+	objtype *ob;
 
-	if (type)
-		SpawnNewObj (tilex,tiley,&s_obj_gate1,TILEGLOBAL/3);
+	spot = (*(mapsegs[2]+farmapylookup[tiley]+tilex+1)) >> 8;
+
+	if (spot)
+	{
+		SpawnNewObj (tilex, tiley, &s_portal_wait, TILEGLOBAL/3);
+		new->temp1 = spot*70;
+	}
 	else
-		SpawnNewObj (tilex,tiley,&s_anthill,TILEGLOBAL/3);
+		SpawnNewObj (tilex, tiley, &s_portal1, TILEGLOBAL/3);
+
 	new->obclass = gateobj;
-	new->temp1 = type;
+}
+
+/*
+===============
+=
+= T_Gate_Wait
+=
+===============
+*/
+
+void T_Gate_Wait (objtype *ob)
+{
+	if ((ob->temp1 -= tics) <= 0)
+	{
+		if ((ob->tilex == player->tilex) && (ob->tiley == player->tiley))
+			return;
+		if (CheckHandAttack(ob))
+			return;
+
+		SD_PlaySound(PORTALSND);
+		ob->state = &s_portal1;
+		ob->ticcount = ob->state->tictime;
+
+	}
+
 }
 
 
@@ -403,8 +379,6 @@ void SpawnWarp (int tilex, int tiley, int type)
 ===============
 */
 
-#define STATUSCOLOR	4
-
 void T_Gate (objtype *ob)
 {
 	objtype *check;
@@ -412,55 +386,13 @@ void T_Gate (objtype *ob)
 
 	if (CheckHandAttack (ob) && !playstate)
 	{
-		// make
 		//
-//		spot = (*(mapsegs[2]+farmapylookup[ob->tiley+1]+ob->tilex)) >> 8;
-//		if (spot--)
-//			if (gamestate.keys[spot])
-//				TakeKey(spot);
-//			else
-//				return;
-
+		// teleport out of level
 		//
-		// warp
-		//
-
-//		temp = bufferofs;
-//		bufferofs = 0;
-//		VW_Bar (26,4,232,9,STATUSCOLOR);		// clear text description
-//		bufferofs = temp;
-
-//		IN_ClearKeysDown ();
-		if (ob->temp1)
-		{
-			//
-			// teleport inside level
-			//
-
-			for (check=player->next;check;check=check->next)
-				if (check->obclass==gateobj && check->temp1==ob->temp1 &&
-					check != ob)
-				{
-					player->x = check->x;
-					player->y = check->y;
-					Thrust (player->angle,TILEGLOBAL/2);		// move forwards
-					Thrust (player->angle,TILEGLOBAL/2);		// move forwards
-					Thrust (player->angle,TILEGLOBAL/2);		// move forwards
-					fizzlein=true;
-					SD_PlaySound(WARPSND);
-				}
-		}
-		else
-		{
-			//
-			// teleport out of level
-			//
-
-			playstate = ex_warped;
-			spot = (*(mapsegs[2]+farmapylookup[ob->tiley+1]+ob->tilex)) >> 8;
-			gamestate.mapon=spot;
-			SD_PlaySound(WARPUPSND);
-		}
+		playstate = ex_warped;
+		spot = (*(mapsegs[2]+farmapylookup[ob->tiley+1]+ob->tilex)) >> 8;
+		gamestate.mapon=spot;
+		SD_PlaySound(WARPUPSND);
 	}
 }
 
@@ -469,238 +401,100 @@ void T_Gate (objtype *ob)
 /*
 =============================================================================
 
-					FAT DEMON
+											AQUAMAN
 
 =============================================================================
 */
 
-#define FATCLOUDDAMAGE 2
+void T_AquaMan(objtype *ob);
 
-void T_FatDemon (objtype *ob);
-void T_CheckCnt(objtype *ob);
-void ExplodeSound(objtype *ob);
+statetype s_aqua_under1 = {EYESTALKUNDER1PIC, 25, &T_AquaMan, &s_aqua_under2};
+statetype s_aqua_under2 = {EYESTALKUNDER2PIC, 20, &T_AquaMan, &s_aqua_under3};
+statetype s_aqua_under3 = {EYESTALKUNDER3PIC, 20, &T_AquaMan, &s_aqua_under2};
 
-extern statetype s_fatdemon_pause;
-extern statetype s_fatdemon_walk1;
-extern statetype s_fatdemon_walk2;
-extern statetype s_fatdemon_walk3;
-extern statetype s_fatdemon_walk4;
-extern statetype s_fatdemon_attack1;
-extern statetype s_fatdemon_attack2;
-extern statetype s_fatdemon_blowup2;
-extern statetype s_fatdemon_blowup3;
-extern statetype s_fatdemon_blowup4;
-extern statetype s_fatdemon_blowup5;
-extern statetype s_fatdemon_blowup6;
-extern statetype s_fatdemon_blowup7;
-extern statetype s_fatdemon_explode;
-extern statetype s_fatdemon_feet;
+statetype s_aqua_left = {EYESTALKUNDER4PIC, 40, NULL, &s_aqua_under3};
+statetype s_aqua_right = {EYESTALKUNDER5PIC, 40, NULL, &s_aqua_under3};
 
-statetype s_fatdemon_pause = {FATDEMON_WALK1PIC,40,NULL,&s_fatdemon_walk2};
+statetype s_aqua_rise1 = {EYESTALKRISE1PIC, 20, NULL, &s_aqua_rise2};
+statetype s_aqua_rise2 = {EYESTALKRISE2PIC, 15, NULL, &s_aqua_walk1};
 
-statetype s_fatdemon_walk1 = {FATDEMON_WALK1PIC,13,T_FatDemon,&s_fatdemon_walk2};
-statetype s_fatdemon_walk2 = {FATDEMON_WALK2PIC,13,T_FatDemon,&s_fatdemon_walk3};
-statetype s_fatdemon_walk3 = {FATDEMON_WALK3PIC,13,T_FatDemon,&s_fatdemon_walk4};
-statetype s_fatdemon_walk4 = {FATDEMON_WALK4PIC,13,T_FatDemon,&s_fatdemon_walk1};
+statetype s_aqua_sink1 = {EYESTALKRISE2PIC, 15, NULL, &s_aqua_sink2};
+statetype s_aqua_sink2 = {EYESTALKRISE1PIC, 20, NULL, &s_aqua_under1};
 
-statetype s_fatdemon_attack1 = {FATDEMON_ATTACK1PIC,20,NULL,&s_fatdemon_attack2};
-statetype s_fatdemon_attack2 = {FATDEMON_ATTACK2PIC,20,T_DoDamage,&s_fatdemon_pause};
+statetype s_aqua_walk1 = {EYESTALKWALK1PIC, 12, &T_AquaMan, &s_aqua_walk2};
+statetype s_aqua_walk2 = {EYESTALKWALK2PIC, 12, &T_AquaMan, &s_aqua_walk1};
 
-statetype s_fatdemon_ouch = {FATDEMON_OUCHPIC,14,NULL,&s_fatdemon_walk1};
+statetype s_aqua_attack1 = {EYESTALKATTACKPIC, 10, NULL, &s_aqua_attack2};
+statetype s_aqua_attack2 = {EYESTALKWALK1PIC, 10, &T_DoDamage, &s_aqua_walk1};
 
-statetype s_fatdemon_blowup1 = {FATDEMON_BLOWUP1PIC,25,NULL,&s_fatdemon_blowup2};
-statetype s_fatdemon_blowup2 = {FATDEMON_BLOWUP2PIC,25,NULL,&s_fatdemon_blowup3};
-statetype s_fatdemon_blowup3 = {FATDEMON_BLOWUP1PIC,15,NULL,&s_fatdemon_blowup4};
-statetype s_fatdemon_blowup4 = {FATDEMON_BLOWUP2PIC,15,NULL,&s_fatdemon_blowup5};
-statetype s_fatdemon_blowup5 = {FATDEMON_BLOWUP1PIC,6,NULL,&s_fatdemon_blowup6};
-statetype s_fatdemon_blowup6 = {FATDEMON_BLOWUP2PIC,6,T_CheckCnt,&s_fatdemon_blowup5};
-statetype s_fatdemon_blowup7 = {FATDEMON_BLOWUP3PIC,30,NULL,&s_fatdemon_explode};
+statetype s_aqua_die1 = {EYESTALKDEATH1PIC, 8, NULL, &s_aqua_die2};
+statetype s_aqua_die2 = {EYESTALKDEATH2PIC, 8, NULL, &s_aqua_die3};
+statetype s_aqua_die3 = {EYESTALKDEATH2PIC, -1, &T_AlternateStates, &s_aqua_die1};
+statetype s_aqua_die4 = {EYESTALKDEATH2PIC, 30, NULL, &s_aqua_die5};
+statetype s_aqua_die5 = {EYESTALKDEATH3PIC, 40, NULL, &s_aqua_die6};
+statetype s_aqua_die6 = {EYESTALKDEATH4PIC, 30, &ExplosionSnd, &s_aqua_die7};
+statetype s_aqua_die7 = {EYESTALKDEATH5PIC, 20, NULL, NULL};
 
+typedef enum {wt_UNDER, wt_WALK} AquaManTypes;
 
-statetype s_fatdemon_explode = {FATDEMON_EXPLODEPIC,40,ExplodeSound,&s_fatdemon_feet};
-statetype s_fatdemon_feet = {FATDEMON_FEETPIC,30,NULL,&s_fatdemon_feet};
-
-#define cnt		ob->temp1
-#define cloud_delay	ob->temp2
+#define AQ_TIMEREMAIN 	(ob->temp1)
+#define AQ_STAGE			(ob->temp2)
 
 /*
 ===============
 =
-= SpawnFatDemon
+= SpawnAquaMan
 =
 ===============
 */
-
-void SpawnFatDemon (int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_fatdemon_walk1,35*PIXRADIUS);
-	new->speed = 2500;
-	new->obclass = fatdemonobj;
-	new->flags |= of_shootable;
-	new->hitpoints = EasyHitPoints(10);
-	new->temp1 = 25;	//used to "shake" the fat dude??????
-}
-
-
-/*
-===============
-=
-= T_FatDemon
-=
-===============
-*/
-
-void T_FatDemon (objtype *ob)
-{
-	if (Chase(ob,true) || (random(1000)<RANDOM_ATTACK))
-	{
-		ob->state = &s_fatdemon_attack1;
-		ob->ticcount = ob->state->tictime;
-		return;
-	}
-}
-
-
-/*
-===============
-=
-= T_DecCnt
-=
-===============
-*/
-
-void T_CheckCnt (objtype *ob)
-{
-	ob->temp1--;
-	if (!ob->temp1)
-	{
-		ob->state = &s_fatdemon_blowup7;
-		ob->ticcount = ob->state->tictime;
-	}
-}
-
-/*
-===============
-=
-= ExplodeSound
-=
-===============
-*/
-void ExplodeSound(objtype *ob)
-{
-	if (ob->temp1 != 666)						// Has this think been called already?
-	{
-		SD_PlaySound(BODY_EXPLODESND);
-		ob->temp1 = 666;              		// Has now!
-	}
-}
-
-
-/*
-=============================================================================
-
-				WATER DRAGON
-
-=============================================================================
-*/
-
-extern statetype s_dragon_shot1;
-extern statetype s_dragon_shot2;
-
-
-void T_Dragon(objtype *ob);
-void T_DragonShoot(objtype *ob);
-
-
-statetype s_wet_bubbles1 = {DRAGON_BUBBLES1PIC,13,T_Dragon,&s_wet_bubbles2};
-statetype s_wet_bubbles2 = {DRAGON_BUBBLES2PIC,15,T_Dragon,&s_wet_bubbles1};
-statetype s_wet_bubbles3 = {0,35,T_Dragon,&s_wet_bubbles1};
-
-statetype s_wet_peek = {DRAGON_EYESPIC,45,NULL,&s_wet_bubbles1};
-
-statetype s_wet_rise1 = {DRAGON_BUBBLES2PIC,15,NULL,&s_wet_rise3};
-statetype s_wet_rise3 = {DRAGON_EYESPIC,20,NULL,&s_wet_rise4};
-statetype s_wet_rise4 = {DRAGON_RISE1PIC,20,NULL,&s_wet_rise5};
-statetype s_wet_rise5 = {DRAGON_RISE2PIC,20,NULL,&s_wet_walk1};
-
-statetype s_wet_sink1 = {DRAGON_RISE2PIC,20,NULL,&s_wet_sink2};
-statetype s_wet_sink2 = {DRAGON_RISE1PIC,20,NULL,&s_wet_sink3};
-statetype s_wet_sink3 = {DRAGON_EYESPIC,20,NULL,&s_wet_bubbles1};
-
-statetype s_wet_walk1 = {DRAGON_WALK1PIC,12,T_Dragon,&s_wet_walk2};
-statetype s_wet_walk2 = {DRAGON_WALK2PIC,12,T_Dragon,&s_wet_walk3};
-statetype s_wet_walk3 = {DRAGON_WALK3PIC,12,T_Dragon,&s_wet_walk4};
-statetype s_wet_walk4 = {DRAGON_WALK4PIC,12,T_Dragon,&s_wet_walk1};
-
-statetype s_wet_attack1 = {DRAGON_ATTACK1PIC,10,NULL,&s_wet_attack2};
-statetype s_wet_attack2 = {DRAGON_ATTACK2PIC,10,NULL,&s_wet_attack3};
-statetype s_wet_attack3 = {DRAGON_ATTACK2PIC,10,NULL,&s_wet_attack4};
-statetype s_wet_attack4 = {DRAGON_ATTACK3PIC,10,T_DragonShoot,&s_wet_walk1};
-
-statetype s_wet_ouch = {DRAGON_OUCHPIC,10,T_Dragon,&s_wet_walk1};
-
-statetype s_wet_die1 = {DRAGON_DEATH1PIC,27,NULL,&s_wet_die2};
-statetype s_wet_die2 = {DRAGON_DEATH2PIC,29,NULL,&s_wet_die3};
-statetype s_wet_die3 = {DRAGON_DEATH3PIC,44,NULL,&s_wet_die4};
-statetype s_wet_die4 = {DRAGON_BUBBLES2PIC,26,NULL,&s_wet_die5};
-statetype s_wet_die5 = {DRAGON_BUBBLES1PIC,23,NULL,NULL};
-
-statetype s_dragon_shot1 = {PSHOT1PIC,8,&T_ShootPlayer,&s_dragon_shot2};
-statetype s_dragon_shot2 = {PSHOT2PIC,8,&T_ShootPlayer,&s_dragon_shot1};
-
-
-typedef enum {wt_BUBBLES,wt_WALK,wt_CORNER1,wt_CORNER2,wt_CORNER3,wt_CORNER4} DragonTypes;
-
-
-#define WD_TIMEREMAIN 	(ob->temp1)
-#define WD_STAGE	(ob->temp2)
-#define WATER_DRAGON_LEAVE	0x04
-
-/*
-===============
-=
-= SpawnDragon
-=
-===============
-*/
-void SpawnDragon(int tilex, int tiley)
+void SpawnAquaMan(int tilex, int tiley)
 {
 	objtype *ob;
-	SpawnNewObj(tilex,tiley,&s_wet_bubbles1,PIXRADIUS*35);
-	ob=new;
+	SpawnNewObj(tilex,tiley,&s_aqua_under1,PIXRADIUS*32);
+	ob = new;
 
-	WD_STAGE = wt_BUBBLES;
-	WD_TIMEREMAIN = 80;
+	AQ_STAGE = wt_UNDER;
+	AQ_TIMEREMAIN = 60*4+random(60*3);
 
-	new->obclass = wetobj;
+	new->obclass = aquamanobj;
 	new->speed = 1000;
 	new->flags &= ~of_shootable;
-	new->hitpoints = EasyHitPoints(20);
+	new->hitpoints = EasyHitPoints(15);
+}
+
+void ExplosionSnd(objtype *ob)
+{
+	if (ob->temp1 != SOUNDPLAYED)
+	{
+		SD_PlaySound(BODY_EXPLODESND);
+		ob->temp1 = SOUNDPLAYED;
+
+	}
 }
 
 
 /*
 ===============
 =
-= T_Dragon
+= T_AquaMan
 =
 ===============
 */
 
-void T_Dragon(objtype *ob)
+void T_AquaMan(objtype *ob)
 {
-	switch (WD_STAGE)
+	switch (AQ_STAGE)
 	{
-		case wt_BUBBLES:
+		case wt_UNDER:
 			ob->flags &= ~of_shootable;
 			if (Chase(ob,true))
 			{
 				// RISE & GOTO WALK STAGE
 				//
 
-				WD_STAGE = wt_WALK;
-				WD_TIMEREMAIN = 60*8+random(60*5);
-				ob->state = &s_wet_rise1;
+				AQ_STAGE = wt_WALK;
+				AQ_TIMEREMAIN = 60*5+random(60*5);
+					ob->state = &s_aqua_rise1;
 				ob->speed = 2200;
 				ob->ticcount = ob->state->tictime;
 			}
@@ -708,14 +502,17 @@ void T_Dragon(objtype *ob)
 			{
 				// DEC COUNTER - And check for WALK
 				//
-				if ((WD_TIMEREMAIN-=realtics) < 0)
+				if ((AQ_TIMEREMAIN-=realtics) < 0)
 				{
 					// RISE & GOTO WALK STAGE
 					//
 
-					WD_STAGE = wt_WALK;
-					WD_TIMEREMAIN = 60*8+random(60*5);
-					ob->state = &s_wet_rise1;
+					if (CheckHandAttack(ob))
+						break;
+
+					AQ_STAGE = wt_WALK;
+					AQ_TIMEREMAIN = 60+random(60*2);
+						ob->state = &s_aqua_rise1;
 					ob->speed = 2200;
 					ob->ticcount = ob->state->tictime;
 				}
@@ -724,8 +521,10 @@ void T_Dragon(objtype *ob)
 				{
 					// RANDOM PEEK UP OUT OF WATER
 					//
-
-					ob->state=&s_wet_peek;
+						if (random(2) == 0)
+							ob->state = &s_aqua_left;
+						else
+							ob->state = &s_aqua_right;
 					ob->ticcount = ob->state->tictime;
 				}
 			}
@@ -734,35 +533,23 @@ void T_Dragon(objtype *ob)
 
 		case wt_WALK:
 			ob->flags |= of_shootable;
-
-			if (Chase(ob,true) || (CheckHandAttack(ob)))
-
+			if (Chase(ob,true) || (random(1000)<RANDOM_ATTACK))
 			{
-					ob->flags |= WATER_DRAGON_LEAVE;
-					WD_STAGE = random(wt_CORNER3) + 2;
-					WD_TIMEREMAIN = 60*2+(random(6)*60);
-					ob->state = &s_wet_bubbles1;
-					ob->ticcount = ob->state->tictime;
+					ob->state = &s_aqua_attack1;
+				ob->ticcount = ob->state->tictime;
 			}
-			else
-				if (AngleNearPlayer(ob) != -1)
-				{
-					ob->state = &s_wet_attack1;
-					ob->ticcount = ob->state->tictime;
-				}
-
 			else
 			{
 				// DEC COUNTER - And check for SINK
 				//
-				if ((WD_TIMEREMAIN-=realtics) < 0)
+				if ((AQ_TIMEREMAIN-=realtics) < 0)
 				{
 					// SINK & GOTO BUBBLE STAGE
 					//
 
-					WD_STAGE = wt_BUBBLES;
-					WD_TIMEREMAIN = 60*2+random(60*2);
-					ob->state = &s_wet_sink1;
+					AQ_STAGE = wt_UNDER;
+					AQ_TIMEREMAIN = 60*4+random(60*3);
+						ob->state = &s_aqua_sink1;
 					ob->speed = 1200;
 					ob->ticcount = ob->state->tictime;
 					ob->flags &= ~of_shootable;
@@ -770,38 +557,361 @@ void T_Dragon(objtype *ob)
 
 			}
 			break;
-		case wt_CORNER1:
-		case wt_CORNER2:
-		case wt_CORNER3:
-		case wt_CORNER4:
+	}
+}
+
+
+
+
+/*
+=============================================================================
+
+											WIZARD
+
+=============================================================================
+*/
+
+void T_Wizard(objtype *ob);
+void T_WizardShoot(objtype *ob);
+
+statetype s_wizard_walk1 = {WIZARDWALK1PIC, 20, &T_Wizard, &s_wizard_walk2};
+statetype s_wizard_walk2 = {WIZARDWALK2PIC, 20, &T_Wizard, &s_wizard_walk3};
+statetype s_wizard_walk3 = {WIZARDWALK3PIC, 20, &T_Wizard, &s_wizard_walk4};
+statetype s_wizard_walk4 = {WIZARDWALK4PIC, 20, &T_Wizard, &s_wizard_walk1};
+
+statetype s_wizard_attack1 = {WIZARDATTACK1PIC, 20, NULL, &s_wizard_attack2};
+statetype s_wizard_attack2 = {WIZARDATTACK2PIC, 20, &T_DoDamage, &s_wizard_walk1};
+
+statetype s_wizard_ouch = {WIZARDOUCHPIC, 15, NULL, &s_wizard_walk1};
+
+statetype s_wizard_die1 = {WIZARDDEATH1PIC, 45, &SmallSound, &s_wizard_die2};
+statetype s_wizard_die2 = {WIZARDDEATH2PIC, 30, NULL, &s_wizard_die3};
+statetype s_wizard_die3 = {WIZARDDEATH3PIC, 15, NULL, &s_wizard_die4};
+statetype s_wizard_die4 = {WIZARDDEATH4PIC, 15, NULL, &s_wizard_die4};
+
+statetype s_wizard_shoot1 = {WIZARDATTACK1PIC, 20, NULL, &s_wizard_shoot2};
+statetype s_wizard_shoot2 = {WIZARDATTACK1PIC, -1, &T_WizardShoot, &s_wizard_shoot3};
+statetype s_wizard_shoot3 = {WIZARDATTACK2PIC, 20, NULL, &s_wizard_walk1};
+
+statetype s_wizard_shot1 = {WIZARD_SHOT1PIC, 8, &T_ShootPlayer, &s_wizard_shot2};
+statetype s_wizard_shot2 = {WIZARD_SHOT2PIC, 8, &T_ShootPlayer, &s_wizard_shot1};
+
+
+/*
+===============
+=
+= SpawnWizard
+=
+===============
+*/
+
+void SpawnWizard (int tilex, int tiley)
+{
+	SpawnNewObj(tilex,tiley,&s_wizard_walk1,TILEGLOBAL/2);
+	new->obclass	= wizardobj;
+	new->speed		= 1536;
+	new->flags |= of_shootable;
+	new->hitpoints	= EasyHitPoints(10);
+}
+
+
+/*
+===============
+=
+= T_Wizard
+=
+===============
+*/
+
+void T_Wizard(objtype *ob)
+{
+	if (Chase (ob,true))// || (random(1000)<RANDOM_ATTACK))
+	{
+		ob->state = &s_wizard_attack1;
+		ob->ticcount = ob->state->tictime;
+		return;
+	}
+	else
+		if (AngleNearPlayer(ob) != -1)
+		{
+			ob->state = &s_wizard_shoot1;
+			ob->ticcount = ob->state->tictime;
+			return;
+		}
+}
+
+/*
+===============
+=
+= T_Wizard
+=
+===============
+*/
+void T_WizardShoot(objtype *ob)
+{
+	ShootPlayer(ob, wshotobj, 10000, &s_wizard_shot1);
+}
+
+
+
+/*
+=============================================================================
+
+											RAY
+
+=============================================================================
+*/
+
+void T_BlobRay(objtype *ob);
+void T_RayShoot (objtype *ob);
+
+statetype s_ray_under = {0, 20, &T_BlobRay, &s_ray_under};
+
+statetype s_ray_rise = {RAYRISEPIC, 30, NULL, &s_ray_fly1};
+
+statetype s_ray_sink = {RAYRISEPIC, 30, NULL, &s_ray_under};
+
+statetype s_ray_fly1 = {RAYFLY1PIC, 10, &T_BlobRay, &s_ray_fly2};
+statetype s_ray_fly2 = {RAYFLY2PIC, 10, &T_BlobRay, &s_ray_fly3};
+statetype s_ray_fly3 = {RAYFLY1PIC, 10, &T_BlobRay, &s_ray_fly4};
+statetype s_ray_fly4 = {RAYFLY3PIC, 10, &T_BlobRay, &s_ray_fly1};
+
+statetype s_ray_attack1 = {RAYSHOOT1PIC, 15, NULL, &s_ray_attack2};
+statetype s_ray_attack2 = {RAYSHOOT2PIC, -1, &T_RayShoot, &s_ray_attack3};
+statetype s_ray_attack3 = {RAYSHOOT2PIC, 20, NULL, &s_ray_fly1};
+
+statetype s_ray_die1 = {RAYDEATH1PIC, 50, &SmallSound, &s_ray_die2};
+statetype s_ray_die2 = {RAYDEATH2PIC, 30, NULL, NULL};
+
+statetype s_ray_shot1 = {RAYSHOT1PIC, 8, &T_ShootPlayer, &s_ray_shot2};
+statetype s_ray_shot2 = {RAYSHOT2PIC, 8, &T_ShootPlayer, &s_ray_shot1};
+
+
+typedef enum {br_GND, br_WALK, br_CORNER1, br_CORNER2, br_CORNER3, br_CORNER4} BlobTypes;
+
+#define BR_TIMEREMAIN	(ob->temp1)
+#define BR_STAGE			(ob->temp2)
+#define BLOB_LEAVE		0x04
+
+/*
+===============
+=
+= SpawnRay
+=
+===============
+*/
+void SpawnRay(int tilex, int tiley)
+{
+	objtype *ob;
+	SpawnNewObj(tilex, tiley, &s_ray_under, PIXRADIUS*25);
+	ob=new;
+
+	BR_STAGE = br_GND;
+	BR_TIMEREMAIN = random(60)+random(100);
+
+	new->obclass	= rayobj;
+	new->speed		= 1700;
+	new->flags	&= ~of_shootable;
+	new->hitpoints	= EasyHitPoints(15);
+}
+
+
+
+/*
+=============================================================================
+
+										BLOB
+
+=============================================================================
+*/
+
+
+statetype s_blob_gnd1 = {BLOBGND1PIC, 13, T_BlobRay, &s_blob_gnd2};
+statetype s_blob_gnd2 = {BLOBGND2PIC, 15, T_BlobRay, &s_blob_gnd1};
+
+statetype s_blob_rise1 = {BLOBRISE1PIC, 20, NULL, &s_blob_rise2};
+statetype s_blob_rise2 = {BLOBRISE2PIC, 20, NULL, &s_blob_walk1};
+
+statetype s_blob_sink1 = {BLOBRISE2PIC, 20, NULL, &s_blob_sink2};
+statetype s_blob_sink2 = {BLOBRISE1PIC, 20, NULL, &s_blob_gnd1};
+
+statetype s_blob_walk1 = {BLOBWALK1PIC, 15, T_BlobRay, &s_blob_walk2};
+statetype s_blob_walk2 = {BLOBWALK2PIC, 15, T_BlobRay, &s_blob_walk3};
+statetype s_blob_walk3 = {BLOBWALK3PIC, 15, T_BlobRay, &s_blob_walk1};
+
+statetype s_blob_ouch = {BLOBRISE2PIC, 10, T_BlobRay, &s_blob_walk1};
+
+statetype s_blob_die1 = {BLOBDEATH1PIC, 30, &ExplosionSnd, &s_blob_die2};
+statetype s_blob_die2 = {BLOBDEATH2PIC, 30, NULL, &s_blob_die3};
+statetype s_blob_die3 = {BLOBDEATH3PIC, 30, NULL, NULL};
+
+statetype s_blob_shot1 = {BLOB_SHOT1PIC, 8, &T_ShootPlayer, &s_blob_shot2};
+statetype s_blob_shot2 = {BLOB_SHOT2PIC, 8, &T_ShootPlayer, &s_blob_shot1};
+
+
+/*
+===============
+=
+= SpawnBlob
+=
+===============
+*/
+void SpawnBlob(int tilex, int tiley)
+{
+	objtype *ob;
+	SpawnNewObj(tilex, tiley, &s_blob_gnd1, PIXRADIUS*14);
+	ob=new;
+
+	BR_STAGE = br_GND;
+	BR_TIMEREMAIN = random(60)+random(100);
+
+	new->obclass	= blobobj;
+	new->speed		= 1200;
+	new->flags	&= ~of_shootable;
+	new->hitpoints	= EasyHitPoints(13);
+}
+
+
+/*
+===============
+=
+= T_BlobRay
+=
+===============
+*/
+
+void T_BlobRay(objtype *ob)
+{
+	switch (BR_STAGE)
+	{
+		case br_GND:
 			ob->flags &= ~of_shootable;
-			if ((WD_TIMEREMAIN -= realtics) < 0)
+			if (Chase(ob,true))
 			{
-				WD_STAGE = wt_BUBBLES;
-				ob->flags &= ~WATER_DRAGON_LEAVE;
+				// RISE & GOTO WALK STAGE
+				//
+
+				BR_STAGE			= br_WALK;
+				BR_TIMEREMAIN	= 60*8+random(60*5);
+				if (ob->obclass == blobobj)
+					ob->state	= &s_blob_rise1;
+				else
+					ob->state	= &s_ray_rise;
+				ob->speed		= 2200;
+				ob->ticcount	= ob->state->tictime;
+			}
+			else
+			{
+				// DEC COUNTER - And check for WALK
+				//
+				if ((BR_TIMEREMAIN -= realtics) < 0)
+				{
+					// RISE & GOTO WALK STAGE
+					//
+
+					BR_STAGE			= br_WALK;
+					BR_TIMEREMAIN	= 60*8+random(60*5);
+					if (ob->obclass == blobobj)
+						ob->state	= &s_blob_rise1;
+					else
+						ob->state	= &s_ray_rise;
+					ob->speed		= 2200;
+					ob->ticcount	= ob->state->tictime;
+				}
+			}
+			break;
+
+
+		case br_WALK:
+			ob->flags |= of_shootable;
+
+			if (Chase(ob,true) || (CheckHandAttack(ob)))
+
+			{
+					ob->flags		|= BLOB_LEAVE;
+					BR_STAGE			= random(br_CORNER3) + 2;
+					BR_TIMEREMAIN	= 60*2+(random(6)*60);
+					if (ob->obclass == blobobj)
+						ob->state	= &s_blob_gnd1;
+					else
+						ob->state	= &s_ray_under;
+					ob->ticcount	= ob->state->tictime;
+			}
+			else
+				if (AngleNearPlayer(ob) != -1)
+				{
+					if (ob->obclass == blobobj)
+					{
+						if (!(random(15)))
+								ShootPlayer(ob, bshotobj, 10000, &s_blob_shot1);
+					}
+					else
+						if (!(random(7)))
+						{
+							ob->state = &s_ray_attack1;
+							ob->ticcount = ob->state->tictime;
+						}
+				}
+
+			else
+			{
+				// DEC COUNTER - And check for SINK
+				//
+				if ((BR_TIMEREMAIN -= realtics) < 0)
+				{
+					// SINK & GOTO GROUND STAGE
+					//
+
+					BR_STAGE			= br_GND;
+					BR_TIMEREMAIN	= 60*2+random(60*2);
+					if (ob->obclass == blobobj)
+					{
+						ob->state		= &s_blob_sink1;
+						ob->speed		= 1200;
+					}
+					else
+					{
+						ob->state		= &s_ray_sink;
+						ob->speed		= 1700;
+					}
+					ob->ticcount	= ob->state->tictime;
+					ob->flags		&= ~of_shootable;
+				}
+
+			}
+			break;
+		case br_CORNER1:
+		case br_CORNER2:
+		case br_CORNER3:
+		case br_CORNER4:
+			ob->flags &= ~of_shootable;
+			if ((BR_TIMEREMAIN -= realtics) < 0)
+			{
+				BR_STAGE = br_GND;
+				ob->flags &= ~BLOB_LEAVE;
 			}
 			else
 			{
 				fixed tempx,tempy;
 				unsigned temp_tilex,temp_tiley;
 
-				tempx = player->x;
-				tempy = player->y;
-				temp_tilex = player->tilex;
-				temp_tiley = player->tiley;
+				tempx			= player->x;
+				tempy			= player->y;
+				temp_tilex	= player->tilex;
+				temp_tiley	= player->tiley;
 
-				player->x = ((long)other_x[WD_STAGE-2]<<TILESHIFT)+TILEGLOBAL/2;
-				player->y = ((long)other_y[WD_STAGE-2]<<TILESHIFT)+TILEGLOBAL/2;
-				player->tilex = other_x[WD_STAGE-2];
-				player->tiley = other_y[WD_STAGE-2];
+				player->x = ((long)other_x[BR_STAGE-2]<<TILESHIFT)+TILEGLOBAL/2;
+				player->y = ((long)other_y[BR_STAGE-2]<<TILESHIFT)+TILEGLOBAL/2;
+				player->tilex = other_x[BR_STAGE-2];
+				player->tiley = other_y[BR_STAGE-2];
 
 
 				Chase(ob,true);
 
-				player->x = tempx;
-				player->y = tempy;
-				player->tilex = temp_tilex;
-				player->tiley = temp_tiley;
+				player->x		= tempx;
+				player->y		= tempy;
+				player->tilex	= temp_tilex;
+				player->tiley	= temp_tiley;
 			}
 			break;
 	}
@@ -810,11 +920,11 @@ void T_Dragon(objtype *ob)
 /*
 ===============
 =
-= T_DragonShoot
+= T_RayShoot
 =
 ===============
 */
-void T_DragonShoot (objtype *ob)
+void T_RayShoot (objtype *ob)
 {
-	ShootPlayer(ob,dshotobj,10000,&s_dragon_shot1);
+	ShootPlayer(ob, rshotobj, 10000, &s_ray_shot1);
 }

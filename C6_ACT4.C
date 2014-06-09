@@ -1,4 +1,4 @@
-/* Catacomb Armageddon Source Code
+/* Catacomb Apocalypse Source Code
  * Copyright (C) 1993-2014 Flat Rock Software
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 #include "DEF.H"
 #pragma hdrstop
 
+
 /*
 =============================================================================
 
@@ -28,102 +29,6 @@
 
 =============================================================================
 */
-
-
-
-//-------------------------------------------------------------------------
-//
-//				ARCH OBJECTS
-//
-//-------------------------------------------------------------------------
-
-
-
-//-------------------------------------------------------------------------
-//				ARCH
-//-------------------------------------------------------------------------
-
-void SpawnArch(int tilex, int tiley, int num);
-
-extern statetype s_arch_1;
-extern statetype s_arch_2;
-extern statetype s_arch_3;
-extern statetype s_arch_4;
-extern statetype s_arch_5;
-extern statetype s_arch_6;
-extern statetype s_arch_7;
-extern statetype s_arch_8;
-extern statetype s_arch_9;
-extern statetype s_arch_10;
-extern statetype s_arch_11;
-extern statetype s_arch_12;
-extern statetype s_arch_13;
-
-statetype s_arch_1 = {ARCH1PIC, 20, NULL, &s_arch_1};
-statetype s_arch_2 = {ARCH2PIC, 20, NULL, &s_arch_2};
-statetype s_arch_3 = {ARCH3PIC, 20, NULL, &s_arch_3};
-statetype s_arch_4 = {ARCH4PIC, 20, NULL, &s_arch_4};
-statetype s_arch_5 = {ARCH5PIC, 20, NULL, &s_arch_5};
-statetype s_arch_6 = {ARCH6PIC, 20, NULL, &s_arch_6};
-statetype s_arch_7 = {ARCH7PIC, 20, NULL, &s_arch_7};
-statetype s_arch_8 = {ARCH8PIC, 20, NULL, &s_arch_8};
-statetype s_arch_9 = {ARCH9PIC, 20, NULL, &s_arch_9};
-statetype s_arch_10 = {ARCH10PIC, 20, NULL, &s_arch_10};
-statetype s_arch_11 = {ARCH11PIC, 20, NULL, &s_arch_11};
-statetype s_arch_12 = {ARCH12PIC, 20, NULL, &s_arch_12};
-statetype s_arch_13 = {ARCH13PIC, 20, NULL, &s_arch_13};
-
-void SpawnArch (int tilex, int tiley, int num)
-{
-	statetype	*objstate;
-
-
-	switch (num)
-	{
-		case 1:
-			objstate = &s_arch_1;
-		break;
-		case 2:
-			objstate = &s_arch_2;
-		break;
-		case 3:
-			objstate = &s_arch_3;
-		break;
-		case 4:
-			objstate = &s_arch_4;
-		break;
-		case 5:
-			objstate = &s_arch_5;
-		break;
-		case 6:
-			objstate = &s_arch_6;
-		break;
-		case 7:
-			objstate = &s_arch_7;
-		break;
-		case 8:
-			objstate = &s_arch_8;
-		break;
-		case 9:
-			objstate = &s_arch_9;
-		break;
-		case 10:
-			objstate = &s_arch_10;
-		break;
-		case 11:
-			objstate = &s_arch_11;
-		break;
-		case 12:
-			objstate = &s_arch_12;
-		break;
-		case 13:
-			objstate = &s_arch_13;
-		break;
-	}
-	ASpawnNewObj(tilex,tiley,objstate,PIXRADIUS*35);
-	new->obclass = solidobj;
-	new->flags &= ~of_shootable;
-}
 
 
 //-------------------------------------------------------------------------
@@ -140,23 +45,16 @@ void SpawnArch (int tilex, int tiley, int num)
 
 void SpawnMiscObjects(int tilex, int tiley, int num);
 
-extern statetype s_column;
-extern statetype s_sulphur_gas_1;
-extern statetype s_sulphur_gas_2;
-extern statetype s_sulphur_gas_3;
-extern statetype s_fire_pot_1;
-extern statetype s_fire_pot_2;
-extern statetype s_fountain;
-
-statetype s_column = {COLUMNPIC, 20, NULL, &s_column};
-statetype s_sulphur_gas_1 = {SULPHUR_GAS_1PIC, 20, NULL, &s_sulphur_gas_2};
-statetype s_sulphur_gas_2 = {SULPHUR_GAS_2PIC, 20, NULL, &s_sulphur_gas_3};
-statetype s_sulphur_gas_3 = {SULPHUR_GAS_3PIC, 20, NULL, &s_sulphur_gas_1};
-statetype s_fire_pot_1 = {FIRE_POT_1PIC, 20, NULL, &s_fire_pot_2};
-statetype s_fire_pot_2 = {FIRE_POT_2PIC, 20, NULL, &s_fire_pot_1};
-statetype s_fountain = {WFOUNTAINPIC, 20, NULL, &s_fountain};
-
-
+statetype s_column1 = {COLUMN1PIC, 20, NULL, &s_column1};
+statetype s_column2 = {COLUMN2PIC, 20, NULL, &s_column2};
+statetype s_column3 = {COLUMN3PIC, 20, NULL, &s_column3};
+statetype s_column4 = {COLUMN4PIC, 20, NULL, &s_column4};
+statetype s_column5 = {COLUMN5PIC, 20, NULL, &s_column5};
+statetype s_ffire_pot = {FFIRE_POTPIC, 20, NULL, &s_ffire_pot};
+statetype s_ofire_pot1 = {OFIRE_POT1PIC, 20, NULL, &s_ofire_pot2};
+statetype s_ofire_pot2 = {OFIRE_POT2PIC, 20, NULL, &s_ofire_pot1};
+statetype s_tomb1 = {TOMB1PIC, 20, NULL, &s_tomb1};
+statetype s_tomb2 = {TOMB2PIC, 20, NULL, &s_tomb2};
 void SpawnMiscObjects(int tilex, int tiley, int num)
 {
 	statetype	*objstate;
@@ -164,108 +62,47 @@ void SpawnMiscObjects(int tilex, int tiley, int num)
 	switch (num)
 	{
 		case 1:
-			objstate = &s_column;
+			objstate = &s_column1;
 		break;
 
 		case 2:
-			objstate = &s_sulphur_gas_1;
+			objstate = &s_column2;
 		break;
 
 		case 3:
-			objstate = &s_fire_pot_1;
+			objstate = &s_column3;
 		break;
 
 		case 4:
-			objstate = &s_fountain;
+			objstate = &s_ffire_pot;
+		break;
+
+		case 5:
+			objstate = &s_column4;
+		break;
+
+		case 6:
+			objstate = &s_ofire_pot1;
+		break;
+
+		case 7:
+			objstate = &s_tomb1;
+		break;
+
+		case 8:
+			objstate = &s_tomb2;
+		break;
+
+		case 9:
+			objstate = &s_column5;
 		break;
 	}
 
-	SpawnNewObj(tilex,tiley,objstate,PIXRADIUS*35);
-	new->obclass = realsolidobj;
-	if (num == 2)
-		new->flags &= ~of_shootable;
-	else
-		new->flags |= of_shootable;
-}
-
-
-
-
-
-
-#if 0
-void SpawnColumn(int tilex, int tiley);
-
-extern statetype s_column;
-statetype s_column = {COLUMNPIC, 20, NULL, &s_column};
-
-void SpawnColumn(int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_column,PIXRADIUS*35);
+	SpawnNewObj(tilex, tiley, objstate, PIXRADIUS*10);
 	new->obclass = realsolidobj;
 	new->flags |= of_shootable;
 }
 
-
-//-------------------------------------------------------------------------
-//				SULPHUR GAS
-//-------------------------------------------------------------------------
-
-void SpawnSulphurGas(int tilex, int tiley);
-
-extern statetype s_sulphur_gas_1;
-extern statetype s_sulphur_gas_2;
-extern statetype s_sulphur_gas_3;
-
-statetype s_sulphur_gas_1 = {SULPHUR_GAS_1PIC, 20, NULL, &s_sulphur_gas_2};
-statetype s_sulphur_gas_2 = {SULPHUR_GAS_2PIC, 20, NULL, &s_sulphur_gas_3};
-statetype s_sulphur_gas_3 = {SULPHUR_GAS_3PIC, 20, NULL, &s_sulphur_gas_1};
-
-void SpawnSulphurGas(int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_sulphur_gas_1,PIXRADIUS*35);
-	new->obclass = realsolidobj;
-	new->flags &= ~of_shootable;
-}
-
-
-//-------------------------------------------------------------------------
-//				FIRE POT
-//-------------------------------------------------------------------------
-
-void SpawnFirePot(int tilex, int tiley);
-
-extern statetype s_fire_pot_1;
-extern statetype s_fire_pot_2;
-
-statetype s_fire_pot_1 = {FIRE_POT_1PIC, 20, NULL, &s_fire_pot_2};
-statetype s_fire_pot_2 = {FIRE_POT_2PIC, 20, NULL, &s_fire_pot_1};
-
-void SpawnFirePot(int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_fire_pot_1,PIXRADIUS*35);
-	new->obclass = realsolidobj;
-	new->flags |= of_shootable;
-
-}
-
-//------------------------------------------------------------------------
-//				FOUNTAIN
-//------------------------------------------------------------------------
-
-void SpawnFountain(int tilex, int tiley);
-
-extern statetype s_fountain;
-statetype s_fountain = {WFOUNTAINPIC, 20, NULL, &s_fountain};
-
-void SpawnFountain(int tilex, int tiley)
-{
-	SpawnNewObj(tilex,tiley,&s_fountain,PIXRADIUS*35);
-	new->obclass = realsolidobj;
-	new->flags |= of_shootable;
-}
-
-#endif
 
 
 //------------------------------------------------------------------------
@@ -275,12 +112,6 @@ void SpawnFountain(int tilex, int tiley)
 void SpawnForceField(int tilex, int tiley);
 void T_ForceField(objtype *ob);
 void T_ForceFieldRemove(objtype *ob);
-
-extern statetype s_force_field_1;
-extern statetype s_force_field_2;
-extern statetype s_force_field_3;
-extern statetype s_force_field_4;
-extern statetype s_force_field_die1;
 
 statetype s_force_field_1 = {FORCE_FIELD_1PIC, 10, T_ForceField, &s_force_field_2};
 statetype s_force_field_2 = {FORCE_FIELD_2PIC, 10, T_ForceField, &s_force_field_3};
@@ -295,8 +126,9 @@ void SpawnForceField(int tilex, int tiley)
 	SpawnNewObj(tilex,tiley,&s_force_field_1,PIXRADIUS*35);
 	new->obclass = solidobj;
 	new->hitpoints = EasyHitPoints(20);
+	new->temp1 = 0;
 	new->flags |= of_forcefield;		//sets bit 7 :: makes it nonsolid, but also detectable
-												//		without adding another object type!
+						//		without adding another object type!
 	new->flags |= of_shootable;
 }
 
@@ -311,8 +143,15 @@ void T_ForceField(objtype *ob)
 
 	if (deltax <= size && deltax >= -size
 	&& deltay <= size && deltay >= -size)
-		TakeDamage (20);
-
+		if (!new->temp1)
+		{
+			TakeDamage (94);
+			new->temp1 = 1;
+			return;
+		}
+		else
+			return;
+	new->temp1 = 0;
 }
 
 void T_ForceFieldRemove(objtype *ob)
@@ -321,43 +160,50 @@ void T_ForceFieldRemove(objtype *ob)
 }
 
 
-//------------------------------------------------------------------------
-//			SKELETON HANGING FROM CEILING
-//------------------------------------------------------------------------
 
-void SpawnSkeletonHanging(int tilex, int tiley);
-void T_SkelHangThink(objtype *ob);
 
-extern statetype s_skeleton_hanging;
-statetype s_skeleton_hanging = {SKEL_HANGPIC, 20, T_SkelHangThink, &s_skeleton_hanging};
+//-------------------------------------------------------------------------
+//
+//								INVISIBLE WALL CONTROLLER
+//
+//-------------------------------------------------------------------------
 
-void SpawnSkeletonHanging(int tilex, int tiley)
+void SpawnInvisWallCntroller(int x, int y);
+void T_InvisWall(objtype *ob);
+
+extern statetype s_invis_wall_control;
+
+statetype s_invis_wall_control = {0, 10, T_InvisWall, &s_invis_wall_control};
+
+void SpawnInvisWallCntroller(int tilex, int tiley)
 {
-	unsigned tile;
-
-	SpawnNewObj(tilex,tiley,&s_skeleton_hanging,PIXRADIUS*35);
+	SpawnNewObj(tilex,tiley,&s_invis_wall_control,PIXRADIUS*35);
 	new->obclass = solidobj;
-
-	tile = *(mapsegs[2]+farmapylookup[tiley+1]+tilex);
-	if (tile)
-		new->temp1 = (tile>>8)*30;
-	else
-		new->temp1 = (3*60)+random(4*60);
-
-	new->flags |= of_shootable;
+	new->flags &= ~of_shootable;
+	new->temp1 = tilemap[tilex][tiley];		// Number for the wall tile here
+														// Used for replacing the wall tile
 }
 
-void T_SkelHangThink(objtype *ob)
+void T_InvisWall(objtype *ob)
 {
-	ob->temp1 -= realtics;
-	if (ob->temp1 <= 0)
+	long move,deltax,deltay,size;
+
+	size = (long)ob->size + player->size;
+
+	deltax = ob->x - player->x;
+	deltay = ob->y - player->y;
+
+	if ((deltax <= size && deltax >= -size
+		&& deltay <= size && deltay >= -size) ||
+		(ob->tilex == player->tilex) && (ob->tiley == player->tiley))
 	{
-		ob->state = &s_skel_1;
-		ob->ticcount = ob->state->tictime;
-		ob->obclass = skeletonobj;
-		ob->speed = 2036;
-		ob->flags |= of_shootable;
-		ob->hitpoints = EasyHitPoints(12);
+	  // Get rid of the wall tile if you are on it
+		tilemap[ob->tilex][ob->tiley] = 0;
+	}
+	else
+	{
+	  // Replace wall tile
+		tilemap[ob->tilex][ob->tiley] = ob->temp1;
 	}
 }
 
